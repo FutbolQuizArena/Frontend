@@ -1,6 +1,7 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
 
 const urlRegistro = 'https://api.futbolquiz.test/api/auth/registro'
+const urlLogin = 'https://api.futbolquiz.test/api/auth/login'
 
 prueba.beforeEach(async ({ context: contexto }) => {
   // Ninguna prueba puede escribir en el backend real.
@@ -108,6 +109,10 @@ prueba('maneja una respuesta no JSON sin dejar el registro bloqueado', async ({ 
 })
 
 prueba('el login valida correo y contraseña antes de iniciar sesión', async ({ page: pagina }) => {
+  const solicitudes = []
+  pagina.on('request', (solicitud) => {
+    if (solicitud.url() === urlLogin) solicitudes.push(solicitud)
+  })
   await pagina.goto('/login')
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
   await esperar(pagina.getByText('Ingresá tu correo electrónico.')).toBeVisible()
@@ -115,30 +120,87 @@ prueba('el login valida correo y contraseña antes de iniciar sesión', async ({
   await pagina.getByLabel('Correo electrónico').fill('no-es-un-correo')
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
   await esperar(pagina.getByText('Ingresá un correo electrónico válido.')).toBeVisible()
+  esperar(solicitudes).toHaveLength(0)
 })
 
-prueba('el login muestra el message del 401 simulado y admite la cuenta de prueba', async ({ page: pagina }) => {
+prueba('el login muestra el message del 401 del backend y permite reintentar', async ({ page: pagina }) => {
   const solicitudesAuth = []
-  pagina.on('request', (solicitud) => {
-    if (solicitud.url().includes('/api/auth/')) solicitudesAuth.push(solicitud)
+  const mensajeServidor = 'No se pudo verificar el correo o la contraseña de este jugador.'
+  await pagina.route(urlLogin, (ruta) => {
+    solicitudesAuth.push(ruta.request())
+    return ruta.fulfill(solicitudesAuth.length === 1
+      ? { status: 401, json: { code: 'CREDENCIALES_INVALIDAS', message: mensajeServidor, detail: null } }
+      : { status: 200, json: { access_token: 'token-de-prueba', token_type: 'bearer' } })
   })
   await pagina.goto('/login')
   await pagina.getByLabel('Correo electrónico').fill('jugador@futbolquiz.com')
   await pagina.getByLabel('Contraseña', { exact: true }).fill('incorrecta')
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
-  await esperar(pagina.getByRole('alert')).toHaveText('El correo electrónico o la contraseña son incorrectos.')
+  await esperar(pagina.getByRole('alert')).toHaveText(mensajeServidor)
   await pagina.getByLabel('Contraseña', { exact: true }).fill('FutbolQuiz123')
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
-  await esperar(pagina.getByRole('button', { name: 'Ingresando…' })).toBeDisabled()
-  await esperar(pagina.getByRole('status')).toHaveText('Inicio de sesión de prueba completado.')
+  await esperar(pagina.getByRole('status')).toHaveText('Credenciales verificadas correctamente.')
+  await esperar(pagina.getByRole('alert')).toHaveCount(0)
+  await esperar(pagina.getByLabel('Contraseña', { exact: true })).toHaveValue('')
   await esperar(pagina).toHaveURL(/\/login$/)
-  esperar(solicitudesAuth).toHaveLength(0)
+  esperar(solicitudesAuth).toHaveLength(2)
   esperar(await pagina.evaluate(() => ({ local: localStorage.length, sesion: sessionStorage.length }))).toEqual({ local: 0, sesion: 0 })
 })
 
-prueba('el servicio conserva los contratos de registro y login simulado', async ({ page: pagina }) => {
+prueba('el login envía el contrato exacto y evita solicitudes duplicadas', async ({ page: pagina }) => {
+  const solicitudes = []
+  let liberarSolicitud
+  const respuestaPendiente = new Promise((resolver) => { liberarSolicitud = resolver })
+  await pagina.route(urlLogin, async (ruta) => {
+    solicitudes.push(ruta.request())
+    await respuestaPendiente
+    await ruta.fulfill({ status: 200, json: { access_token: 'token-de-prueba', token_type: 'bearer' } })
+  })
+  await pagina.goto('/login')
+  await pagina.getByLabel('Correo electrónico').fill('martina@ejemplo.com')
+  await pagina.getByLabel('Contraseña', { exact: true }).fill('Clave123')
+  await pagina.getByRole('button', { name: 'Ingresar' }).click()
+  await esperar(pagina.getByRole('button', { name: 'Ingresando…' })).toBeDisabled()
+  await esperar(pagina.getByLabel('Correo electrónico')).toBeDisabled()
+  await pagina.getByRole('form').dispatchEvent('submit')
+  await esperar.poll(() => solicitudes.length).toBe(1)
+  esperar(solicitudes[0].method()).toBe('POST')
+  esperar(solicitudes[0].headers()['content-type']).toBe('application/json')
+  esperar(solicitudes[0].postDataJSON()).toEqual({ email: 'martina@ejemplo.com', password: 'Clave123' })
+  liberarSolicitud()
+  await esperar(pagina.getByRole('status')).toHaveText('Credenciales verificadas correctamente.')
+  await esperar(pagina.getByRole('button', { name: 'Ingresar' })).toBeEnabled()
+  esperar(solicitudes).toHaveLength(1)
+})
+
+prueba('el login permite reintentar tras un fallo de red y una respuesta no JSON', async ({ page: pagina }) => {
+  let intentos = 0
+  await pagina.route(urlLogin, (ruta) => {
+    intentos += 1
+    if (intentos === 1) return ruta.abort('failed')
+    if (intentos === 2) return ruta.fulfill({ status: 502, contentType: 'text/html', body: '<h1>Bad Gateway</h1>' })
+    return ruta.fulfill({ status: 200, json: { access_token: 'token-de-prueba', token_type: 'bearer' } })
+  })
+  await pagina.goto('/login')
+  await pagina.getByLabel('Correo electrónico').fill('martina@ejemplo.com')
+  await pagina.getByLabel('Contraseña', { exact: true }).fill('Clave123')
+  await pagina.getByRole('button', { name: 'Ingresar' }).click()
+  await esperar(pagina.getByRole('alert')).toContainText('No pudimos conectar con el servidor.')
+  await pagina.getByRole('button', { name: 'Ingresar' }).click()
+  await esperar(pagina.getByRole('alert')).toContainText('El servidor devolvió una respuesta inesperada.')
+  await pagina.getByRole('button', { name: 'Ingresar' }).click()
+  await esperar(pagina.getByRole('status')).toHaveText('Credenciales verificadas correctamente.')
+  esperar(intentos).toBe(3)
+})
+
+prueba('el servicio conserva los contratos de registro y login', async ({ page: pagina }) => {
   const errorRegistro = { code: 'EMAIL_YA_REGISTRADO', message: 'El email ya está registrado.', detail: 'Detalle del servidor.' }
+  const respuestaLogin = { access_token: 'token-devuelto-por-el-servidor', token_type: 'bearer' }
+  const errorLogin = { code: 'CREDENCIALES_INVALIDAS', message: 'Credenciales inválidas', detail: 'Detalle del servidor.' }
   await pagina.route(urlRegistro, (ruta) => ruta.fulfill({ status: 409, json: errorRegistro }))
+  await pagina.route(urlLogin, (ruta) => ruta.fulfill(ruta.request().postDataJSON().email === 'jugador@futbolquiz.com'
+    ? { status: 200, json: respuestaLogin }
+    : { status: 401, json: errorLogin }))
   await pagina.goto('/login')
   const resultado = await pagina.evaluate(async () => {
     const { registrar, iniciarSesion } = await import('/src/servicios/servicioAuth.js')
@@ -149,8 +211,8 @@ prueba('el servicio conserva los contratos de registro y login simulado', async 
       errorRegistro: await capturarError(registrar('Martina', 'martina@ejemplo.com', 'Clave123')),
     }
   })
-  esperar(resultado.exito).toEqual({ access_token: esperar.any(String), token_type: 'bearer' })
-  esperar(resultado.errorInicioSesion).toEqual({ code: 'CREDENCIALES_INVALIDAS', message: 'El correo electrónico o la contraseña son incorrectos.', detail: null })
+  esperar(resultado.exito).toEqual(respuestaLogin)
+  esperar(resultado.errorInicioSesion).toEqual(errorLogin)
   esperar(resultado.errorRegistro).toEqual(errorRegistro)
 })
 

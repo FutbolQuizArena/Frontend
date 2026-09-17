@@ -40,7 +40,7 @@ export default function PaginaLogin() {
 
     try {
       await iniciarSesion(datos.correo.trim(), datos.contrasena)
-      establecerMensajeExito('Inicio de sesión de prueba completado.')
+      establecerMensajeExito('Credenciales verificadas correctamente.')
       establecerDatos((anteriores) => ({ ...anteriores, contrasena: '' }))
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos iniciar sesión. Intentá de nuevo.')
@@ -62,7 +62,7 @@ export default function PaginaLogin() {
             alCambiar={manejarCambio} error={errores.contrasena} autocompletar="current-password" ejemplo="••••••••" simbolo="•" />
         </fieldset>
 
-        <label className="recordar-sesion" title="Disponible cuando se habilite el inicio de sesión real.">
+        <label className="recordar-sesion" title="Disponible cuando se implemente la persistencia de sesión.">
           <input type="checkbox" disabled /> Mantener sesión iniciada
         </label>
 

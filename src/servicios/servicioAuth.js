@@ -1,4 +1,4 @@
-export async function registrar(nombre, correo, contrasena) {
+async function enviarSolicitudAutenticacion(ruta, datos, mensajeError) {
   const urlApi = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
 
   if (!urlApi) {
@@ -8,10 +8,10 @@ export async function registrar(nombre, correo, contrasena) {
   let respuesta
 
   try {
-    respuesta = await fetch(`${urlApi}/api/auth/registro`, {
+    respuesta = await fetch(`${urlApi}${ruta}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, email: correo, password: contrasena }),
+      body: JSON.stringify(datos),
       signal: AbortSignal.timeout(60000),
     })
   } catch (error) {
@@ -31,35 +31,29 @@ export async function registrar(nombre, correo, contrasena) {
   }
 
   if (!respuesta.ok) {
-    // Conservamos code, message y detail del contrato, incluido el error 409.
+    // Conservamos code, message y detail del contrato, incluidos los errores 409 y 401.
     if (typeof datosRespuesta?.message === 'string' && datosRespuesta.message) {
       throw datosRespuesta
     }
 
-    throw new Error('No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.')
+    throw new Error(mensajeError)
   }
 
   return datosRespuesta
 }
 
-// TODO: reemplazar cuando el backend tenga login listo
-// Cuenta de prueba: jugador@futbolquiz.com / FutbolQuiz123. No genera una sesión real.
-export function iniciarSesion(correo, contrasena) {
-  return new Promise((resolver, rechazar) => {
-    setTimeout(() => {
-      if (correo === 'jugador@futbolquiz.com' && contrasena === 'FutbolQuiz123') {
-        resolver({
-          access_token: 'token-simulado-futbolquiz-arena',
-          token_type: 'bearer',
-        })
-        return
-      }
+export function registrar(nombre, correo, contrasena) {
+  return enviarSolicitudAutenticacion(
+    '/api/auth/registro',
+    { nombre, email: correo, password: contrasena },
+    'No pudimos crear tu cuenta. Intentá de nuevo en unos minutos.',
+  )
+}
 
-      rechazar({
-        code: 'CREDENCIALES_INVALIDAS',
-        message: 'El correo electrónico o la contraseña son incorrectos.',
-        detail: null,
-      })
-    }, 450)
-  })
+export function iniciarSesion(correo, contrasena) {
+  return enviarSolicitudAutenticacion(
+    '/api/auth/login',
+    { email: correo, password: contrasena },
+    'No pudimos iniciar sesión. Intentá de nuevo en unos minutos.',
+  )
 }
