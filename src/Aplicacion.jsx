@@ -1,0 +1,20 @@
+import { Link as Enlace, Route as Ruta, Routes as Rutas } from 'react-router-dom'
+import PaginaLogin from './paginas/PaginaLogin.jsx'
+import PaginaRegistro from './paginas/PaginaRegistro.jsx'
+
+export default function Aplicacion() {
+  return (
+    <Rutas>
+      <Ruta path="/" element={<PaginaLogin />} />
+      <Ruta path="/login" element={<PaginaLogin />} />
+      <Ruta path="/registro" element={<PaginaRegistro />} />
+      <Ruta path="*" element={
+        <main className="pagina-no-encontrada">
+          <p className="sobretitulo">FUTBOLQUIZ ARENA</p>
+          <h1>No encontramos esta página</h1>
+          <Enlace to="/login">Volver al inicio de sesión</Enlace>
+        </main>
+      } />
+    </Rutas>
+  )
+}
