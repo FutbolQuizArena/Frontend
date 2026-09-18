@@ -1,6 +1,8 @@
 import { Link as Enlace, Route as Ruta, Routes as Rutas } from 'react-router-dom'
 import PaginaLogin from './paginas/PaginaLogin.jsx'
 import PaginaRegistro from './paginas/PaginaRegistro.jsx'
+import PaginaHome from './paginas/PaginaHome.jsx'
+import PaginaPendiente from './paginas/PaginaPendiente.jsx'
 
 export default function Aplicacion() {
   return (
@@ -8,6 +10,13 @@ export default function Aplicacion() {
       <Ruta path="/" element={<PaginaLogin />} />
       <Ruta path="/login" element={<PaginaLogin />} />
       <Ruta path="/registro" element={<PaginaRegistro />} />
+      <Ruta path="/home" element={<PaginaHome />} />
+      <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" />} />
+      <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" />} />
+      <Ruta path="/torneos" element={<PaginaPendiente titulo="Torneos" />} />
+      <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking" />} />
+      <Ruta path="/perfil" element={<PaginaPendiente titulo="Perfil" />} />
+      <Ruta path="/admin" element={<PaginaPendiente titulo="Administración" />} />
       <Ruta path="*" element={
         <main className="pagina-no-encontrada">
           <p className="sobretitulo">FUTBOLQUIZ ARENA</p>

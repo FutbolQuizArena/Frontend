@@ -1,0 +1,110 @@
+.inicio { min-height: 100svh; padding-left: 240px; }
+.inicio__solo-movil { display: none; }
+.inicio__lateral { position: fixed; inset: 0 auto 0 0; width: 240px; background: #07100c; display: flex; flex-direction: column; padding: 28px 16px 80px; }
+.inicio__marca { margin-left: 8px; color: var(--color-texto); text-decoration: none; }
+.inicio__navegacion { display: grid; gap: 12px; margin-top: 80px; }
+.inicio__enlace { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; text-decoration: none; color: var(--color-secundario); font-size: 14px; font-weight: 600; min-height: 48px; }
+.inicio__enlace > span { font-size: 18px; }
+.inicio__enlace:hover, .inicio__enlace--activo { background: var(--color-elevado); color: var(--color-texto); }
+.inicio__enlace--activo > span { color: var(--color-principal); }
+.inicio__acumulado { margin: auto 8px 0; padding-top: 40px; font-size: 14px; color: var(--color-secundario); }
+.inicio__acumulado p { font-size: 11px; color: var(--color-tenue); margin: 0 0 18px; }
+.inicio__cabecera { height: 80px; padding: 0 56px 0 48px; display: flex; align-items: center; justify-content: flex-end; border-bottom: 1px solid var(--color-borde); }
+.inicio__avatar { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--color-principal); color: #07100c; text-decoration: none; font-size: 12px; font-weight: 700; }
+.inicio__avatar:hover { color: #07100c; background: #5dd784; }
+.inicio__escudo, .inicio__saludo-movil { display: none; }
+.inicio__contenido { max-width: 1440px; margin: 0 auto; padding: 30px 56px 80px 48px; display: grid; grid-template-columns: minmax(0, 1fr) 312px; grid-template-areas: 'bienvenida bienvenida' 'rendimiento ranking' 'desafio ranking' 'torneo torneo' 'otros otros'; gap: 40px 32px; }
+.inicio__bienvenida { grid-area: bienvenida; margin-bottom: 2px; }
+.inicio__bienvenida h1 { font-size: 34px; line-height: 1.3; margin: 0; }
+.inicio__bienvenida > p:last-child { color: var(--color-secundario); margin: 8px 0 0; font-size: 16px; }
+.inicio__rendimiento { grid-area: rendimiento; }
+.inicio__metricas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0; }
+.inicio__metricas > div { min-height: 136px; padding: 20px; background: var(--color-elevado); border: 1px solid var(--color-borde); border-radius: 16px; }
+.inicio__metricas dt { font-size: 12px; font-weight: 600; color: var(--color-secundario); }
+.inicio__metricas dd { margin: 8px 0 0; font-size: 28px; font-weight: 700; color: var(--color-principal); }
+.inicio__metricas > div:nth-child(2) dd { color: var(--color-dorado); }
+.inicio__metricas > div:last-child dd { color: var(--color-texto); }
+.inicio__desafio { grid-area: desafio; min-height: 310px; position: relative; padding: 30px 32px 40px; background: var(--color-elevado); border: 1px solid var(--color-borde); border-radius: 24px; }
+.inicio__etiqueta { color: var(--color-principal); font-size: 12px; font-weight: 700; margin: 0 0 22px; }
+.inicio__desafio h2 { position: relative; z-index: 1; font-size: 36px; line-height: 1.2; margin: 0; }
+.inicio__descripcion { position: relative; z-index: 1; font-size: 15px; color: var(--color-secundario); margin: 16px 0 30px; }
+.inicio__desafio .boton { position: relative; z-index: 1; max-width: 220px; min-height: 48px; padding: 12px 20px; }
+.inicio__pelota { position: absolute; top: 50px; right: 48px; width: clamp(90px, 14vw, 190px); aspect-ratio: 1; background: var(--color-sutil); border-radius: 50%; display: grid; place-items: center; }
+.inicio__imagen-pelota { display: grid; place-items: center; width: 90px; height: 90px; font-size: 72px; line-height: 1; }
+.inicio__fondo-pelota { display: none; }
+.inicio__ranking { grid-area: ranking; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: 18px; padding: 24px; }
+.inicio__ranking h2, .inicio__torneo h2, .tarjeta-modo h2 { font-size: 20px; margin: 0; }
+.inicio__ranking ol { list-style: none; padding: 0; margin: 12px 0 24px; }
+.inicio__ranking li { display: grid; grid-template-columns: 20px 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 72px; border-bottom: 1px solid var(--color-borde); font-size: 13px; color: var(--color-secundario); }
+.inicio__ranking li:last-child { border-bottom: 0; }
+.inicio__ranking strong { color: var(--color-texto); font-size: 14px; overflow-wrap: anywhere; }
+.inicio__avatar-ranking { width: 40px; height: 40px; border-radius: 50%; background: var(--color-borde); }
+.inicio__jugador-actual > span:first-child { color: var(--color-principal); }
+.inicio__jugador-actual .inicio__avatar-ranking { background: var(--color-principal); }
+.inicio__ranking > a { font-size: 13px; }
+.inicio__torneo { grid-area: torneo; }
+.inicio__torneo h2 { margin: 4px 0 24px; }
+.inicio__tarjeta-torneo { min-height: 136px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: 18px; }
+.inicio__tarjeta-torneo p { color: var(--color-secundario); font-size: 14px; margin: 10px 0 0; }
+.inicio__tarjeta-torneo .inicio__etiqueta-torneo { color: var(--color-dorado); font-size: 12px; font-weight: 700; margin: 0 0 12px; }
+.inicio__tarjeta-torneo h3 { font-size: 19px; margin: 0; }
+.inicio__tarjeta-torneo > a { min-width: 176px; padding: 16px 24px; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-elevado); color: var(--color-texto); text-align: center; text-decoration: none; font-size: 14px; font-weight: 600; }
+.inicio__tarjeta-torneo > a:hover { border-color: var(--color-principal); }
+.inicio__otros-modos { grid-area: otros; display: grid; gap: 20px; }
+.tarjeta-modo { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; border: 1px solid var(--color-borde); border-radius: 18px; background: var(--color-superficie); }
+.tarjeta-modo p { color: var(--color-secundario); font-size: 14px; line-height: 1.5; margin: 10px 0 0; }
+.tarjeta-modo a { flex-shrink: 0; font-size: 14px; padding: 12px 0; }
+@media (min-width: 901px) and (max-width: 1250px) {
+  .inicio { padding-left: 190px; }
+  .inicio__lateral { width: 190px; }
+  .inicio__contenido { padding: 30px 24px 48px; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'bienvenida' 'rendimiento' 'desafio' 'ranking' 'torneo' 'otros'; }
+  .inicio__pelota { width: 150px; }
+}
+@media (max-width: 900px) {
+  .inicio { padding: 0 0 calc(90px + env(safe-area-inset-bottom)); }
+  .inicio__solo-escritorio { display: none; }
+  .inicio__solo-movil { display: block; }
+  .inicio__lateral { position: static; padding: 0; width: auto; }
+  .inicio__marca, .inicio__acumulado { display: none; }
+  .inicio__navegacion { position: fixed; bottom: 0; left: 0; right: 0; z-index: 3; margin: 0; padding: 7px 10px calc(15px + env(safe-area-inset-bottom)); grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; background: #0c1f16; }
+  .inicio__enlace { flex-direction: column; justify-content: center; gap: 5px; min-height: 50px; padding: 6px 2px; font-size: 9px; border-radius: 15px; }
+  .inicio__enlace--activo { color: var(--color-principal); background: #193426; }
+  .inicio__cabecera { height: 72px; padding: 0 20px; border-top: 3px solid var(--color-principal); border-bottom: 0; background: var(--color-superficie); gap: 12px; }
+  .inicio__escudo { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--color-principal); color: #07110c; font-size: 12px; font-weight: 800; }
+  .inicio__saludo-movil { display: grid; gap: 6px; margin-right: auto; min-width: 0; }
+  .inicio__saludo-movil strong { font-size: 17px; overflow-wrap: anywhere; }
+  .inicio__saludo-movil span { font-size: 11px; color: var(--color-secundario); }
+  .inicio__avatar { width: 32px; height: 32px; flex-shrink: 0; background: #193426; color: var(--color-principal); font-size: 10px; }
+  .inicio__contenido { padding: 24px 18px 0; max-width: 600px; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'bienvenida' 'desafio' 'rendimiento' 'torneo' 'nota' 'otros'; gap: 18px; }
+  .inicio__bienvenida { margin: 0 4px -4px; }
+  .inicio__bienvenida .sobretitulo { font-size: 10px; margin: 0 0 10px; }
+  .inicio__bienvenida h1 { font-size: 28px; font-weight: 800; line-height: 1.2; }
+  .inicio__desafio { min-height: 190px; border-color: var(--color-principal); background: #123d25; padding: 19px; border-radius: 22px; }
+  .inicio__etiqueta { display: table; border-radius: 15px; padding: 8px 12px; background: var(--color-principal); color: #07110c; font-size: 11px; margin: 0 0 10px; }
+  .inicio__desafio h2 { font-size: 18px; max-width: calc(100% - 55px); }
+  .inicio__descripcion { margin: 18px 0 3px; font-size: 13px; line-height: 16px; }
+  .inicio__desafio .boton { min-height: 44px; max-width: 190px; font-size: 13px; padding: 10px; border-radius: 12px; }
+  .inicio__pelota { top: 21px; right: 29px; width: 56px; height: 56px; background: transparent; }
+  .inicio__fondo-pelota { display: block; position: absolute; inset: 0; width: 56px; height: 56px; }
+  .inicio__imagen-pelota { position: relative; width: 40px; height: 40px; font-size: 34px; }
+  .inicio__rendimiento h2, .inicio__torneo h2 { color: var(--color-secundario); font-size: 11px; margin: 0 4px 12px; }
+  .inicio__metricas { gap: 15px; }
+  .inicio__metricas > div { min-height: 82px; padding: 13px; border-radius: 14px; background: var(--color-superficie); }
+  .inicio__metricas dt { font-size: 10px; }
+  .inicio__metricas dd { margin-top: 14px; font-size: 22px; font-weight: 800; }
+  .inicio__metricas > div:last-child dd { color: var(--color-principal); }
+  .inicio__ranking { display: none; }
+  .inicio__torneo { margin-top: 14px; }
+  .inicio__tarjeta-torneo { position: relative; display: block; padding: 18px 17px 30px; min-height: 158px; }
+  .inicio__tarjeta-torneo .inicio__etiqueta-torneo { display: table; border-radius: 15px; background: #193426; color: var(--color-principal); font-size: 11px; padding: 8px 14px; margin-bottom: 8px; }
+  .inicio__tarjeta-torneo h3 { font-size: 18px; }
+  .inicio__tarjeta-torneo p { font-size: 12px; }
+  .inicio__tarjeta-torneo progress { width: 100%; height: 8px; margin-top: 18px; border: 0; border-radius: 4px; overflow: hidden; background: #193426; accent-color: var(--color-principal); }
+  .inicio__tarjeta-torneo progress::-webkit-progress-bar { background: #193426; }
+  .inicio__tarjeta-torneo progress::-webkit-progress-value { background: var(--color-principal); border-radius: 4px; }
+  .inicio__tarjeta-torneo progress::-moz-progress-bar { background: var(--color-principal); border-radius: 4px; }
+  .inicio__tarjeta-torneo > a { position: absolute; right: 17px; bottom: 0; min-width: 0; background: transparent; border: 0; padding: 8px 0; color: var(--color-principal); font-size: 12px; }
+  .inicio__nota { grid-area: nota; padding: 14px 12px; background: #193426; border-radius: 14px; font-size: 11px; margin: 0; }
+  .tarjeta-modo { display: block; padding: 18px; }
+  .tarjeta-modo a { display: inline-block; margin-top: 8px; }
+}
