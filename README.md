@@ -1,6 +1,6 @@
 # FutbolQuiz Arena — Frontend
 
-React con Vite. Implementación de registro y login en `feature/auth`.
+React con Vite. Registro y login, y pantalla Home en `feature/home`.
 
 ## Desarrollo local
 
@@ -21,6 +21,14 @@ VITE_API_URL=https://futbolquiz-backend.onrender.com
 Usar la URL base, sin `/api`. Vite lee esta variable al iniciar o compilar: reiniciar el servidor después de cambiarla. En despliegues, definirla antes de ejecutar `npm run build`. Las variables `VITE_` son públicas; no colocar secretos en ellas.
 
 Rutas: `/registro`, `/login` e inicio `/` (login). El alojamiento debe resolver las rutas del frontend hacia `index.html` para permitir recargas y enlaces directos.
+
+## Home
+
+Abrir `/home` para ver la pantalla de inicio. Usa los frames de escritorio y móvil enlazados en `docs/figma.md`, con un único componente y CSS responsive. Reutiliza `Boton` y agrega `TarjetaModo` para Duelo y Administración.
+
+Los datos de usuario, rendimiento, ranking y torneos son de demostración, definidos en `PaginaHome.jsx`. El acceso a Administración aparece solo si la propiedad `usuario.rol` es `ADMINISTRADOR`; esto solo controla su visibilidad, no implementa autorización. Las rutas `/partida-individual`, `/duelo`, `/torneos`, `/ranking`, `/perfil` y `/admin` muestran pantallas pendientes, con un enlace para volver.
+
+El login conserva su comportamiento actual: todavía no redirige a la Home ni mantiene la sesión. Para revisar la Home, entrar directamente a `/home`. No se modificaron los formularios ni el servicio de autenticación.
 
 ## Autenticación
 
