@@ -18,13 +18,17 @@ prueba('la Home permite navegar a los módulos y volver sin llamar al backend', 
     ['Ir a Duelo', 'duelo', 'Duelo'],
     ['Ver torneo', 'torneos', 'Torneos'],
     ['Ver ranking completo', 'ranking', 'Ranking'],
-    ['Ver mi perfil', 'perfil', 'Perfil'],
+    ['Ver mi perfil', 'perfil', 'Editar perfil'],
   ]) {
     await pagina.getByRole('link', { name: nombre, exact: true }).click()
     await esperar(pagina).toHaveURL(new RegExp(`/${destino}$`))
     await pagina.reload()
     await esperar(pagina.getByRole('heading', { name: titulo, exact: true })).toBeVisible()
-    await pagina.getByRole('link', { name: 'Volver al inicio' }).click()
+    if (destino === 'perfil') {
+      await pagina.getByRole('button', { name: 'Cancelar' }).click()
+    } else {
+      await pagina.getByRole('link', { name: 'Volver al inicio' }).click()
+    }
   }
   esperar(solicitudes).toEqual([])
   await pagina.screenshot({ path: 'test-results/inicio-escritorio.png', fullPage: true })

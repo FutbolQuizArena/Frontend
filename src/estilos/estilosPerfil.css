@@ -1,0 +1,61 @@
+.perfil { min-height: 100svh; padding-left: 240px; background: var(--color-fondo); }
+.perfil__solo-movil { display: none; }
+.perfil__lateral { position: fixed; inset: 0 auto 0 0; z-index: 2; display: flex; flex-direction: column; width: 240px; padding: 28px 16px 80px; background: #07100c; }
+.perfil__marca { margin-left: 8px; color: var(--color-texto); text-decoration: none; }
+.perfil__navegacion { display: grid; gap: 12px; margin-top: 80px; }
+.perfil__enlace { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 14px 16px; border-radius: 12px; color: var(--color-secundario); font-size: 14px; font-weight: 600; text-decoration: none; }
+.perfil__enlace > span { font-size: 18px; }
+.perfil__enlace:hover, .perfil__enlace--activo { color: var(--color-texto); background: var(--color-elevado); }
+.perfil__enlace--activo > span { color: var(--color-principal); }
+.perfil__acumulado { margin: auto 8px 0; padding-top: 40px; color: var(--color-secundario); font-size: 14px; }
+.perfil__acumulado p { margin: 0 0 18px; color: var(--color-tenue); font-size: 11px; }
+.perfil__cabecera { display: flex; align-items: center; justify-content: flex-end; height: 80px; padding: 0 56px 0 48px; border-bottom: 1px solid var(--color-borde); }
+.perfil__avatar { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 50%; background: var(--color-principal); color: #07100c; font-size: 12px; font-weight: 700; }
+.perfil__escudo, .perfil__titulo-movil, .perfil__avatar-movil, .perfil__cambiar-avatar { display: none; }
+.perfil__contenido { max-width: 1200px; margin: 0 auto; padding: 34px 48px 80px; }
+.perfil__introduccion h1 { margin: 0; font-size: 34px; line-height: 1.3; }
+.perfil__introduccion p { margin: 8px 0 43px; color: var(--color-secundario); font-size: 16px; }
+.perfil__tarjeta { width: min(724px, 100%); min-height: 676px; margin: 0 auto; padding: 30px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); }
+.perfil__tarjeta h2 { margin: 0 0 39px; font-size: 22px; }
+.perfil__campos { display: grid; gap: 28px; padding: 0; margin: 0; border: 0; }
+.perfil .campo { gap: 10px; }
+.perfil .campo__etiqueta { font-size: 13px; }
+.perfil .campo__entrada { height: 54px; background: var(--color-sutil); font-size: 15px; }
+.perfil .campo__area-texto { height: auto; min-height: 82px; resize: vertical; padding: 14px 16px; }
+.perfil__nota { margin: 48px 0 16px; padding: 18px; border-radius: 12px; background: var(--color-sutil); color: var(--color-secundario); font-size: 13px; }
+.perfil .mensaje { margin: 16px 0 0; }
+.perfil__acciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 16px; }
+.perfil__acciones .boton, .perfil__cancelar { min-height: 48px; border-radius: 12px; }
+.perfil__cancelar { border: 1px solid var(--color-borde); background: var(--color-fondo); color: var(--color-texto); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.perfil__cancelar:hover:not(:disabled) { border-color: var(--color-principal); }
+
+@media (max-width: 900px) {
+  .perfil { max-width: 480px; padding: 0 0 calc(90px + env(safe-area-inset-bottom)); margin: 0 auto; background: #07110c; }
+  .perfil__solo-escritorio { display: none; }
+  .perfil__solo-movil { display: block; }
+  .perfil__lateral { position: static; width: auto; padding: 0; }
+  .perfil__marca, .perfil__acumulado { display: none; }
+  .perfil__navegacion { position: fixed; right: 0; bottom: 0; left: 0; z-index: 3; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 7px 10px calc(15px + env(safe-area-inset-bottom)); background: #0c1f16; }
+  .perfil__enlace { flex-direction: column; justify-content: center; gap: 5px; min-height: 50px; padding: 6px 2px; border-radius: 15px; font-size: 9px; }
+  .perfil__enlace--activo { color: var(--color-principal); background: #193426; }
+  .perfil__cabecera { justify-content: flex-start; height: 72px; padding: 0 20px; gap: 12px; border-top: 3px solid var(--color-principal); border-bottom: 0; background: var(--color-superficie); }
+  .perfil__escudo { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 10px; background: var(--color-principal); color: #07100c; font-size: 12px; font-weight: 800; }
+  .perfil__titulo-movil { display: grid; gap: 5px; margin-right: auto; }
+  .perfil__titulo-movil strong { font-size: 17px; }
+  .perfil__titulo-movil span { color: var(--color-secundario); font-size: 11px; }
+  .perfil__avatar { width: 28px; height: 28px; background: #193426; color: var(--color-principal); font-size: 10px; }
+  .perfil__contenido { padding: 30px 28px 0; }
+  .perfil__introduccion { display: none; }
+  .perfil__tarjeta { width: 100%; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+  .perfil__avatar-movil { display: grid; width: 98px; height: 98px; margin: 0 auto; place-items: center; border-radius: 28px; background: var(--color-principal); color: #07100c; font-size: 25px; font-weight: 800; }
+  .perfil__cambiar-avatar { display: block; width: 100%; padding: 12px; margin: 1px 0 25px; border: 0; background: transparent; color: var(--color-principal); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .perfil__tarjeta h2 { display: none; }
+  .perfil__campos { gap: 22px; }
+  .perfil .campo { gap: 7px; }
+  .perfil .campo__etiqueta { color: var(--color-secundario); font-size: 10px; font-weight: 700; }
+  .perfil .campo__entrada { height: 52px; padding: 14px 16px; border-color: var(--color-borde); background: var(--color-superficie); color: var(--color-texto); font-size: 13px; }
+  .perfil .campo__area-texto { height: 82px; min-height: 82px; }
+  .perfil__acciones { display: block; margin-top: 27px; }
+  .perfil__acciones .boton { min-height: 52px; }
+  .perfil__cancelar { display: block; width: 100%; min-height: 38px; margin-top: 2px; border: 0; background: transparent; color: var(--color-secundario); font-size: 12px; }
+}
