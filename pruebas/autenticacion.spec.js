@@ -1,4 +1,5 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
+import { crearTokenPrueba } from './datosSesion.js'
 
 const urlRegistro = 'https://api.futbolquiz.test/api/auth/registro'
 const urlLogin = 'https://api.futbolquiz.test/api/auth/login'
@@ -130,7 +131,7 @@ prueba('el login muestra el message del 401 del backend y permite reintentar', a
     solicitudesAuth.push(ruta.request())
     return ruta.fulfill(solicitudesAuth.length === 1
       ? { status: 401, json: { code: 'CREDENCIALES_INVALIDAS', message: mensajeServidor, detail: null } }
-      : { status: 200, json: { access_token: 'token-de-prueba', token_type: 'bearer' } })
+      : { status: 200, json: { access_token: crearTokenPrueba(), token_type: 'bearer' } })
   })
   await pagina.goto('/login')
   await pagina.getByLabel('Correo electrónico').fill('jugador@futbolquiz.com')
@@ -139,12 +140,10 @@ prueba('el login muestra el message del 401 del backend y permite reintentar', a
   await esperar(pagina.getByRole('alert')).toHaveText(mensajeServidor)
   await pagina.getByLabel('Contraseña', { exact: true }).fill('FutbolQuiz123')
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
-  await esperar(pagina.getByRole('status')).toHaveText('Credenciales verificadas correctamente.')
+  await esperar(pagina).toHaveURL(/\/home$/)
   await esperar(pagina.getByRole('alert')).toHaveCount(0)
-  await esperar(pagina.getByLabel('Contraseña', { exact: true })).toHaveValue('')
-  await esperar(pagina).toHaveURL(/\/login$/)
   esperar(solicitudesAuth).toHaveLength(2)
-  esperar(await pagina.evaluate(() => ({ local: localStorage.length, sesion: sessionStorage.length }))).toEqual({ local: 0, sesion: 0 })
+  esperar(await pagina.evaluate(() => ({ local: localStorage.length, sesion: sessionStorage.length }))).toEqual({ local: 0, sesion: 1 })
 })
 
 prueba('el login envía el contrato exacto y evita solicitudes duplicadas', async ({ page: pagina }) => {
@@ -154,7 +153,7 @@ prueba('el login envía el contrato exacto y evita solicitudes duplicadas', asyn
   await pagina.route(urlLogin, async (ruta) => {
     solicitudes.push(ruta.request())
     await respuestaPendiente
-    await ruta.fulfill({ status: 200, json: { access_token: 'token-de-prueba', token_type: 'bearer' } })
+    await ruta.fulfill({ status: 200, json: { access_token: crearTokenPrueba(), token_type: 'bearer' } })
   })
   await pagina.goto('/login')
   await pagina.getByLabel('Correo electrónico').fill('martina@ejemplo.com')
@@ -168,8 +167,7 @@ prueba('el login envía el contrato exacto y evita solicitudes duplicadas', asyn
   esperar(solicitudes[0].headers()['content-type']).toBe('application/json')
   esperar(solicitudes[0].postDataJSON()).toEqual({ email: 'martina@ejemplo.com', password: 'Clave123' })
   liberarSolicitud()
-  await esperar(pagina.getByRole('status')).toHaveText('Credenciales verificadas correctamente.')
-  await esperar(pagina.getByRole('button', { name: 'Ingresar' })).toBeEnabled()
+  await esperar(pagina).toHaveURL(/\/home$/)
   esperar(solicitudes).toHaveLength(1)
 })
 
@@ -179,7 +177,7 @@ prueba('el login permite reintentar tras un fallo de red y una respuesta no JSON
     intentos += 1
     if (intentos === 1) return ruta.abort('failed')
     if (intentos === 2) return ruta.fulfill({ status: 502, contentType: 'text/html', body: '<h1>Bad Gateway</h1>' })
-    return ruta.fulfill({ status: 200, json: { access_token: 'token-de-prueba', token_type: 'bearer' } })
+    return ruta.fulfill({ status: 200, json: { access_token: crearTokenPrueba(), token_type: 'bearer' } })
   })
   await pagina.goto('/login')
   await pagina.getByLabel('Correo electrónico').fill('martina@ejemplo.com')
@@ -189,7 +187,7 @@ prueba('el login permite reintentar tras un fallo de red y una respuesta no JSON
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
   await esperar(pagina.getByRole('alert')).toContainText('El servidor devolvió una respuesta inesperada.')
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
-  await esperar(pagina.getByRole('status')).toHaveText('Credenciales verificadas correctamente.')
+  await esperar(pagina).toHaveURL(/\/home$/)
   esperar(intentos).toBe(3)
 })
 

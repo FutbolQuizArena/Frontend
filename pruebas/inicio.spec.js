@@ -1,4 +1,9 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
+import { prepararSesion } from './datosSesion.js'
+
+prueba.beforeEach(async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+})
 
 prueba('la Home permite navegar a los módulos y volver sin llamar al backend', async ({ page: pagina }) => {
   const solicitudes = []

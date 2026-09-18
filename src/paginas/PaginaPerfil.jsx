@@ -1,6 +1,7 @@
 import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
+import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
 import CampoTexto from '../componentes/CampoTexto.jsx'
 import { actualizarPerfil, obtenerPerfil } from '../servicios/servicioPerfil.js'
@@ -120,6 +121,7 @@ export default function PaginaPerfil() {
         <span className="perfil__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="perfil__titulo-movil"><strong>Editar perfil</strong><span>Datos personales</span></div>
         <span className="perfil__avatar" aria-label="Avatar del perfil">{datos.iniciales}</span>
+        <BotonCerrarSesion />
       </header>
 
       <main className="perfil__contenido" id="contenido-perfil">

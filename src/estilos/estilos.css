@@ -23,6 +23,11 @@
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; }
 button, input { font: inherit; }
+.boton-cerrar-sesion { flex-shrink: 0; min-height: 44px; margin-left: 12px; padding: 8px 12px; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-elevado); color: var(--color-texto); font-size: 12px; cursor: pointer; }
+.boton-cerrar-sesion:hover { border-color: var(--color-principal); }
+@media (max-width: 900px) {
+  .boton-cerrar-sesion { width: 64px; margin-left: 0; padding: 5px; font-size: 11px; }
+}
 a { color: var(--color-principal); text-underline-offset: 4px; }
 a:hover { color: var(--color-texto); }
 button, a, input { -webkit-tap-highlight-color: transparent; }
@@ -141,7 +146,7 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 900px) {
   :root { --color-fondo: #07110c; --color-texto: #f5f8f4; --color-secundario: #94aa9b; --color-superficie: #11251a; --color-campo: #11251a; --color-borde: #294a37; }
   body { background: var(--color-fondo); color: var(--color-texto); }
-  .cabecera, .presentacion, .texto-escritorio, .nota-seguridad, .nota-condiciones, .pie-pagina, .recordar-sesion { display: none; }
+  .cabecera, .presentacion, .texto-escritorio, .nota-seguridad, .nota-condiciones, .pie-pagina { display: none; }
   .texto-movil { display: inline; }
   .autenticacion { max-width: 480px; margin: 0 auto; position: relative; padding-bottom: 28px; }
   .autenticacion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--color-principal); z-index: 1; }
