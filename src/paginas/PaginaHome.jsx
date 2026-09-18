@@ -1,10 +1,11 @@
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
+import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import TarjetaModo from '../componentes/TarjetaModo.jsx'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
-// Datos de demostración hasta integrar la sesión y los endpoints de la Home.
+// TODO: reemplazar los datos de demostración cuando exista un endpoint de usuario actual y rendimiento.
 const usuarioTemporal = {
   nombre: 'Lucas', iniciales: 'LM', rol: 'JUGADOR',
   puntajeTotal: 2450, posicion: 7, partidas: 34, victorias: 18, torneos: 5,
@@ -47,6 +48,7 @@ export default function PaginaHome({ usuario = usuarioTemporal }) {
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil"><strong>Hola, {usuario.nombre}</strong><span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span></div>
         <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{usuario.iniciales}</Enlace>
+        <BotonCerrarSesion />
       </header>
       <main className="inicio__contenido" id="contenido-inicio">
         <div className="inicio__bienvenida">

@@ -1,4 +1,9 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
+import { prepararSesion } from './datosSesion.js'
+
+prueba.beforeEach(async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+})
 
 prueba('el perfil permite editar datos temporales y volver a la Home', async ({ page: pagina }) => {
   await pagina.setViewportSize({ width: 1440, height: 1024 })

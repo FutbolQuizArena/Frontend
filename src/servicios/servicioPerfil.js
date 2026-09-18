@@ -12,12 +12,12 @@ function copiarPerfil() {
 }
 
 export function obtenerPerfil() {
-  // TODO: reemplazar por GET autenticado cuando esté lista la sesión JWT y el endpoint de perfil.
+  // TODO: reemplazar por GET con Authorization: Bearer cuando exista un endpoint de usuario actual/perfil.
   return Promise.resolve(copiarPerfil())
 }
 
 export function actualizarPerfil(datosPerfil) {
-  // TODO: reemplazar por PATCH/PUT autenticado cuando esté lista la sesión JWT y el endpoint de perfil.
+  // TODO: reemplazar por PATCH/PUT con Authorization: Bearer cuando exista el contrato del endpoint de perfil.
   Object.assign(perfilTemporal, datosPerfil, {
     iniciales: datosPerfil.nombre
       .trim()

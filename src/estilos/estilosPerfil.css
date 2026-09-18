@@ -40,7 +40,7 @@
   .perfil__enlace--activo { color: var(--color-principal); background: #193426; }
   .perfil__cabecera { justify-content: flex-start; height: 72px; padding: 0 20px; gap: 12px; border-top: 3px solid var(--color-principal); border-bottom: 0; background: var(--color-superficie); }
   .perfil__escudo { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 10px; background: var(--color-principal); color: #07100c; font-size: 12px; font-weight: 800; }
-  .perfil__titulo-movil { display: grid; gap: 5px; margin-right: auto; }
+  .perfil__titulo-movil { display: grid; gap: 5px; margin-right: auto; min-width: 0; }
   .perfil__titulo-movil strong { font-size: 17px; }
   .perfil__titulo-movil span { color: var(--color-secundario); font-size: 11px; }
   .perfil__avatar { width: 28px; height: 28px; background: #193426; color: var(--color-principal); font-size: 10px; }

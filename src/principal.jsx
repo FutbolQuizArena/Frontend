@@ -7,12 +7,15 @@ import '@fontsource/inter/latin-600.css'
 import '@fontsource/inter/latin-700.css'
 import '@fontsource/inter/latin-800.css'
 import Aplicacion from './Aplicacion.jsx'
+import { ProveedorSesion } from './contextos/ContextoSesion.jsx'
 import './estilos/estilos.css'
 
 crearRaiz(document.getElementById('raiz')).render(
   <ModoEstricto>
     <Enrutador>
-      <Aplicacion />
+      <ProveedorSesion>
+        <Aplicacion />
+      </ProveedorSesion>
     </Enrutador>
   </ModoEstricto>,
 )
