@@ -3,6 +3,7 @@ import PaginaLogin from './paginas/PaginaLogin.jsx'
 import PaginaRegistro from './paginas/PaginaRegistro.jsx'
 import PaginaHome from './paginas/PaginaHome.jsx'
 import PaginaPendiente from './paginas/PaginaPendiente.jsx'
+import PaginaPerfil from './paginas/PaginaPerfil.jsx'
 
 export default function Aplicacion() {
   return (
@@ -15,7 +16,7 @@ export default function Aplicacion() {
       <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" />} />
       <Ruta path="/torneos" element={<PaginaPendiente titulo="Torneos" />} />
       <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking" />} />
-      <Ruta path="/perfil" element={<PaginaPendiente titulo="Perfil" />} />
+      <Ruta path="/perfil" element={<PaginaPerfil />} />
       <Ruta path="/admin" element={<PaginaPendiente titulo="Administración" />} />
       <Ruta path="*" element={
         <main className="pagina-no-encontrada">
