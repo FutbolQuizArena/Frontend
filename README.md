@@ -1,6 +1,6 @@
 # FutbolQuiz Arena — Frontend
 
-React con Vite. Registro, login, Home, edición de perfil, sesión JWT y creación de torneos.
+React con Vite. Registro, login, Home, edición de perfil, sesión JWT y módulo visual de torneos.
 
 ## Desarrollo local
 
@@ -26,7 +26,7 @@ Rutas: `/registro`, `/login` e inicio `/` (login). El alojamiento debe resolver 
 
 Después de iniciar sesión, se abre `/home`. Usa los frames de escritorio y móvil enlazados en `docs/figma.md`, con un único componente y CSS responsive. Reutiliza `Boton` y agrega `TarjetaModo` para Duelo y Administración.
 
-Los datos de usuario, rendimiento, ranking y torneos son de demostración, definidos en `PaginaHome.jsx`. El acceso a Administración aparece solo si la propiedad `usuario.rol` es `ADMINISTRADOR`; esto solo controla su visibilidad, no implementa autorización. Las rutas `/partida-individual`, `/duelo`, `/torneos`, `/ranking` y `/admin` muestran pantallas pendientes, con un enlace para volver.
+Los datos de usuario, rendimiento y ranking son de demostración, definidos en `PaginaHome.jsx`. El acceso a Administración aparece solo si la propiedad `usuario.rol` es `ADMINISTRADOR`; esto solo controla su visibilidad, no implementa autorización. Las rutas `/partida-individual`, `/duelo`, `/ranking` y `/admin` muestran pantallas pendientes, con un enlace para volver.
 
 ## Perfil
 
@@ -35,6 +35,14 @@ Abrir `/perfil` para editar los datos temporales del usuario. La pantalla sigue 
 `servicioPerfil.js` ofrece `obtenerPerfil()` y `actualizarPerfil(datosPerfil)` como mocks locales. Ambos incluyen un `TODO` para conectar el endpoint autenticado cuando exista su contrato; los cambios no se envían al backend ni persisten al recargar la página.
 
 Home y Perfil requieren iniciar sesión y muestran la acción «Cerrar sesión» tanto en escritorio como en celular.
+
+## Listado de torneos — actividad 3.3.1
+
+Abrir `/torneos` para consultar «Mis torneos», «Disponibles» y «Finalizados». La página adapta las tablas y grillas de escritorio a tarjetas móviles, mantiene la navegación inferior y enlaza con la creación existente en `/torneos/crear`.
+
+`servicioTorneos.js` ofrece temporalmente `obtenerMisTorneos()`, `obtenerTorneosDisponibles()` y `obtenerTorneosFinalizados()` con datos mock. La pantalla contempla carga, error, lista vacía y resultados. Estos métodos tienen un `TODO` para reemplazarlos cuando el backend publique el contrato real, sin inventar rutas ni nombres de campos.
+
+Los accesos para unirse, ver el detalle y consultar el cuadro conducen por ahora a rutas privadas provisionales. Su lógica pertenece a las actividades 3.3.3, 3.3.4 y 3.3.5.
 
 ## Creación de torneos — actividad 3.3.2
 
@@ -52,7 +60,7 @@ Por defecto, el token se guarda en `sessionStorage`: permanece al recargar y se 
 
 Se descartan JWT malformados o vencidos al restaurar la sesión. Si el JWT contiene `exp`, también se cierra la sesión cuando vence mientras la app está abierta. Si no contiene `exp`, se mantiene hasta cerrar sesión o eliminarlo del almacenamiento. No hay renovación automática de tokens porque no se dispone de contrato de refresh. Decodificar el JWT en el navegador no verifica su firma: el backend debe validar el token y autorizar cada operación real.
 
-`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, `/torneos`, `/torneos/crear`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` sigue siendo un placeholder que requiere sesión; los permisos reales de administrador quedan pendientes del contrato de roles.
+`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, todas las rutas de `/torneos`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` sigue siendo un placeholder que requiere sesión; los permisos reales de administrador quedan pendientes del contrato de roles.
 
 Los datos del usuario y las estadísticas de Home, ranking y torneos siguen siendo demostraciones. Perfil sigue usando su servicio mock. No se infieren datos o roles de claims sin contrato de usuario actual; los `TODO` indican dónde conectar los endpoints cuando estén disponibles. El cierre de sesión es local, sin endpoint de revocación.
 
@@ -68,9 +76,9 @@ Los datos del usuario y las estadísticas de Home, ranking y torneos siguen sien
 
 ```text
 src/
-  componentes/     Campos, botones, MarcoAutenticacion, RutaProtegida y RutaPublica
+  componentes/     Campos, botones, tarjetas, MarcoAutenticacion, RutaProtegida y RutaPublica
   contextos/       ContextoSesion.jsx (ProveedorSesion y usarSesion)
-  paginas/         PaginaRegistro, PaginaLogin, PaginaHome, PaginaPerfil y PaginaCrearTorneo
+  paginas/         PaginaRegistro, PaginaLogin, PaginaHome, PaginaPerfil, PaginaTorneos y PaginaCrearTorneo
   servicios/       servicioAuth.js, servicioPerfil.js, servicioSesion.js y servicioTorneos.js
   utilidades/     validacionesAutenticacion.js
   estilos/        estilos.css

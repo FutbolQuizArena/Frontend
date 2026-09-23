@@ -31,6 +31,8 @@ prueba('la Home permite navegar a los módulos y volver sin llamar al backend', 
     await esperar(pagina.getByRole('heading', { name: titulo, exact: true })).toBeVisible()
     if (destino === 'perfil') {
       await pagina.getByRole('button', { name: 'Cancelar' }).click()
+    } else if (destino === 'torneos') {
+      await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
     } else {
       await pagina.getByRole('link', { name: 'Volver al inicio' }).click()
     }

@@ -5,6 +5,7 @@ import PaginaHome from './paginas/PaginaHome.jsx'
 import PaginaPendiente from './paginas/PaginaPendiente.jsx'
 import PaginaPerfil from './paginas/PaginaPerfil.jsx'
 import PaginaCrearTorneo from './paginas/PaginaCrearTorneo.jsx'
+import PaginaTorneos from './paginas/PaginaTorneos.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -20,8 +21,11 @@ export default function Aplicacion() {
         <Ruta path="/home" element={<PaginaHome />} />
         <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" />} />
         <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" />} />
-        <Ruta path="/torneos" element={<PaginaPendiente titulo="Torneos" destinoAccion="/torneos/crear" textoAccion="Crear torneo" />} />
+        <Ruta path="/torneos" element={<PaginaTorneos />} />
         <Ruta path="/torneos/crear" element={<PaginaCrearTorneo />} />
+        <Ruta path="/torneos/unirse" element={<PaginaPendiente titulo="Ingresar a torneo" />} />
+        <Ruta path="/torneos/:idTorneo/cuadro" element={<PaginaPendiente titulo="Cuadro del torneo" />} />
+        <Ruta path="/torneos/:idTorneo" element={<PaginaPendiente titulo="Detalle del torneo" />} />
         <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking" />} />
         <Ruta path="/perfil" element={<PaginaPerfil />} />
         <Ruta path="/admin" element={<PaginaPendiente titulo="Administración" />} />
