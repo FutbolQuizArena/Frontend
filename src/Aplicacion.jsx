@@ -4,6 +4,7 @@ import PaginaRegistro from './paginas/PaginaRegistro.jsx'
 import PaginaHome from './paginas/PaginaHome.jsx'
 import PaginaPendiente from './paginas/PaginaPendiente.jsx'
 import PaginaPerfil from './paginas/PaginaPerfil.jsx'
+import PaginaCrearTorneo from './paginas/PaginaCrearTorneo.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -19,7 +20,8 @@ export default function Aplicacion() {
         <Ruta path="/home" element={<PaginaHome />} />
         <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" />} />
         <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" />} />
-        <Ruta path="/torneos" element={<PaginaPendiente titulo="Torneos" />} />
+        <Ruta path="/torneos" element={<PaginaPendiente titulo="Torneos" destinoAccion="/torneos/crear" textoAccion="Crear torneo" />} />
+        <Ruta path="/torneos/crear" element={<PaginaCrearTorneo />} />
         <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking" />} />
         <Ruta path="/perfil" element={<PaginaPerfil />} />
         <Ruta path="/admin" element={<PaginaPendiente titulo="Administración" />} />

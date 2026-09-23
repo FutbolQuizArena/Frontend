@@ -1,6 +1,6 @@
 # FutbolQuiz Arena — Frontend
 
-React con Vite. Registro, login, Home, edición de perfil y sesión JWT.
+React con Vite. Registro, login, Home, edición de perfil, sesión JWT y creación de torneos.
 
 ## Desarrollo local
 
@@ -36,6 +36,14 @@ Abrir `/perfil` para editar los datos temporales del usuario. La pantalla sigue 
 
 Home y Perfil requieren iniciar sesión y muestran la acción «Cerrar sesión» tanto en escritorio como en celular.
 
+## Creación de torneos — actividad 3.3.2
+
+Abrir `/torneos/crear` para configurar un torneo con nombre, 4, 8 o 16 participantes y una contraseña opcional. La ruta es privada y conserva la navegación responsive de Home. Los frames de escritorio y móvil están enlazados en `docs/figma.md`.
+
+`servicioTorneos.js` ofrece temporalmente `crearTorneo(datosTorneo)` como mock local. Genera un código temporal y permite comprobar el manejo de errores intentando crear dos veces un torneo con el mismo nombre. El formulario permanece en la pantalla después de confirmar la creación.
+
+La llamada HTTP queda pendiente hasta que el backend publique el contrato definitivo de creación de torneos. El servicio contiene el `TODO` para reemplazar el mock; no se inventan todavía una URL ni nombres de campos del endpoint.
+
 ## Sesión JWT — actividad 1.2.5
 
 `ProveedorSesion` restaura el token al iniciar la app y comparte el estado mediante `usarSesion()`. El login guarda el `access_token` real y redirige a `/home`. `servicioSesion.js` centraliza la lectura, guardado y eliminación del token bajo la clave `futbolquizToken`.
@@ -44,7 +52,7 @@ Por defecto, el token se guarda en `sessionStorage`: permanece al recargar y se 
 
 Se descartan JWT malformados o vencidos al restaurar la sesión. Si el JWT contiene `exp`, también se cierra la sesión cuando vence mientras la app está abierta. Si no contiene `exp`, se mantiene hasta cerrar sesión o eliminarlo del almacenamiento. No hay renovación automática de tokens porque no se dispone de contrato de refresh. Decodificar el JWT en el navegador no verifica su firma: el backend debe validar el token y autorizar cada operación real.
 
-`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, `/torneos`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` sigue siendo un placeholder que requiere sesión; los permisos reales de administrador quedan pendientes del contrato de roles.
+`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, `/torneos`, `/torneos/crear`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` sigue siendo un placeholder que requiere sesión; los permisos reales de administrador quedan pendientes del contrato de roles.
 
 Los datos del usuario y las estadísticas de Home, ranking y torneos siguen siendo demostraciones. Perfil sigue usando su servicio mock. No se infieren datos o roles de claims sin contrato de usuario actual; los `TODO` indican dónde conectar los endpoints cuando estén disponibles. El cierre de sesión es local, sin endpoint de revocación.
 
@@ -62,8 +70,8 @@ Los datos del usuario y las estadísticas de Home, ranking y torneos siguen sien
 src/
   componentes/     Campos, botones, MarcoAutenticacion, RutaProtegida y RutaPublica
   contextos/       ContextoSesion.jsx (ProveedorSesion y usarSesion)
-  paginas/         PaginaRegistro, PaginaLogin, PaginaHome y PaginaPerfil
-  servicios/       servicioAuth.js, servicioPerfil.js y servicioSesion.js
+  paginas/         PaginaRegistro, PaginaLogin, PaginaHome, PaginaPerfil y PaginaCrearTorneo
+  servicios/       servicioAuth.js, servicioPerfil.js, servicioSesion.js y servicioTorneos.js
   utilidades/     validacionesAutenticacion.js
   estilos/        estilos.css
   Aplicacion.jsx
