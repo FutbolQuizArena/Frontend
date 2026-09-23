@@ -1,7 +1,7 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
 import { crearTokenPrueba, prepararSesion } from './datosSesion.js'
 
-const rutasPrivadas = ['/home', '/perfil', '/partida-individual', '/duelo', '/torneos', '/ranking', '/admin']
+const rutasPrivadas = ['/home', '/perfil', '/partida-individual', '/duelo', '/torneos', '/torneos/crear', '/ranking', '/admin']
 
 prueba.beforeEach(async ({ context: contexto }) => {
   await contexto.route('**/api/**', (ruta) => ruta.fulfill({
