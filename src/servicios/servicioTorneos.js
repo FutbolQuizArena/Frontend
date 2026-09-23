@@ -22,6 +22,17 @@ const torneosFinalizadosTemporales = [
   { id: 13, nombre: 'Clásicos Eternos', fecha: '25 Jul 2026', campeon: 'NicoFC', resultado: 'Primera ronda', victorias: 0, tono: 'dorado' },
 ]
 
+const invitacionesTemporales = {
+  LIGA24: { id: 5, nombre: 'Liga de Campeones', participantes: 6, capacidad: 8 },
+  FQA8K2: { id: 14, nombre: 'Copa de Amigos', participantes: 6, capacidad: 8, contrasena: 'cancha' },
+  LLENO8: { id: 15, nombre: 'Copa Completa', participantes: 8, capacidad: 8, error: 'El torneo ya alcanzó el máximo de participantes.' },
+  INSCR1: { id: 16, nombre: 'Copa del Barrio', participantes: 4, capacidad: 8, error: 'Ya estás registrado en este torneo.' },
+}
+
+function normalizarCodigo(codigo) {
+  return codigo.trim().replace(/\s+/g, '').toUpperCase()
+}
+
 function devolverCopia(datos) {
   return new Promise((resolver) => {
     setTimeout(() => resolver(datos.map((dato) => ({ ...dato }))), 220)
@@ -62,4 +73,31 @@ export function obtenerTorneosDisponibles() {
 export function obtenerTorneosFinalizados() {
   // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
   return devolverCopia(torneosFinalizadosTemporales)
+}
+
+export function unirseATorneo(codigo, contrasena = '') {
+  // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
+  return new Promise((resolver, rechazar) => {
+    setTimeout(() => {
+      const codigoNormalizado = normalizarCodigo(codigo)
+      const torneo = invitacionesTemporales[codigoNormalizado]
+
+      if (!torneo) {
+        rechazar(new Error('No encontramos un torneo con ese código.'))
+        return
+      }
+
+      if (torneo.error) {
+        rechazar(new Error(torneo.error))
+        return
+      }
+
+      if (torneo.contrasena && contrasena !== torneo.contrasena) {
+        rechazar(new Error('La contraseña del torneo es incorrecta.'))
+        return
+      }
+
+      resolver({ idTorneo: torneo.id, nombre: torneo.nombre })
+    }, 350)
+  })
 }

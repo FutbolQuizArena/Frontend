@@ -42,7 +42,7 @@ Abrir `/torneos` para consultar «Mis torneos», «Disponibles» y «Finalizados
 
 `servicioTorneos.js` ofrece temporalmente `obtenerMisTorneos()`, `obtenerTorneosDisponibles()` y `obtenerTorneosFinalizados()` con datos mock. La pantalla contempla carga, error, lista vacía y resultados. Estos métodos tienen un `TODO` para reemplazarlos cuando el backend publique el contrato real, sin inventar rutas ni nombres de campos.
 
-Los accesos para unirse, ver el detalle y consultar el cuadro conducen por ahora a rutas privadas provisionales. Su lógica pertenece a las actividades 3.3.3, 3.3.4 y 3.3.5.
+El acceso para unirse abre la pantalla de la actividad 3.3.3. Ver el detalle y consultar el cuadro todavía conducen a rutas privadas provisionales de las actividades 3.3.4 y 3.3.5.
 
 ## Creación de torneos — actividad 3.3.2
 
@@ -51,6 +51,14 @@ Abrir `/torneos/crear` para configurar un torneo con nombre, 4, 8 o 16 participa
 `servicioTorneos.js` ofrece temporalmente `crearTorneo(datosTorneo)` como mock local. Genera un código temporal y permite comprobar el manejo de errores intentando crear dos veces un torneo con el mismo nombre. El formulario permanece en la pantalla después de confirmar la creación.
 
 La llamada HTTP queda pendiente hasta que el backend publique el contrato definitivo de creación de torneos. El servicio contiene el `TODO` para reemplazar el mock; no se inventan todavía una URL ni nombres de campos del endpoint.
+
+## Ingreso a torneo — actividad 3.3.3
+
+Abrir `/torneos/unirse` para ingresar un código de seis caracteres y una contraseña cuando el torneo sea privado. La ruta es protegida, normaliza el código a mayúsculas, evita envíos duplicados y conserva las composiciones desktop y mobile de Figma.
+
+`servicioTorneos.js` ofrece temporalmente `unirseATorneo(codigo, contrasena)` como mock. Se puede probar `LIGA24` sin contraseña, `FQA8K2` con la contraseña `cancha`, `LLENO8` para un torneo completo e `INSCR1` para un usuario ya registrado. Cualquier otro código devuelve el error de torneo inexistente.
+
+Al ingresar correctamente se muestra una confirmación y se abre la sala provisional `/torneos/:idTorneo/sala`. La pantalla real de sala y detalle corresponde a la actividad 3.3.4. La integración HTTP sigue pendiente hasta que el backend publique su contrato definitivo.
 
 ## Sesión JWT — actividad 1.2.5
 
@@ -78,7 +86,7 @@ Los datos del usuario y las estadísticas de Home, ranking y torneos siguen sien
 src/
   componentes/     Campos, botones, tarjetas, MarcoAutenticacion, RutaProtegida y RutaPublica
   contextos/       ContextoSesion.jsx (ProveedorSesion y usarSesion)
-  paginas/         PaginaRegistro, PaginaLogin, PaginaHome, PaginaPerfil, PaginaTorneos y PaginaCrearTorneo
+  paginas/         PaginaRegistro, PaginaLogin, PaginaHome, PaginaPerfil y páginas de torneos
   servicios/       servicioAuth.js, servicioPerfil.js, servicioSesion.js y servicioTorneos.js
   utilidades/     validacionesAutenticacion.js
   estilos/        estilos.css
