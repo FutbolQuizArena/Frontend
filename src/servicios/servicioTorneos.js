@@ -44,7 +44,7 @@ const salasTemporales = {
   5: { id: 5, nombre: 'Liga de Campeones', codigo: 'LIGA24', estado: 'ESPERANDO JUGADORES', capacidad: 8, organizador: 'AnaGol', esOrganizador: false, participantes: participantesTemporales.slice(0, 6) },
   14: { id: 14, nombre: 'Copa de Amigos', codigo: 'FQA8K2', estado: 'ESPERANDO JUGADORES', capacidad: 8, organizador: 'Lucas', esOrganizador: true, participantes: participantesTemporales.slice(0, 6) },
   16: { id: 16, nombre: 'Copa del Barrio', codigo: 'INSCR1', estado: 'ESPERANDO JUGADORES', capacidad: 8, organizador: 'Mati10', esOrganizador: false, participantes: participantesTemporales.slice(0, 4) },
-  17: { id: 17, nombre: 'Copa Completa', codigo: 'LISTO8', estado: 'LISTO PARA COMENZAR', capacidad: 8, organizador: 'Lucas', esOrganizador: true, participantes: participantesTemporales },
+  17: { id: 17, nombre: 'Copa Completa', codigo: 'LISTO8', estado: 'EN CURSO', capacidad: 8, organizador: 'Lucas', esOrganizador: true, participantes: participantesTemporales },
 }
 
 const detallesTemporales = {
@@ -52,7 +52,7 @@ const detallesTemporales = {
   5: { id: 5, nombre: 'Liga de Campeones', estado: 'ESPERANDO', formato: 'Eliminación directa', participantes: 6, capacidad: 8, proximaRonda: 'Esperando participantes', codigo: 'LIGA24', accion: 'Ir a la sala' },
   9: { id: 9, nombre: 'Copa Apertura', estado: 'FINALIZADO', formato: 'Eliminación directa', participantes: 8, capacidad: 8, proximaRonda: 'Campeona · SofiGol', codigo: 'APER26', resultado: 'Semifinal · 3 victorias', accion: 'Ver cuadro' },
   14: { id: 14, nombre: 'Copa de Amigos', estado: 'ESPERANDO', formato: 'Eliminación directa', participantes: 6, capacidad: 8, proximaRonda: 'Esperando participantes', codigo: 'FQA8K2', accion: 'Ir a la sala' },
-  17: { id: 17, nombre: 'Copa Completa', estado: 'LISTO', formato: 'Eliminación directa', participantes: 8, capacidad: 8, proximaRonda: 'Lista para comenzar', codigo: 'LISTO8', accion: 'Ir a la sala' },
+  17: { id: 17, nombre: 'Copa Completa', estado: 'EN CURSO', formato: 'Eliminación directa', participantes: 8, capacidad: 8, proximaRonda: 'Primera ronda generada', codigo: 'LISTO8', accion: 'Continuar' },
 }
 
 function normalizarCodigo(codigo) {
@@ -166,28 +166,4 @@ export function obtenerDetalleTorneo(idTorneo) {
 export function obtenerSalaTorneo(idTorneo) {
   // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
   return obtenerCopiaTemporal(salasTemporales, idTorneo)
-}
-
-export function iniciarTorneo(idTorneo) {
-  // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
-  return new Promise((resolver, rechazar) => {
-    setTimeout(() => {
-      const sala = salasTemporales[idTorneo]
-
-      if (!sala) {
-        rechazar(crearErrorTorneo('TORNEO_NO_ENCONTRADO', 'No encontramos el torneo solicitado.'))
-        return
-      }
-      if (!sala.esOrganizador) {
-        rechazar(crearErrorTorneo('ACCION_NO_PERMITIDA', 'Solo el organizador puede iniciar el torneo.'))
-        return
-      }
-      if (sala.participantes.length < sala.capacidad) {
-        rechazar(crearErrorTorneo('CUPOS_INCOMPLETOS', 'El torneo necesita completar todos los lugares antes de comenzar.'))
-        return
-      }
-
-      resolver({ idTorneo: sala.id, estado: 'EN CURSO' })
-    }, 450)
-  })
 }

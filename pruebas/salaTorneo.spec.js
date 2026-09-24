@@ -26,30 +26,28 @@ prueba('copia el código y muestra una confirmación local', async ({ page: pagi
   esperar(await pagina.evaluate(() => navigator.clipboard.readText())).toBe('FQA8K2')
 })
 
-prueba('un participante no puede iniciar el torneo', async ({ page: pagina }) => {
+prueba('un participante espera la generación automática de cruces', async ({ page: pagina }) => {
   await prepararSesion(pagina)
   await pagina.goto('/torneos/5/sala')
 
-  await esperar(pagina.getByText('El organizador iniciará el torneo cuando se complete la sala.')).toBeVisible()
+  await esperar(pagina.getByText('Los cruces se generarán automáticamente al completar el cupo.')).toBeVisible()
   await esperar(pagina.getByRole('button', { name: 'Iniciar torneo' })).toHaveCount(0)
 })
 
-prueba('el organizador no puede iniciar mientras falten jugadores', async ({ page: pagina }) => {
+prueba('la sala incompleta no permite abrir el cuadro', async ({ page: pagina }) => {
   await prepararSesion(pagina)
   await pagina.goto('/torneos/14/sala')
 
-  await esperar(pagina.getByRole('button', { name: 'Iniciar torneo' })).toBeDisabled()
+  await esperar(pagina.getByRole('link', { name: 'Ver cuadro' })).toHaveCount(0)
   await esperar(pagina).toHaveURL(/\/torneos\/14\/sala$/)
 })
 
-prueba('una sala completa permite iniciar y abre el cuadro provisional', async ({ page: pagina }) => {
+prueba('una sala completa genera cruces y permite abrir el cuadro provisional', async ({ page: pagina }) => {
   await prepararSesion(pagina)
   await pagina.goto('/torneos/17/sala')
 
-  const botonIniciar = pagina.getByRole('button', { name: 'Iniciar torneo' })
-  await esperar(botonIniciar).toBeEnabled()
-  await botonIniciar.click()
-  await esperar(pagina.getByRole('status')).toContainText('Torneo iniciado')
+  await esperar(pagina.getByText('Los cruces se generaron automáticamente.').first()).toBeVisible()
+  await pagina.getByRole('link', { name: 'Ver cuadro' }).click()
   await esperar(pagina).toHaveURL(/\/torneos\/17\/cuadro$/)
   await esperar(pagina.getByRole('heading', { name: 'Cuadro del torneo' })).toBeVisible()
 })

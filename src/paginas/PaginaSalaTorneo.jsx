@@ -1,18 +1,14 @@
-import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEstado } from 'react'
-import { Link as Enlace, useNavigate as usarNavegacion, useParams as usarParametros } from 'react-router-dom'
-import Boton from '../componentes/Boton.jsx'
+import { useEffect as usarEfecto, useState as usarEstado } from 'react'
+import { Link as Enlace, useParams as usarParametros } from 'react-router-dom'
 import ListaParticipantesTorneo from '../componentes/ListaParticipantesTorneo.jsx'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
-import { iniciarTorneo, obtenerSalaTorneo } from '../servicios/servicioTorneos.js'
+import { obtenerSalaTorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 
 export default function PaginaSalaTorneo() {
   const { idTorneo } = usarParametros()
-  const navegar = usarNavegacion()
-  const solicitudEnCurso = usarReferencia(false)
   const [sala, establecerSala] = usarEstado(null)
   const [cargando, establecerCargando] = usarEstado(true)
-  const [iniciando, establecerIniciando] = usarEstado(false)
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [codigoError, establecerCodigoError] = usarEstado('')
   const [mensajeAccion, establecerMensajeAccion] = usarEstado('')
@@ -49,26 +45,6 @@ export default function PaginaSalaTorneo() {
     }
   }
 
-  async function manejarInicio() {
-    if (solicitudEnCurso.current || !sala?.esOrganizador || sala.participantes.length < sala.capacidad) return
-    solicitudEnCurso.current = true
-    establecerIniciando(true)
-    establecerMensajeError('')
-    establecerMensajeAccion('')
-
-    try {
-      await iniciarTorneo(idTorneo)
-      establecerMensajeAccion('Torneo iniciado. Abriendo el cuadro…')
-      await new Promise((resolver) => setTimeout(resolver, 500))
-      navegar(`/torneos/${idTorneo}/cuadro`)
-    } catch (error) {
-      establecerMensajeError(error.message || 'No pudimos iniciar el torneo.')
-    } finally {
-      solicitudEnCurso.current = false
-      establecerIniciando(false)
-    }
-  }
-
   if (cargando) {
     return <MarcoTorneo tituloMovil="Sala del torneo" subtituloMovil={`Torneo #${idTorneo}`}><section className="estado-pantalla-torneo" aria-live="polite"><span className="estado-pantalla-torneo__carga" /><p>Cargando sala…</p></section></MarcoTorneo>
   }
@@ -88,7 +64,6 @@ export default function PaginaSalaTorneo() {
 
   const participantesCompletos = sala.participantes.length === sala.capacidad
   const lugaresFaltantes = sala.capacidad - sala.participantes.length
-  const puedeIniciar = sala.esOrganizador && participantesCompletos
 
   return (
     <MarcoTorneo tituloMovil="Sala del torneo" subtituloMovil={`Código ${sala.codigo}`}>
@@ -110,17 +85,16 @@ export default function PaginaSalaTorneo() {
           <aside className="sala-torneo__pasos">
             <h2>¿Qué sigue?</h2>
             <ol><li className="completado">Compartí el código</li><li className={participantesCompletos ? 'completado' : ''}>Completá los {sala.capacidad} lugares</li><li className={participantesCompletos ? 'completado' : ''}>Se generan los cruces</li><li>Comienza el torneo</li></ol>
-            {sala.esOrganizador ? (
-              <Boton alHacerClic={manejarInicio} deshabilitado={!puedeIniciar} cargando={iniciando} textoCargando="Iniciando…">Iniciar torneo</Boton>
-            ) : <p className="sala-torneo__aviso-participante">El organizador iniciará el torneo cuando se complete la sala.</p>}
-            <Enlace className="sala-torneo__salir" to="/torneos">{sala.esOrganizador ? 'Volver a Torneos' : 'Salir del torneo'}</Enlace>
+            <p className="sala-torneo__aviso-participante">{participantesCompletos ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generarán automáticamente al completar el cupo.'}</p>
+            {participantesCompletos && <Enlace className="sala-torneo__ver-cuadro" to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace>}
+            <Enlace className="sala-torneo__salir" to="/torneos">Volver a Torneos</Enlace>
           </aside>
         </div>
 
         <section className="sala-torneo__compartir-movil"><small>Compartir código</small><button type="button" onClick={copiarCodigo}><strong>{sala.codigo}</strong><span aria-hidden="true">▣</span></button></section>
         <div className="sala-torneo__accion-movil">
-          {sala.esOrganizador ? <Boton alHacerClic={manejarInicio} deshabilitado={!puedeIniciar} cargando={iniciando} textoCargando="Iniciando…">{puedeIniciar ? 'Iniciar torneo' : `Esperando ${lugaresFaltantes} jugadores`}</Boton> : <p>Esperando al organizador</p>}
-          <small>{participantesCompletos ? 'Los cruces se generarán al iniciar.' : 'Los cruces se generan al completar el cupo.'}</small>
+          {participantesCompletos ? <Enlace to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace> : <p>Esperando {lugaresFaltantes} jugadores</p>}
+          <small>{participantesCompletos ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generan al completar el cupo.'}</small>
         </div>
         {mensajeError && <p className="mensaje mensaje--error sala-torneo__mensaje" role="alert">{mensajeError}</p>}
         {mensajeAccion && <p className="mensaje mensaje--exito sala-torneo__mensaje" role="status">{mensajeAccion}</p>}
