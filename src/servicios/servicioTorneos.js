@@ -55,6 +55,77 @@ const detallesTemporales = {
   17: { id: 17, nombre: 'Copa Completa', estado: 'EN CURSO', formato: 'Eliminación directa', participantes: 8, capacidad: 8, proximaRonda: 'Primera ronda generada', codigo: 'LISTO8', accion: 'Continuar' },
 }
 
+const cuadroBaseTemporal = [
+  {
+    clave: 'cuartos',
+    nombre: 'Cuartos de final',
+    cruces: [
+      { id: 1, jugadorA: { id: 1, nombre: 'Lucas', puntaje: 8 }, jugadorB: { id: 2, nombre: 'Mati10', puntaje: 6 }, ganadorId: 1, estado: 'FINALIZADO' },
+      { id: 2, jugadorA: { id: 3, nombre: 'SofiGol', puntaje: 7 }, jugadorB: { id: 4, nombre: 'Fede_9', puntaje: 9 }, ganadorId: 4, estado: 'FINALIZADO' },
+      { id: 3, jugadorA: { id: 5, nombre: 'NicoFC', puntaje: 6 }, jugadorB: { id: 6, nombre: 'Juli_22', puntaje: 5 }, ganadorId: 5, estado: 'FINALIZADO' },
+      { id: 4, jugadorA: { id: 7, nombre: 'TomiCR7', puntaje: 9 }, jugadorB: { id: 8, nombre: 'LauGol', puntaje: 7 }, ganadorId: 7, estado: 'FINALIZADO' },
+    ],
+  },
+  {
+    clave: 'semifinales',
+    nombre: 'Semifinales',
+    cruces: [
+      { id: 5, jugadorA: { id: 1, nombre: 'Lucas', puntaje: 5 }, jugadorB: { id: 4, nombre: 'Fede_9', puntaje: 3 }, ganadorId: 1, estado: 'EN_CURSO' },
+      { id: 6, jugadorA: { id: 5, nombre: 'NicoFC', puntaje: 4 }, jugadorB: { id: 7, nombre: 'TomiCR7', puntaje: 2 }, ganadorId: 5, estado: 'FINALIZADO' },
+    ],
+  },
+  {
+    clave: 'final',
+    nombre: 'Final',
+    cruces: [
+      { id: 7, jugadorA: { id: 1, nombre: 'Lucas', puntaje: null }, jugadorB: { id: 5, nombre: 'NicoFC', puntaje: null }, ganadorId: null, estado: 'PENDIENTE' },
+    ],
+  },
+]
+
+const cuadrosTemporales = {
+  1: {
+    id: 1,
+    nombre: 'Copa de Campeones',
+    estado: 'EN_CURSO',
+    formato: 'Eliminación directa',
+    participantes: 8,
+    rondaActual: 'Semifinales',
+    proximaPartida: 'Hoy · 21:00',
+    premio: 1500,
+    rondas: cuadroBaseTemporal,
+    campeon: null,
+  },
+  17: {
+    id: 17,
+    nombre: 'Copa Completa',
+    estado: 'EN_CURSO',
+    formato: 'Eliminación directa',
+    participantes: 8,
+    rondaActual: 'Cuartos de final',
+    proximaPartida: 'Hoy · 21:45',
+    premio: 1500,
+    rondas: cuadroBaseTemporal,
+    campeon: null,
+  },
+  9: {
+    id: 9,
+    nombre: 'Copa Apertura',
+    estado: 'FINALIZADO',
+    formato: 'Eliminación directa',
+    participantes: 8,
+    rondaActual: 'Finalizado',
+    proximaPartida: 'Finalizado',
+    premio: 1500,
+    fechaFinalizacion: '28 Ago 2026',
+    rondas: cuadroBaseTemporal.map((ronda) => ronda.clave === 'final'
+      ? { ...ronda, cruces: [{ id: 7, jugadorA: { id: 3, nombre: 'SofiGol', puntaje: 5 }, jugadorB: { id: 1, nombre: 'Lucas', puntaje: 3 }, ganadorId: 3, estado: 'FINALIZADO' }] }
+      : ronda),
+    campeon: { id: 3, nombre: 'SofiGol' },
+    resultadoUsuario: { instancia: 'Semifinal', partidasJugadas: 3, puntosObtenidos: 420, victorias: 2, derrotas: 1 },
+  },
+}
+
 function normalizarCodigo(codigo) {
   return codigo.trim().replace(/\s+/g, '').toUpperCase()
 }
@@ -166,4 +237,24 @@ export function obtenerDetalleTorneo(idTorneo) {
 export function obtenerSalaTorneo(idTorneo) {
   // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
   return obtenerCopiaTemporal(salasTemporales, idTorneo)
+}
+
+export function obtenerCuadroTorneo(idTorneo) {
+  // TODO: reemplazar por endpoint real de estado y cruces cuando el backend de torneos esté listo
+  return new Promise((resolver, rechazar) => {
+    setTimeout(() => {
+      if (String(idTorneo) === '500') {
+        rechazar(crearErrorTorneo('ERROR_CARGA', 'No pudimos cargar el cuadro. Intentá de nuevo.'))
+        return
+      }
+
+      const torneo = cuadrosTemporales[idTorneo]
+      if (!torneo) {
+        rechazar(crearErrorTorneo('TORNEO_NO_ENCONTRADO', 'No encontramos el torneo solicitado.'))
+        return
+      }
+
+      resolver(JSON.parse(JSON.stringify(torneo)))
+    }, 220)
+  })
 }

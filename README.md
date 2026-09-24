@@ -42,7 +42,7 @@ Abrir `/torneos` para consultar «Mis torneos», «Disponibles» y «Finalizados
 
 `servicioTorneos.js` ofrece temporalmente `obtenerMisTorneos()`, `obtenerTorneosDisponibles()` y `obtenerTorneosFinalizados()` con datos mock. La pantalla contempla carga, error, lista vacía y resultados. Estos métodos tienen un `TODO` para reemplazarlos cuando el backend publique el contrato real, sin inventar rutas ni nombres de campos.
 
-El acceso para unirse abre la pantalla de la actividad 3.3.3. Los detalles ya usan la pantalla de 3.3.4; consultar el cuadro todavía conduce a la ruta privada provisional de la actividad 3.3.5.
+El acceso para unirse abre la pantalla de la actividad 3.3.3. Los detalles usan la pantalla de 3.3.4 y los torneos en curso o finalizados permiten consultar el cuadro implementado en la actividad 3.3.5.
 
 ## Creación de torneos — actividad 3.3.2
 
@@ -64,7 +64,7 @@ Al ingresar correctamente se muestra una confirmación y se abre `/torneos/:idTo
 
 Las rutas protegidas `/torneos/:idTorneo/sala` y `/torneos/:idTorneo` muestran la sala y el detalle del torneo. Ambas leen `idTorneo` desde la URL, contemplan carga, error y torneo inexistente, y adaptan los frames de Figma a escritorio y móvil con un único componente por pantalla.
 
-La sala muestra código, cupos y participantes. Copiar usa la API del portapapeles y confirma el resultado. Al completar el cupo, el mock refleja el flujo definido en el alcance: el torneo pasa a estar en curso y los cruces se generan automáticamente. `/torneos/:idTorneo/cuadro` continúa como placeholder hasta la actividad 3.3.5.
+La sala muestra código, cupos y participantes. Copiar usa la API del portapapeles y confirma el resultado. Al completar el cupo, el mock refleja el flujo definido en el alcance: el torneo pasa a estar en curso, los cruces se generan automáticamente y se habilita el acceso a `/torneos/:idTorneo/cuadro`.
 
 `servicioTorneos.js` mantiene mocks para `obtenerSalaTorneo(idTorneo)` y `obtenerDetalleTorneo(idTorneo)`. IDs temporales para probarlos:
 
@@ -78,6 +78,22 @@ La sala muestra código, cupos y participantes. Copiar usa la API del portapapel
 - `500`: error de carga simulado.
 
 Estos datos no se envían al backend. Los métodos conservan el `TODO` de integración y no definen URLs ni contratos HTTP todavía.
+
+## Cuadro de llaves y torneo finalizado — actividad 3.3.5
+
+La ruta protegida `/torneos/:idTorneo/cuadro` muestra el cuadro completo de eliminación directa, la ronda actual, el próximo partido, los resultados de cada cruce y el campeón. En celular prioriza el camino hacia la final y conserva el acceso temporal a `/duelo`; la lógica de la partida sigue pendiente del módulo 2.
+
+Cuando el torneo está finalizado, la misma ruta muestra el campeón, el premio y el resumen del usuario. Desde allí se puede consultar el cuadro completo, compartir el resultado mediante la API nativa del navegador y volver al listado de torneos.
+
+`servicioTorneos.js` ofrece temporalmente `obtenerCuadroTorneo(idTorneo)` con datos mock. IDs para probar la pantalla:
+
+- `1`: torneo en curso, actualmente en semifinales.
+- `17`: torneo en curso cuyo cupo ya se completó y cuyos cruces se generaron automáticamente.
+- `9`: torneo finalizado con campeón y resumen de participación.
+- `404` o cualquier ID no definido: torneo inexistente.
+- `500`: error de carga simulado.
+
+El backend todavía no publica el contrato de estado, participantes y cruces. El método conserva un `TODO` explícito y no inventa una URL HTTP; los datos se reemplazarán cuando esté disponible el endpoint de la actividad 3.2.3.
 
 ## Sesión JWT — actividad 1.2.5
 
