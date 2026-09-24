@@ -5,10 +5,13 @@ prueba.beforeEach(async ({ page: pagina }) => {
   await prepararSesion(pagina)
 })
 
-prueba('la Home permite navegar a los módulos y volver sin llamar al backend', async ({ page: pagina }) => {
+prueba('la Home permite navegar y solo Torneos consulta su endpoint real', async ({ page: pagina }) => {
   const solicitudes = []
   await pagina.route('**/api/**', (ruta) => {
     solicitudes.push(ruta.request().url())
+    if (ruta.request().url().endsWith('/api/torneos?filtro=mios')) {
+      return ruta.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+    }
     return ruta.abort()
   })
   await pagina.setViewportSize({ width: 1440, height: 1024 })
@@ -37,7 +40,8 @@ prueba('la Home permite navegar a los módulos y volver sin llamar al backend', 
       await pagina.getByRole('link', { name: 'Volver al inicio' }).click()
     }
   }
-  esperar(solicitudes).toEqual([])
+  esperar(solicitudes.length).toBeGreaterThan(0)
+  esperar([...new Set(solicitudes)]).toEqual(['https://api.futbolquiz.test/api/torneos?filtro=mios'])
   await pagina.screenshot({ path: 'test-results/inicio-escritorio.png', fullPage: true })
 })
 

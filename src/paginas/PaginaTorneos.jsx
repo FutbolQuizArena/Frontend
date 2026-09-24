@@ -47,7 +47,7 @@ export default function PaginaTorneos() {
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
   const torneosVisibles = seccionActiva === 'disponibles'
     ? torneos.filter((torneo) => {
-        const coincideBusqueda = !consulta || torneo.nombre.toLocaleLowerCase('es-AR').includes(consulta) || torneo.codigo.toLocaleLowerCase('es-AR').includes(consulta)
+        const coincideBusqueda = !consulta || torneo.nombre.toLocaleLowerCase('es-AR').includes(consulta) || (torneo.codigo || '').toLocaleLowerCase('es-AR').includes(consulta)
         const coincideFiltro = filtro === 'todos' || (filtro === 'gratis' && !torneo.requiereContrasena) || (filtro === 'hoy' && torneo.inicio.startsWith('Hoy')) || (filtro === 'extremos' && [4, 16].includes(torneo.capacidad))
         return coincideBusqueda && coincideFiltro
       })
@@ -166,8 +166,8 @@ export default function PaginaTorneos() {
           </section>
         )}
 
-        {seccionActiva === 'propios' && !cargando && <aside className="torneos__mejor-puesto"><span>🏆 Tu mejor puesto</span><strong>Campeón · Copa Federal</strong></aside>}
-        {seccionActiva === 'finalizados' && !cargando && <aside className="torneos__resumen"><span>HISTORIAL DE TORNEOS</span><strong>3 torneos · 1 título · 9 victorias</strong></aside>}
+        {seccionActiva === 'propios' && !cargando && <aside className="torneos__mejor-puesto"><span>🏆 Tu historial</span><strong>Consultá tus resultados en Finalizados</strong></aside>}
+        {seccionActiva === 'finalizados' && !cargando && <aside className="torneos__resumen"><span>HISTORIAL DE TORNEOS</span><strong>{torneos.length} {torneos.length === 1 ? 'torneo finalizado' : 'torneos finalizados'}</strong></aside>}
       </main>
     </div>
   )

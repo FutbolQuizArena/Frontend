@@ -30,7 +30,7 @@ export default function PaginaCrearTorneo() {
   const [errores, establecerErrores] = usarEstado({})
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [mensajeExito, establecerMensajeExito] = usarEstado('')
-  const [codigoTemporal, establecerCodigoTemporal] = usarEstado('')
+  const [codigoAcceso, establecerCodigoAcceso] = usarEstado('')
   const [creando, establecerCreando] = usarEstado(false)
   const solicitudEnCurso = usarReferencia(false)
 
@@ -40,7 +40,7 @@ export default function PaginaCrearTorneo() {
     establecerErrores((anteriores) => ({ ...anteriores, [nombre]: '' }))
     establecerMensajeError('')
     establecerMensajeExito('')
-    establecerCodigoTemporal('')
+    establecerCodigoAcceso('')
   }
 
   function seleccionarCantidad(cantidadParticipantes) {
@@ -48,7 +48,7 @@ export default function PaginaCrearTorneo() {
     establecerErrores((anteriores) => ({ ...anteriores, cantidadParticipantes: '' }))
     establecerMensajeError('')
     establecerMensajeExito('')
-    establecerCodigoTemporal('')
+    establecerCodigoAcceso('')
   }
 
   async function manejarEnvio(evento) {
@@ -59,7 +59,7 @@ export default function PaginaCrearTorneo() {
     establecerErrores(nuevosErrores)
     establecerMensajeError('')
     establecerMensajeExito('')
-    establecerCodigoTemporal('')
+    establecerCodigoAcceso('')
 
     if (Object.keys(nuevosErrores).length) {
       if (nuevosErrores.nombre) evento.currentTarget.elements.namedItem('nombre')?.focus()
@@ -75,7 +75,7 @@ export default function PaginaCrearTorneo() {
         cantidadParticipantes: datos.cantidadParticipantes,
         contrasena: datos.contrasena,
       })
-      establecerCodigoTemporal(resultado.codigoTemporal)
+      establecerCodigoAcceso(resultado.codigoAcceso)
       establecerMensajeExito('Torneo creado correctamente.')
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos crear el torneo. Intentá de nuevo.')
@@ -140,7 +140,7 @@ export default function PaginaCrearTorneo() {
 
             <div className="crear-torneo__codigo crear-torneo__solo-movil">
               <p>CÓDIGO DE ACCESO</p>
-              <output>{codigoTemporal || 'Se genera automáticamente al crear'}</output>
+              <output>{codigoAcceso || 'Se genera automáticamente al crear'}</output>
             </div>
 
             <div className="crear-torneo__informacion">
@@ -150,7 +150,7 @@ export default function PaginaCrearTorneo() {
           </fieldset>
 
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-          {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito} Código temporal: <strong>{codigoTemporal}</strong></p>}
+          {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito} Código de acceso: <strong>{codigoAcceso}</strong></p>}
           <Boton tipo="submit" cargando={creando} textoCargando="Creando torneo…">
             <span className="crear-torneo__solo-escritorio">Crear torneo</span><span className="crear-torneo__solo-movil">Crear y obtener código</span>
           </Boton>
