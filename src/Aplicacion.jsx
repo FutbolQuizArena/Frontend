@@ -13,6 +13,7 @@ import PaginaCuadroTorneo from './paginas/PaginaCuadroTorneo.jsx'
 import PaginaRuletaCategoria from './paginas/PaginaRuletaCategoria.jsx'
 import PaginaPartidaIndividual from './paginas/PaginaPartidaIndividual.jsx'
 import PaginaResultadoPartida from './paginas/PaginaResultadoPartida.jsx'
+import PaginaSeleccionModo from './paginas/PaginaSeleccionModo.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -26,8 +27,12 @@ export default function Aplicacion() {
       </Ruta>
       <Ruta element={<RutaProtegida />}>
         <Ruta path="/home" element={<PaginaHome />} />
+        <Ruta path="/jugar" element={<PaginaSeleccionModo />} />
+        <Ruta path="/juegos/modos" element={<PaginaSeleccionModo />} />
         <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
-        <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/duelo/esperando" textoAccion="Ir a la espera" />} />
+        <Ruta path="/duelo/esperando" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/duelo/modo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
         <Ruta path="/partida/ruleta" element={<PaginaRuletaCategoria />} />
         <Ruta path="/partida/juegan" element={<PaginaPartidaIndividual />} />
         <Ruta path="/partida/individual" element={<PaginaPartidaIndividual />} />

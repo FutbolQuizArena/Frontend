@@ -1,0 +1,205 @@
+.seleccion-modo { min-height: 100svh; padding-left: 240px; }
+
+.seleccion-modo__cabecera {
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.seleccion-modo__contenido {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 38px 56px 80px 48px;
+}
+
+.seleccion-modo__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 32px;
+}
+
+.seleccion-modo__encabezado h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 4vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.seleccion-modo__etiqueta {
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--color-principal);
+}
+
+.seleccion-modo__volver {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  background: rgba(22, 42, 32, 0.9);
+  color: var(--color-texto);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.seleccion-modo__volver:hover {
+  border-color: var(--color-principal);
+  color: var(--color-texto);
+}
+
+.seleccion-modo__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+  max-width: 980px;
+}
+
+.tarjeta-modo-juego {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 18px;
+  min-height: 220px;
+  padding: 24px 22px 24px 20px;
+  border: 1px solid rgba(36, 64, 47, 0.9);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(28, 55, 42, 0.85), rgba(20, 35, 28, 0.85));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  text-decoration: none;
+  color: var(--color-texto);
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.tarjeta-modo-juego:hover {
+  transform: translateY(-2px);
+  border-color: rgba(53, 196, 102, 0.9);
+  box-shadow: 0 10px 30px rgba(53, 196, 102, 0.12);
+}
+
+.tarjeta-modo-juego__icono {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: rgba(53, 196, 102, 0.12);
+  border: 1px solid rgba(53, 196, 102, 0.22);
+  font-size: 38px;
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.tarjeta-modo-juego__contenido {
+  min-width: 0;
+}
+
+.tarjeta-modo-juego__etiqueta {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-principal);
+  font-weight: 700;
+}
+
+.tarjeta-modo-juego__contenido h2 {
+  margin: 0 0 10px;
+  font-size: clamp(1.65rem, 2vw, 2.1rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.tarjeta-modo-juego__contenido p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-secundario);
+  max-width: 18ch;
+}
+
+.tarjeta-modo-juego__flecha {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(53, 196, 102, 0.08);
+  color: var(--color-principal);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .seleccion-modo__contenido {
+    padding: 40px 24px 64px;
+  }
+
+  .seleccion-modo__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .seleccion-modo {
+    padding: 0 0 calc(90px + env(safe-area-inset-bottom));
+  }
+
+  .seleccion-modo__contenido {
+    padding: 32px 18px 80px;
+  }
+
+  .seleccion-modo__encabezado {
+    display: block;
+    margin-bottom: 22px;
+  }
+
+  .seleccion-modo__encabezado h1 {
+    font-size: 2.1rem;
+    line-height: 1.2;
+  }
+
+  .seleccion-modo__volver {
+    display: inline-flex;
+    margin-top: 16px;
+  }
+
+  .seleccion-modo__grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .tarjeta-modo-juego {
+    grid-template-columns: auto 1fr;
+    min-height: 170px;
+    padding: 20px 18px;
+  }
+
+  .tarjeta-modo-juego__icono {
+    width: 62px;
+    height: 62px;
+    font-size: 28px;
+  }
+
+  .tarjeta-modo-juego__flecha {
+    grid-column: 2;
+    justify-self: end;
+    width: 36px;
+    height: 36px;
+    font-size: 22px;
+  }
+
+  .tarjeta-modo-juego__contenido h2 {
+    font-size: 1.4rem;
+  }
+
+  .tarjeta-modo-juego__contenido p {
+    font-size: 14px;
+    max-width: none;
+  }
+}
