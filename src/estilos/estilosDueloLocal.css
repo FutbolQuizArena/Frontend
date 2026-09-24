@@ -1,0 +1,242 @@
+:root {
+  --duelo-local-fondo: #07141d;
+  --duelo-local-panel: #0e1f2a;
+  --duelo-local-panel-2: #132a35;
+  --duelo-local-borde: rgba(149, 176, 194, 0.2);
+  --duelo-local-texto: #ecf7ff;
+  --duelo-local-texto-suave: #a9bed1;
+  --duelo-local-primario: #48d0a6;
+  --duelo-local-primario-oscuro: #1a9d75;
+  --duelo-local-secundario: #ffb703;
+  --duelo-local-rojo: #ef4444;
+  --duelo-local-card: #101c27;
+}
+
+.duelo-local__pagina {
+  min-height: 100vh;
+  background: var(--duelo-local-fondo);
+}
+
+.duelo-local__contenido {
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  padding: 28px 32px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.duelo-local__panel {
+  width: min(100%, 960px);
+  background: rgba(14, 31, 42, 0.96);
+  border: 1px solid var(--duelo-local-borde);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  padding: 28px 30px 26px;
+}
+
+.duelo-local__titulo {
+  margin: 0 0 22px;
+  color: var(--duelo-local-texto);
+  font-size: clamp(2rem, 2.8vw, 3rem);
+}
+
+.duelo-local__formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.duelo-local__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--duelo-local-texto);
+  font-weight: 700;
+}
+
+.duelo-local__campo input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--duelo-local-borde);
+  background: var(--duelo-local-card);
+  color: var(--duelo-local-texto);
+  padding: 14px 16px;
+  font-size: 1rem;
+}
+
+.duelo-local__boton-primary,
+.duelo-local__boton-secondary,
+.duelo-local__opcion {
+  border: none;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.duelo-local__boton-primary {
+  background: linear-gradient(135deg, var(--duelo-local-primario), var(--duelo-local-primario-oscuro));
+  color: #041a1d;
+  min-height: 52px;
+  padding: 0 22px;
+  font-size: 1rem;
+}
+
+.duelo-local__boton-secondary {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--duelo-local-texto);
+  border: 1px solid var(--duelo-local-borde);
+  min-height: 52px;
+  padding: 0 22px;
+  font-size: 1rem;
+}
+
+.duelo-local__panel--turno,
+.duelo-local__panel--resultado,
+.duelo-local__panel--juego {
+  text-align: center;
+}
+
+.duelo-local__mensaje {
+  color: var(--duelo-local-texto-suave);
+  font-size: 1.15rem;
+  margin: 8px 0 18px;
+}
+
+.duelo-local__turno-actual {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: rgba(16, 28, 39, 0.9);
+  border: 1px solid var(--duelo-local-borde);
+  border-radius: 18px;
+  padding: 18px 22px;
+}
+
+.duelo-local__turno-actual span {
+  color: var(--duelo-local-texto-suave);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.duelo-local__turno-actual strong {
+  font-size: 2rem;
+  color: var(--duelo-local-texto);
+}
+
+.duelo-local__cabecera-juego {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.duelo-local__turno {
+  font-weight: 700;
+  color: var(--duelo-local-texto);
+  font-size: 0.9rem;
+}
+
+.duelo-local__pregunta {
+  margin: 0 0 26px;
+  color: var(--duelo-local-texto);
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  line-height: 1.4;
+}
+
+.duelo-local__opciones {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.duelo-local__opcion {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--duelo-local-texto);
+  border: 1px solid var(--duelo-local-borde);
+  min-height: 62px;
+  padding: 14px 18px;
+  font-size: 1rem;
+}
+
+.duelo-local__resultado {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin: 24px 0;
+}
+
+.duelo-local__resultado-jugador {
+  background: rgba(16, 28, 39, 0.8);
+  border: 1px solid var(--duelo-local-borde);
+  border-radius: 18px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--duelo-local-texto);
+}
+
+.duelo-local__resultado-jugador strong {
+  font-size: 1.2rem;
+}
+
+.duelo-local__resultado-jugador span,
+.duelo-local__resultado-jugador small {
+  color: var(--duelo-local-texto-suave);
+}
+
+.duelo-local__resultado-versus {
+  color: var(--duelo-local-texto);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.duelo-local__acciones {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+@media (max-width: 768px) {
+  .duelo-local__contenido {
+    padding: 18px 14px 26px;
+  }
+
+  .duelo-local__panel {
+    padding: 20px 16px 18px;
+    border-radius: 22px;
+  }
+
+  .duelo-local__formulario,
+  .duelo-local__opciones {
+    grid-template-columns: 1fr;
+  }
+
+  .duelo-local__cabecera-juego {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .duelo-local__resultado {
+    grid-template-columns: 1fr;
+  }
+
+  .duelo-local__acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .duelo-local__boton-primary,
+  .duelo-local__boton-secondary {
+    width: 100%;
+  }
+}
