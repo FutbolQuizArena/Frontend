@@ -1,4 +1,6 @@
+import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
@@ -9,6 +11,14 @@ const enlaces = [
 ]
 
 export default function MarcoTorneo({ children: contenido, tituloMovil, subtituloMovil }) {
+  const [usuario, establecerUsuario] = usarEstado(null)
+
+  usarEfecto(() => {
+    let vigente = true
+    obtenerPerfil().then((perfil) => { if (vigente) establecerUsuario(perfil) }).catch(() => {})
+    return () => { vigente = false }
+  }, [])
+
   return (
     <div className="marco-torneo">
       <a className="enlace-salto" href="#contenido-torneo">Ir al contenido</a>
@@ -21,13 +31,13 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
             </EnlaceNavegacion>
           ))}
         </nav>
-        <div className="marco-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>Jugador · 2.450 pts</span></div>
+        <div className="marco-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>{usuario ? `${usuario.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · ${usuario.puntajeTotal.toLocaleString('es-AR')} pts` : 'Cargando…'}</span></div>
       </aside>
 
       <header className="marco-torneo__cabecera">
         <span className="marco-torneo__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="marco-torneo__titulo-movil"><strong>{tituloMovil}</strong><span>{subtituloMovil}</span></div>
-        <Enlace className="marco-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>LM</span></Enlace>
+        <Enlace className="marco-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>{usuario?.iniciales || 'FQ'}</span></Enlace>
       </header>
 
       <main id="contenido-torneo" className="marco-torneo__contenido">{contenido}</main>

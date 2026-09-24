@@ -1,31 +1,36 @@
-const perfilTemporal = {
-  nombre: 'Lucas Agüero',
-  usuario: 'lucas10',
-  correo: 'lucas@futbolquiz.com',
-  bio: 'Fanático del fútbol y los datos.',
-  iniciales: 'LM',
-  puntajeTotal: 2450,
+﻿import { solicitarApi } from './clienteApi.js'
+
+function adaptarPerfil(usuario) {
+  return {
+    id: usuario.id,
+    nombre: usuario.nombre,
+    correo: usuario.email,
+    rol: usuario.rol,
+    puntajeTotal: usuario.puntaje_total ?? 0,
+    iniciales: usuario.nombre.trim().split(/\s+/).slice(0, 2).map((parte) => parte[0].toUpperCase()).join(''),
+  }
 }
 
-function copiarPerfil() {
-  return { ...perfilTemporal }
+export async function obtenerPerfil() {
+  return adaptarPerfil(await solicitarApi('/api/usuarios/me'))
 }
 
-export function obtenerPerfil() {
-  // TODO: reemplazar por GET con Authorization: Bearer cuando exista un endpoint de usuario actual/perfil.
-  return Promise.resolve(copiarPerfil())
-}
-
-export function actualizarPerfil(datosPerfil) {
-  // TODO: reemplazar por PATCH/PUT con Authorization: Bearer cuando exista el contrato del endpoint de perfil.
-  Object.assign(perfilTemporal, datosPerfil, {
-    iniciales: datosPerfil.nombre
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((parte) => parte[0]?.toUpperCase())
-      .join('') || perfilTemporal.iniciales,
+export async function actualizarPerfil(datosPerfil) {
+  const datos = { nombre: datosPerfil.nombre, email: datosPerfil.correo }
+  if (datosPerfil.nuevaContrasena) {
+    datos.password_actual = datosPerfil.contrasenaActual
+    datos.nueva_password = datosPerfil.nuevaContrasena
+  }
+  const usuario = await solicitarApi('/api/usuarios/me', {
+    metodo: 'PATCH',
+    datos,
   })
+  return adaptarPerfil(usuario)
+}
 
-  return Promise.resolve(copiarPerfil())
+export async function cambiarContrasena(contrasenaActual, nuevaContrasena) {
+  return adaptarPerfil(await solicitarApi('/api/usuarios/me/password', {
+    metodo: 'PATCH',
+    datos: { password_actual: contrasenaActual, nueva_password: nuevaContrasena },
+  }))
 }

@@ -1,15 +1,14 @@
+import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import TarjetaModo from '../componentes/TarjetaModo.jsx'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
-// TODO: reemplazar los datos de demostración cuando exista un endpoint de usuario actual y rendimiento.
-const usuarioTemporal = {
-  nombre: 'Lucas', iniciales: 'LM', rol: 'JUGADOR',
-  puntajeTotal: 2450, posicion: 7, partidas: 34, victorias: 18, torneos: 5,
-}
+// TODO: reemplazar las estadísticas que GET /api/usuarios/me aún no publica.
+const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: 0, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
 const rankingTemporal = [
   { nombre: 'Mati10', posicion: 1, puntajeTotal: 8920 },
   { nombre: 'SofiGol', posicion: 2, puntajeTotal: 8460 },
@@ -24,8 +23,20 @@ const enlaces = [
 ]
 const formatearPuntaje = (puntaje) => puntaje.toLocaleString('es-AR')
 
-export default function PaginaHome({ usuario = usuarioTemporal }) {
+export default function PaginaHome() {
   const navegar = usarNavegacion()
+  const [usuario, establecerUsuario] = usarEstado(usuarioInicial)
+  const [mensajeError, establecerMensajeError] = usarEstado('')
+
+  usarEfecto(() => {
+    let vigente = true
+    obtenerPerfil().then((perfil) => {
+      if (vigente) establecerUsuario((anterior) => ({ ...anterior, ...perfil }))
+    }).catch((error) => {
+      if (vigente) establecerMensajeError(error.message || 'No pudimos cargar tus datos.')
+    })
+    return () => { vigente = false }
+  }, [])
   const esAdministrador = usuario.rol === 'ADMINISTRADOR'
 
   return (
@@ -51,6 +62,7 @@ export default function PaginaHome({ usuario = usuarioTemporal }) {
         <BotonCerrarSesion />
       </header>
       <main className="inicio__contenido" id="contenido-inicio">
+        {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
         <div className="inicio__bienvenida">
           <p className="inicio__solo-movil sobretitulo">HOY ES DÍA DE PARTIDO</p>
           <h1><span className="inicio__solo-escritorio">Buenas, {usuario.nombre} 👋</span><span className="inicio__solo-movil">¿Listo para jugar?</span></h1>
@@ -75,7 +87,7 @@ export default function PaginaHome({ usuario = usuarioTemporal }) {
           <h2 id="titulo-ranking">Ranking general</h2>
           <ol>
             {[...rankingTemporal, usuario].map((jugador, indice) => (
-              <li key={indice} className={indice === 3 ? 'inicio__jugador-actual' : ''} value={jugador.posicion}>
+              <li key={indice} className={indice === 3 ? 'inicio__jugador-actual' : ''} value={typeof jugador.posicion === 'number' ? jugador.posicion : undefined}>
                 <span>{jugador.posicion}</span><span className="inicio__avatar-ranking" aria-hidden="true" /><strong>{jugador.nombre}</strong><span>{formatearPuntaje(jugador.puntajeTotal)}</span>
               </li>
             ))}

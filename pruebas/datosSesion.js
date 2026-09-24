@@ -8,4 +8,9 @@ export function crearTokenPrueba(datos = {}) {
 export async function prepararSesion(pagina, token = crearTokenPrueba()) {
   await pagina.goto('/login')
   await pagina.evaluate((tokenTemporal) => sessionStorage.setItem('futbolquizToken', tokenTemporal), token)
+  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ id: 1, nombre: 'Lucas Agüero', email: 'lucas@futbolquiz.com', rol: 'JUGADOR', puntaje_total: 2450 }),
+  }))
 }
