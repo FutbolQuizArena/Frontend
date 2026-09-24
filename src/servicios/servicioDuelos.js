@@ -61,6 +61,50 @@ const preguntasDueloBase = [
   },
 ]
 
+// TODO: reemplazar por endpoint real cuando el backend de duelos esté listo (GET /api/duelos/:id/resultado)
+export function obtenerResultadoDuelo(idDuelo) {
+  const base = {
+    idPartida: idDuelo ?? 'duelo-demo',
+    ganador: 'local',
+    jugadorLocal: {
+      nombre: 'Lucas',
+      alias: 'Luki',
+      avatar: 'LM',
+      puntaje: 1420,
+      aciertos: 8,
+      totalPreguntas: 10,
+      tiempoPromedio: 6.2,
+    },
+    oponente: {
+      nombre: 'Rival',
+      alias: 'Oponente',
+      avatar: 'RV',
+      puntaje: 1190,
+      aciertos: 6,
+      totalPreguntas: 10,
+      tiempoPromedio: 8.4,
+    },
+    resumen: {
+      diferencia: 230,
+      porcentajeLocal: 80,
+      porcentajeOponente: 60,
+    },
+    resultadoTexto: '¡VICTORIA!',
+  }
+
+  return Promise.resolve(base)
+}
+
+// TODO: reemplazar por endpoint real cuando el backend de duelos esté listo (POST /api/duelos/:id/revancha)
+export function solicitarRevanchaDuelo(idDuelo) {
+  return Promise.resolve({
+    idDuelo,
+    solicitudEnviada: true,
+    destino: '/duelo/esperando',
+    mensaje: 'Se está buscando un rival nuevo.',
+  })
+}
+
 export function buscarRivalDuelo() {
   const demoraBase = typeof window !== 'undefined' && Number.isFinite(window.__DUELO_TIMEOUT__)
     ? Number(window.__DUELO_TIMEOUT__)
@@ -87,16 +131,16 @@ export function cancelarBusquedaDuelo() {
   return true
 }
 
+// TODO: reemplazar por endpoint real cuando el backend de duelos esté listo (GET /api/duelos/:id/preguntas)
 export function obtenerPreguntasDuelo(idDuelo) {
-  // TODO: reemplazar por endpoint real cuando el backend de duelos esté listo
   return preguntasDueloBase.map((pregunta, indice) => ({
     ...pregunta,
     id: `${pregunta.id}-${idDuelo ?? 'duelo-demo'}-${indice}`,
   }))
 }
 
+// TODO: reemplazar por endpoint real cuando el backend de duelos esté listo (POST /api/duelos/:id/respuestas)
 export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada, tiempoEmpleado) {
-  // TODO: reemplazar por endpoint real cuando el backend de duelos esté listo
   return {
     idDuelo,
     idPregunta,
@@ -106,8 +150,8 @@ export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada,
   }
 }
 
+// TODO: reemplazar por endpoint real cuando el backend de duelos esté listo (GET /api/duelos/:id/rival-respuesta)
 export function simularRespuestaRival(idPregunta) {
-  // TODO: reemplazar por endpoint real cuando el backend de duelos esté listo
   const correcta = Math.random() > 0.45
 
   return {
@@ -121,6 +165,8 @@ export function simularRespuestaRival(idPregunta) {
 export default {
   buscarRivalDuelo,
   cancelarBusquedaDuelo,
+  obtenerResultadoDuelo,
+  solicitarRevanchaDuelo,
   obtenerPreguntasDuelo,
   registrarRespuestaDuelo,
   simularRespuestaRival,
