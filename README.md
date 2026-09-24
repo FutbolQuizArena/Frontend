@@ -42,7 +42,7 @@ Abrir `/torneos` para consultar «Mis torneos», «Disponibles» y «Finalizados
 
 `servicioTorneos.js` ofrece temporalmente `obtenerMisTorneos()`, `obtenerTorneosDisponibles()` y `obtenerTorneosFinalizados()` con datos mock. La pantalla contempla carga, error, lista vacía y resultados. Estos métodos tienen un `TODO` para reemplazarlos cuando el backend publique el contrato real, sin inventar rutas ni nombres de campos.
 
-El acceso para unirse abre la pantalla de la actividad 3.3.3. Ver el detalle y consultar el cuadro todavía conducen a rutas privadas provisionales de las actividades 3.3.4 y 3.3.5.
+El acceso para unirse abre la pantalla de la actividad 3.3.3. Los detalles ya usan la pantalla de 3.3.4; consultar el cuadro todavía conduce a la ruta privada provisional de la actividad 3.3.5.
 
 ## Creación de torneos — actividad 3.3.2
 
@@ -58,7 +58,26 @@ Abrir `/torneos/unirse` para ingresar un código de seis caracteres y una contra
 
 `servicioTorneos.js` ofrece temporalmente `unirseATorneo(codigo, contrasena)` como mock. Se puede probar `LIGA24` sin contraseña, `FQA8K2` con la contraseña `cancha`, `LLENO8` para un torneo completo e `INSCR1` para un usuario ya registrado. Cualquier otro código devuelve el error de torneo inexistente.
 
-Al ingresar correctamente se muestra una confirmación y se abre la sala provisional `/torneos/:idTorneo/sala`. La pantalla real de sala y detalle corresponde a la actividad 3.3.4. La integración HTTP sigue pendiente hasta que el backend publique su contrato definitivo.
+Al ingresar correctamente se muestra una confirmación y se abre `/torneos/:idTorneo/sala`. La integración HTTP sigue pendiente hasta que el backend publique su contrato definitivo.
+
+## Sala y detalle del torneo — actividad 3.3.4
+
+Las rutas protegidas `/torneos/:idTorneo/sala` y `/torneos/:idTorneo` muestran la sala y el detalle del torneo. Ambas leen `idTorneo` desde la URL, contemplan carga, error y torneo inexistente, y adaptan los frames de Figma a escritorio y móvil con un único componente por pantalla.
+
+La sala muestra código, cupos y participantes. Copiar usa la API del portapapeles y confirma el resultado. Solo el organizador puede iniciar y el botón se habilita al completar el cupo; el inicio exitoso abre `/torneos/:idTorneo/cuadro`, que continúa como placeholder hasta la actividad 3.3.5.
+
+`servicioTorneos.js` mantiene mocks para `obtenerSalaTorneo(idTorneo)`, `obtenerDetalleTorneo(idTorneo)` e `iniciarTorneo(idTorneo)`. IDs temporales para probarlos:
+
+- `5`: sala en espera con el usuario como participante y detalle en espera.
+- `14`: sala en espera con el usuario como organizador; faltan dos participantes.
+- `16`: sala en espera con el usuario como participante; faltan cuatro participantes.
+- `17`: sala completa con el usuario como organizador, lista para iniciar.
+- `1`: detalle de torneo en curso.
+- `9`: detalle de torneo finalizado.
+- `404` o cualquier ID no definido: torneo inexistente.
+- `500`: error de carga simulado.
+
+Estos datos no se envían al backend. Los métodos conservan el `TODO` de integración y no definen URLs ni contratos HTTP todavía.
 
 ## Sesión JWT — actividad 1.2.5
 

@@ -29,6 +29,32 @@ const invitacionesTemporales = {
   INSCR1: { id: 16, nombre: 'Copa del Barrio', participantes: 4, capacidad: 8, error: 'Ya estás registrado en este torneo.' },
 }
 
+const participantesTemporales = [
+  { id: 1, nombre: 'Lucas' },
+  { id: 2, nombre: 'Mati10' },
+  { id: 3, nombre: 'SofiGol' },
+  { id: 4, nombre: 'Fede_9' },
+  { id: 5, nombre: 'NicoFC' },
+  { id: 6, nombre: 'LauGol' },
+  { id: 7, nombre: 'AnaGol' },
+  { id: 8, nombre: 'JuanPro' },
+]
+
+const salasTemporales = {
+  5: { id: 5, nombre: 'Liga de Campeones', codigo: 'LIGA24', estado: 'ESPERANDO JUGADORES', capacidad: 8, organizador: 'AnaGol', esOrganizador: false, participantes: participantesTemporales.slice(0, 6) },
+  14: { id: 14, nombre: 'Copa de Amigos', codigo: 'FQA8K2', estado: 'ESPERANDO JUGADORES', capacidad: 8, organizador: 'Lucas', esOrganizador: true, participantes: participantesTemporales.slice(0, 6) },
+  16: { id: 16, nombre: 'Copa del Barrio', codigo: 'INSCR1', estado: 'ESPERANDO JUGADORES', capacidad: 8, organizador: 'Mati10', esOrganizador: false, participantes: participantesTemporales.slice(0, 4) },
+  17: { id: 17, nombre: 'Copa Completa', codigo: 'LISTO8', estado: 'LISTO PARA COMENZAR', capacidad: 8, organizador: 'Lucas', esOrganizador: true, participantes: participantesTemporales },
+}
+
+const detallesTemporales = {
+  1: { id: 1, nombre: 'Copa de Campeones', estado: 'EN CURSO', formato: 'Eliminación directa', participantes: 8, capacidad: 8, proximaRonda: 'Semifinal · Hoy 21:00', codigo: 'COPA26', accion: 'Continuar' },
+  5: { id: 5, nombre: 'Liga de Campeones', estado: 'ESPERANDO', formato: 'Eliminación directa', participantes: 6, capacidad: 8, proximaRonda: 'Esperando participantes', codigo: 'LIGA24', accion: 'Ir a la sala' },
+  9: { id: 9, nombre: 'Copa Apertura', estado: 'FINALIZADO', formato: 'Eliminación directa', participantes: 8, capacidad: 8, proximaRonda: 'Campeona · SofiGol', codigo: 'APER26', resultado: 'Semifinal · 3 victorias', accion: 'Ver cuadro' },
+  14: { id: 14, nombre: 'Copa de Amigos', estado: 'ESPERANDO', formato: 'Eliminación directa', participantes: 6, capacidad: 8, proximaRonda: 'Esperando participantes', codigo: 'FQA8K2', accion: 'Ir a la sala' },
+  17: { id: 17, nombre: 'Copa Completa', estado: 'LISTO', formato: 'Eliminación directa', participantes: 8, capacidad: 8, proximaRonda: 'Lista para comenzar', codigo: 'LISTO8', accion: 'Ir a la sala' },
+}
+
 function normalizarCodigo(codigo) {
   return codigo.trim().replace(/\s+/g, '').toUpperCase()
 }
@@ -99,5 +125,69 @@ export function unirseATorneo(codigo, contrasena = '') {
 
       resolver({ idTorneo: torneo.id, nombre: torneo.nombre })
     }, 350)
+  })
+}
+
+function crearErrorTorneo(codigo, mensaje) {
+  const error = new Error(mensaje)
+  error.codigo = codigo
+  return error
+}
+
+function obtenerCopiaTemporal(coleccion, idTorneo) {
+  return new Promise((resolver, rechazar) => {
+    setTimeout(() => {
+      if (String(idTorneo) === '500') {
+        rechazar(crearErrorTorneo('ERROR_CARGA', 'No pudimos cargar el torneo. Intentá de nuevo.'))
+        return
+      }
+
+      const torneo = coleccion[idTorneo]
+      if (!torneo) {
+        rechazar(crearErrorTorneo('TORNEO_NO_ENCONTRADO', 'No encontramos el torneo solicitado.'))
+        return
+      }
+
+      resolver({
+        ...torneo,
+        participantes: Array.isArray(torneo.participantes)
+          ? torneo.participantes.map((participante) => ({ ...participante }))
+          : torneo.participantes,
+      })
+    }, 220)
+  })
+}
+
+export function obtenerDetalleTorneo(idTorneo) {
+  // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
+  return obtenerCopiaTemporal(detallesTemporales, idTorneo)
+}
+
+export function obtenerSalaTorneo(idTorneo) {
+  // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
+  return obtenerCopiaTemporal(salasTemporales, idTorneo)
+}
+
+export function iniciarTorneo(idTorneo) {
+  // TODO: reemplazar por endpoint real cuando el backend de torneos esté listo
+  return new Promise((resolver, rechazar) => {
+    setTimeout(() => {
+      const sala = salasTemporales[idTorneo]
+
+      if (!sala) {
+        rechazar(crearErrorTorneo('TORNEO_NO_ENCONTRADO', 'No encontramos el torneo solicitado.'))
+        return
+      }
+      if (!sala.esOrganizador) {
+        rechazar(crearErrorTorneo('ACCION_NO_PERMITIDA', 'Solo el organizador puede iniciar el torneo.'))
+        return
+      }
+      if (sala.participantes.length < sala.capacidad) {
+        rechazar(crearErrorTorneo('CUPOS_INCOMPLETOS', 'El torneo necesita completar todos los lugares antes de comenzar.'))
+        return
+      }
+
+      resolver({ idTorneo: sala.id, estado: 'EN CURSO' })
+    }, 450)
   })
 }
