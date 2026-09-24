@@ -21,7 +21,7 @@ export default function TarjetaTorneo({ torneo, tipo }) {
           <p className="tarjeta-torneo__fecha">{torneo.fecha}</p>
           <p className="tarjeta-torneo__campeon">{torneo.campeon}</p>
           <span className="tarjeta-torneo__resultado">{torneo.resultado}</span>
-          <p className="tarjeta-torneo__detalle-movil">{torneo.resultado === 'Campeón' ? '1.er puesto' : torneo.resultado} · {torneo.victorias} victorias</p>
+          <p className="tarjeta-torneo__detalle-movil">{torneo.victorias === null ? 'Abrí el detalle para consultar el resultado' : `${torneo.resultado === 'Campeón' ? '1.er puesto' : torneo.resultado} · ${torneo.victorias} victorias`}</p>
         </>
       ) : (
         <>

@@ -40,7 +40,7 @@ Home y Perfil requieren iniciar sesión y muestran la acción «Cerrar sesión»
 
 Abrir `/torneos` para consultar «Mis torneos», «Disponibles» y «Finalizados». La página adapta las tablas y grillas de escritorio a tarjetas móviles, mantiene la navegación inferior y enlaza con la creación existente en `/torneos/crear`.
 
-`servicioTorneos.js` ofrece temporalmente `obtenerMisTorneos()`, `obtenerTorneosDisponibles()` y `obtenerTorneosFinalizados()` con datos mock. La pantalla contempla carga, error, lista vacía y resultados. Estos métodos tienen un `TODO` para reemplazarlos cuando el backend publique el contrato real, sin inventar rutas ni nombres de campos.
+`servicioTorneos.js` consulta el endpoint autenticado `GET /api/torneos` con los filtros `mios`, `disponibles` y `finalizados`. La pantalla contempla carga, error, lista vacía y resultados, y adapta el contrato `snake_case` del backend al modelo visual del frontend. El listado no informa todavía campeón, resultado individual ni cruces; esos datos se presentan como pendientes de detalle.
 
 El acceso para unirse abre la pantalla de la actividad 3.3.3. Los detalles usan la pantalla de 3.3.4 y los torneos en curso o finalizados permiten consultar el cuadro implementado en la actividad 3.3.5.
 
@@ -48,17 +48,15 @@ El acceso para unirse abre la pantalla de la actividad 3.3.3. Los detalles usan 
 
 Abrir `/torneos/crear` para configurar un torneo con nombre, 4, 8 o 16 participantes y una contraseña opcional. La ruta es privada y conserva la navegación responsive de Home. Los frames de escritorio y móvil están enlazados en `docs/figma.md`.
 
-`servicioTorneos.js` ofrece temporalmente `crearTorneo(datosTorneo)` como mock local. Genera un código temporal y permite comprobar el manejo de errores intentando crear dos veces un torneo con el mismo nombre. El formulario permanece en la pantalla después de confirmar la creación.
-
-La llamada HTTP queda pendiente hasta que el backend publique el contrato definitivo de creación de torneos. El servicio contiene el `TODO` para reemplazar el mock; no se inventan todavía una URL ni nombres de campos del endpoint.
+`servicioTorneos.js` conecta `crearTorneo(datosTorneo)` con `POST /api/torneos`. Envía el token Bearer y el contrato `{ nombre, cantidad_participantes, contrasena_acceso }`; al recibir el `201`, muestra el `codigo_acceso` real. Los errores presentan el campo `message` devuelto por el backend y el formulario permanece en pantalla para permitir corregirlos.
 
 ## Ingreso a torneo — actividad 3.3.3
 
 Abrir `/torneos/unirse` para ingresar un código de seis caracteres y una contraseña cuando el torneo sea privado. La ruta es protegida, normaliza el código a mayúsculas, evita envíos duplicados y conserva las composiciones desktop y mobile de Figma.
 
-`servicioTorneos.js` ofrece temporalmente `unirseATorneo(codigo, contrasena)` como mock. Se puede probar `LIGA24` sin contraseña, `FQA8K2` con la contraseña `cancha`, `LLENO8` para un torneo completo e `INSCR1` para un usuario ya registrado. Cualquier otro código devuelve el error de torneo inexistente.
+`servicioTorneos.js` conecta `unirseATorneo(codigo, contrasena)` con `POST /api/torneos/unirse` usando `{ codigo_acceso, contrasena }`. Al ingresar correctamente se muestra una confirmación y se actualiza `/torneos`. La sala todavía no se abre con el ID real porque el backend no publica un endpoint para consultar sus participantes.
 
-Al ingresar correctamente se muestra una confirmación y se abre `/torneos/:idTorneo/sala`. La integración HTTP sigue pendiente hasta que el backend publique su contrato definitivo.
+El servicio también expone `salirDelTorneo(idTorneo)` para `DELETE /api/torneos/{torneo_id}/salir`. Queda preparado para enlazarlo a la sala cuando esa pantalla pueda obtener datos reales. Todas estas solicitudes pasan por `clienteApi.js`, que agrega el JWT, usa `VITE_API_URL` y conserva `code`, `message` y `detail` de los errores.
 
 ## Sala y detalle del torneo — actividad 3.3.4
 
@@ -105,7 +103,7 @@ Se descartan JWT malformados o vencidos al restaurar la sesión. Si el JWT conti
 
 `RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, todas las rutas de `/torneos`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` sigue siendo un placeholder que requiere sesión; los permisos reales de administrador quedan pendientes del contrato de roles.
 
-Los datos del usuario y las estadísticas de Home, ranking y torneos siguen siendo demostraciones. Perfil sigue usando su servicio mock. No se infieren datos o roles de claims sin contrato de usuario actual; los `TODO` indican dónde conectar los endpoints cuando estén disponibles. El cierre de sesión es local, sin endpoint de revocación.
+Los datos del usuario y las estadísticas de Home y ranking siguen siendo demostraciones. Perfil, sala, detalle y cuadro del torneo conservan sus servicios mock mientras faltan contratos de lectura. No se infieren datos o roles de claims sin contrato de usuario actual; los `TODO` indican dónde conectar los endpoints cuando estén disponibles. El cierre de sesión es local, sin revocación de JWT.
 
 ## Autenticación
 
@@ -122,7 +120,7 @@ src/
   componentes/     Campos, botones, tarjetas, MarcoAutenticacion, RutaProtegida y RutaPublica
   contextos/       ContextoSesion.jsx (ProveedorSesion y usarSesion)
   paginas/         PaginaRegistro, PaginaLogin, PaginaHome, PaginaPerfil y páginas de torneos
-  servicios/       servicioAuth.js, servicioPerfil.js, servicioSesion.js y servicioTorneos.js
+  servicios/       clienteApi.js, servicioAuth.js, servicioPerfil.js, servicioSesion.js y servicioTorneos.js
   utilidades/     validacionesAutenticacion.js
   estilos/        estilos.css
   Aplicacion.jsx

@@ -1,6 +1,20 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
 import { prepararSesion } from './datosSesion.js'
 
+const torneoCreado = {
+  id: 27,
+  nombre: 'Copa del Barrio',
+  cantidad_participantes: 16,
+  codigo_acceso: 'BARR27',
+  estado: 'ESPERANDO_JUGADORES',
+  creador_id: 1,
+  fecha_creacion: '2026-09-24T12:00:00Z',
+}
+
+async function interceptarMisTorneos(pagina) {
+  await pagina.route('**/api/torneos?filtro=mios', (ruta) => ruta.fulfill({ status: 200, contentType: 'application/json', body: '[]' }))
+}
+
 prueba('sin sesión, crear torneo redirige a login', async ({ page: pagina }) => {
   await pagina.goto('/torneos/crear')
   await esperar(pagina).toHaveURL(/\/login$/)
@@ -8,6 +22,7 @@ prueba('sin sesión, crear torneo redirige a login', async ({ page: pagina }) =>
 
 prueba('muestra y valida el formulario de creación', async ({ page: pagina }) => {
   await prepararSesion(pagina)
+  await interceptarMisTorneos(pagina)
   await pagina.setViewportSize({ width: 1440, height: 1024 })
   await pagina.goto('/torneos')
   await pagina.getByRole('link', { name: 'Crear torneo' }).click()
@@ -21,8 +36,17 @@ prueba('muestra y valida el formulario de creación', async ({ page: pagina }) =
   await pagina.screenshot({ path: 'test-results/crear-torneo-escritorio.png', fullPage: true })
 })
 
-prueba('crea un torneo con el mock y evita envíos duplicados', async ({ page: pagina }) => {
+prueba('crea un torneo con el endpoint real y evita envíos duplicados', async ({ page: pagina }) => {
   await prepararSesion(pagina)
+  let cantidadSolicitudes = 0
+  await pagina.route('**/api/torneos', async (ruta) => {
+    cantidadSolicitudes += 1
+    const solicitud = ruta.request()
+    esperar(solicitud.headers().authorization).toMatch(/^Bearer /)
+    esperar(solicitud.postDataJSON()).toEqual({ nombre: 'Copa del Barrio', cantidad_participantes: 16, contrasena_acceso: 'tribuna' })
+    await new Promise((resolver) => setTimeout(resolver, 180))
+    await ruta.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify(torneoCreado) })
+  })
   await pagina.goto('/torneos/crear')
 
   await pagina.getByLabel('Nombre').fill('Copa del Barrio')
@@ -31,20 +55,23 @@ prueba('crea un torneo con el mock y evita envíos duplicados', async ({ page: p
   await pagina.getByRole('button', { name: 'Crear torneo', exact: true }).click()
 
   await esperar(pagina.getByRole('button', { name: 'Creando torneo…' })).toBeDisabled()
-  await esperar(pagina.getByRole('status')).toContainText('Torneo creado correctamente. Código temporal:')
+  await esperar(pagina.getByRole('status')).toHaveText('Torneo creado correctamente. Código de acceso: BARR27')
+  esperar(cantidadSolicitudes).toBe(1)
   await esperar(pagina).toHaveURL(/\/torneos\/crear$/)
 })
 
-prueba('muestra el mensaje de error devuelto por el servicio mock', async ({ page: pagina }) => {
+prueba('muestra el message real devuelto por el backend', async ({ page: pagina }) => {
   await prepararSesion(pagina)
+  await pagina.route('**/api/torneos', (ruta) => ruta.fulfill({
+    status: 422,
+    contentType: 'application/json',
+    body: JSON.stringify({ code: 'ERROR_VALIDACION', message: 'El nombre del torneo no es válido', detail: null }),
+  }))
   await pagina.goto('/torneos/crear')
 
-  await pagina.getByLabel('Nombre').fill('Copa repetida')
+  await pagina.getByLabel('Nombre').fill('Copa inválida')
   await pagina.getByRole('button', { name: 'Crear torneo', exact: true }).click()
-  await esperar(pagina.getByRole('status')).toBeVisible()
-  await pagina.getByRole('button', { name: 'Crear torneo', exact: true }).click()
-
-  await esperar(pagina.getByRole('alert')).toHaveText('Ya existe un torneo temporal con ese nombre.')
+  await esperar(pagina.getByRole('alert')).toHaveText('El nombre del torneo no es válido')
 })
 
 prueba('la versión móvil conserva el diseño y la navegación', async ({ page: pagina }) => {

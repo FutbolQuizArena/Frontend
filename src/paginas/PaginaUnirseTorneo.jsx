@@ -13,11 +13,6 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
-const resumenesTemporales = {
-  FQA8K2: 'El torneo “Copa de Amigos” tiene 6 de 8 participantes.',
-  LIGA24: 'El torneo “Liga de Campeones” tiene 6 de 8 participantes.',
-}
-
 function normalizarCodigo(codigo) {
   return codigo.replace(/\s+/g, '').toUpperCase().slice(0, 6)
 }
@@ -36,7 +31,6 @@ export default function PaginaUnirseTorneo() {
   const [mensajeExito, establecerMensajeExito] = usarEstado('')
   const [ingresando, establecerIngresando] = usarEstado(false)
   const solicitudEnCurso = usarReferencia(false)
-  const resumen = resumenesTemporales[datos.codigo]
 
   function manejarCodigo(evento) {
     establecerDatos((anteriores) => ({ ...anteriores, codigo: normalizarCodigo(evento.target.value) }))
@@ -71,9 +65,9 @@ export default function PaginaUnirseTorneo() {
 
     try {
       const resultado = await unirseATorneo(codigo, datos.contrasena)
-      establecerMensajeExito(`Te uniste a “${resultado.nombre}”. Abriendo la sala…`)
+      establecerMensajeExito(`Te uniste a “${resultado.nombre}”. Actualizando tus torneos…`)
       await new Promise((resolver) => setTimeout(resolver, 600))
-      navegar(`/torneos/${resultado.idTorneo}/sala`)
+      navegar('/torneos')
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos ingresar al torneo. Intentá de nuevo.')
     } finally {
@@ -131,7 +125,7 @@ export default function PaginaUnirseTorneo() {
               <CampoEntrada etiqueta="Contraseña (si corresponde)" nombre="contrasena" tipo="password" valor={datos.contrasena} alCambiar={manejarContrasena}
                 ejemplo="••••••••" autocompletar="current-password" requerido={false} ayuda="Dejala vacía si el torneo no tiene contraseña." />
             </div>
-            <p className="unirse-torneo__resumen">{resumen || 'Ingresá un código válido para consultar el torneo.'}</p>
+            <p className="unirse-torneo__resumen">El backend verificará el código, el cupo y la contraseña del torneo.</p>
           </fieldset>
 
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
