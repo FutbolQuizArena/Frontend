@@ -9,6 +9,7 @@ import PaginaTorneos from './paginas/PaginaTorneos.jsx'
 import PaginaUnirseTorneo from './paginas/PaginaUnirseTorneo.jsx'
 import PaginaSalaTorneo from './paginas/PaginaSalaTorneo.jsx'
 import PaginaDetalleTorneo from './paginas/PaginaDetalleTorneo.jsx'
+import PaginaRuletaCategoria from './paginas/PaginaRuletaCategoria.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -22,8 +23,10 @@ export default function Aplicacion() {
       </Ruta>
       <Ruta element={<RutaProtegida />}>
         <Ruta path="/home" element={<PaginaHome />} />
-        <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" />} />
-        <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" />} />
+        <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/partida/ruleta" element={<PaginaRuletaCategoria />} />
+        <Ruta path="/partida/juegan" element={<PaginaPendiente titulo="Partida en juego" textoAccion="Volver al inicio" destinoAccion="/home" />} />
         <Ruta path="/torneos" element={<PaginaTorneos />} />
         <Ruta path="/torneos/crear" element={<PaginaCrearTorneo />} />
         <Ruta path="/torneos/unirse" element={<PaginaUnirseTorneo />} />
