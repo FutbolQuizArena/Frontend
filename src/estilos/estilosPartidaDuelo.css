@@ -1,0 +1,227 @@
+.partida-duelo__pagina {
+  min-height: 100vh;
+  padding-left: 240px;
+  background: var(--color-fondo);
+}
+
+.partida-duelo__contenido {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 36px 52px 64px 44px;
+}
+
+.partida-duelo__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.partida-duelo__cabecera h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.05em;
+}
+
+.partida-duelo__marcadores {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 220px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 22px;
+}
+
+.partida-duelo__marcador {
+  display: flex;
+  flex-direction: column;
+  min-height: 168px;
+  padding: 18px 20px 16px;
+  border-radius: 22px;
+  background: rgba(13, 27, 19, 0.9);
+  border: 1px solid rgba(122, 149, 134, 0.25);
+}
+
+.partida-duelo__marcador--centro {
+  justify-content: center;
+  background: rgba(24, 38, 31, 0.96);
+  border-color: rgba(53, 196, 102, 0.25);
+}
+
+.partida-duelo__categoria,
+.partida-duelo__temporizador {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.partida-duelo__categoria span,
+.partida-duelo__temporizador span {
+  color: var(--color-secundario);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.partida-duelo__categoria strong,
+.partida-duelo__temporizador strong {
+  font-size: clamp(1.3rem, 2vw, 2rem);
+  line-height: 1.2;
+}
+
+.partida-duelo__barra-tiempo {
+  width: 100%;
+  height: 10px;
+  margin-top: auto;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(122, 149, 134, 0.2);
+}
+
+.partida-duelo__barra-tiempo div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #49d77d, #e9b949);
+}
+
+.partida-duelo__tarjeta {
+  background: rgba(13, 27, 19, 0.9);
+  border: 1px solid rgba(122, 149, 134, 0.2);
+  border-radius: 26px;
+  padding: 32px 30px 28px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.14);
+}
+
+.partida-duelo__encabezado-pregunta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.partida-duelo__encabezado-pregunta span {
+  color: var(--color-principal);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.partida-duelo__encabezado-pregunta strong {
+  color: var(--color-secundario);
+  font-size: 0.95rem;
+}
+
+.partida-duelo__pregunta {
+  margin: 0;
+  font-size: clamp(1.75rem, 2.8vw, 2.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+
+.partida-duelo__lista-opciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.partida-duelo__opcion {
+  width: 100%;
+  min-height: 72px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(122, 149, 134, 0.2);
+  background: rgba(9, 20, 14, 0.8);
+  color: var(--color-texto);
+  text-align: left;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.partida-duelo__opcion:hover:not(:disabled) {
+  border-color: rgba(53, 196, 102, 0.55);
+  transform: translateY(-1px);
+}
+
+.partida-duelo__opcion:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.partida-duelo__opcion--correcta {
+  background: rgba(33, 90, 58, 0.8);
+  border-color: rgba(53, 196, 102, 0.75);
+}
+
+.partida-duelo__opcion--incorrecta {
+  background: rgba(92, 36, 36, 0.8);
+  border-color: rgba(228, 84, 84, 0.8);
+}
+
+.partida-duelo__feedback {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(122, 149, 134, 0.22);
+  background: rgba(9, 20, 14, 0.9);
+  color: var(--color-secundario);
+  font-size: 0.96rem;
+}
+
+.partida-duelo__feedback strong {
+  color: var(--color-texto);
+}
+
+@media (max-width: 1200px) {
+  .partida-duelo__pagina {
+    padding-left: 180px;
+  }
+
+  .partida-duelo__contenido {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (max-width: 920px) {
+  .partida-duelo__pagina {
+    padding-left: 0;
+    padding-bottom: 80px;
+  }
+
+  .partida-duelo__contenido {
+    padding: 18px 14px 0;
+  }
+
+  .partida-duelo__cabecera {
+    margin-bottom: 14px;
+  }
+
+  .partida-duelo__marcadores {
+    grid-template-columns: 1fr;
+  }
+
+  .partida-duelo__marcador {
+    min-height: 120px;
+  }
+
+  .partida-duelo__tarjeta {
+    padding: 22px 16px 18px;
+  }
+
+  .partida-duelo__lista-opciones {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .partida-duelo__pregunta {
+    font-size: 1.5rem;
+  }
+}
