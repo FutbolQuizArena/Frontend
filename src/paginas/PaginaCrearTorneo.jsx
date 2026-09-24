@@ -1,5 +1,5 @@
 import { useRef as usarReferencia, useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
 import { crearTorneo } from '../servicios/servicioTorneos.js'
@@ -26,11 +26,10 @@ function validarTorneo(datosTorneo) {
 }
 
 export default function PaginaCrearTorneo() {
+  const navegar = usarNavegacion()
   const [datos, establecerDatos] = usarEstado({ nombre: '', cantidadParticipantes: 8, contrasena: '' })
   const [errores, establecerErrores] = usarEstado({})
   const [mensajeError, establecerMensajeError] = usarEstado('')
-  const [mensajeExito, establecerMensajeExito] = usarEstado('')
-  const [codigoAcceso, establecerCodigoAcceso] = usarEstado('')
   const [creando, establecerCreando] = usarEstado(false)
   const solicitudEnCurso = usarReferencia(false)
 
@@ -39,16 +38,12 @@ export default function PaginaCrearTorneo() {
     establecerDatos((anteriores) => ({ ...anteriores, [nombre]: valor }))
     establecerErrores((anteriores) => ({ ...anteriores, [nombre]: '' }))
     establecerMensajeError('')
-    establecerMensajeExito('')
-    establecerCodigoAcceso('')
   }
 
   function seleccionarCantidad(cantidadParticipantes) {
     establecerDatos((anteriores) => ({ ...anteriores, cantidadParticipantes }))
     establecerErrores((anteriores) => ({ ...anteriores, cantidadParticipantes: '' }))
     establecerMensajeError('')
-    establecerMensajeExito('')
-    establecerCodigoAcceso('')
   }
 
   async function manejarEnvio(evento) {
@@ -58,8 +53,6 @@ export default function PaginaCrearTorneo() {
     const nuevosErrores = validarTorneo(datos)
     establecerErrores(nuevosErrores)
     establecerMensajeError('')
-    establecerMensajeExito('')
-    establecerCodigoAcceso('')
 
     if (Object.keys(nuevosErrores).length) {
       if (nuevosErrores.nombre) evento.currentTarget.elements.namedItem('nombre')?.focus()
@@ -75,8 +68,8 @@ export default function PaginaCrearTorneo() {
         cantidadParticipantes: datos.cantidadParticipantes,
         contrasena: datos.contrasena,
       })
-      establecerCodigoAcceso(resultado.codigoAcceso)
-      establecerMensajeExito('Torneo creado correctamente.')
+      if (!resultado.idTorneo) throw new Error('El servidor no devolvió el ID del torneo creado.')
+      navegar(`/torneos/${resultado.idTorneo}/sala`, { replace: true })
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos crear el torneo. Intentá de nuevo.')
     } finally {
@@ -140,7 +133,7 @@ export default function PaginaCrearTorneo() {
 
             <div className="crear-torneo__codigo crear-torneo__solo-movil">
               <p>CÓDIGO DE ACCESO</p>
-              <output>{codigoAcceso || 'Se genera automáticamente al crear'}</output>
+              <output>Se genera automáticamente al crear</output>
             </div>
 
             <div className="crear-torneo__informacion">
@@ -150,7 +143,6 @@ export default function PaginaCrearTorneo() {
           </fieldset>
 
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-          {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito} Código de acceso: <strong>{codigoAcceso}</strong></p>}
           <Boton tipo="submit" cargando={creando} textoCargando="Creando torneo…">
             <span className="crear-torneo__solo-escritorio">Crear torneo</span><span className="crear-torneo__solo-movil">Crear y obtener código</span>
           </Boton>

@@ -48,7 +48,7 @@ El acceso para unirse abre la pantalla de la actividad 3.3.3. Los detalles usan 
 
 Abrir `/torneos/crear` para configurar un torneo con nombre, 4, 8 o 16 participantes y una contraseña opcional. La ruta es privada y conserva la navegación responsive de Home. Los frames de escritorio y móvil están enlazados en `docs/figma.md`.
 
-`servicioTorneos.js` conecta `crearTorneo(datosTorneo)` con `POST /api/torneos`. Envía el token Bearer y el contrato `{ nombre, cantidad_participantes, contrasena_acceso }`; al recibir el `201`, muestra el `codigo_acceso` real. Los errores presentan el campo `message` devuelto por el backend y el formulario permanece en pantalla para permitir corregirlos.
+`servicioTorneos.js` conecta `crearTorneo(datosTorneo)` con `POST /api/torneos`. Envía el token Bearer y el contrato `{ nombre, cantidad_participantes, contrasena_acceso }`; al recibir el `201`, abre `/torneos/:idTorneo/sala` con el ID real, donde se muestra el código de acceso. Los errores presentan el campo `message` devuelto por el backend y el formulario permanece en pantalla para permitir corregirlos.
 
 ## Ingreso a torneo — actividad 3.3.3
 
