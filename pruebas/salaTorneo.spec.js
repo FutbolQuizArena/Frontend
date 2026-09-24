@@ -42,14 +42,14 @@ prueba('la sala incompleta no permite abrir el cuadro', async ({ page: pagina })
   await esperar(pagina).toHaveURL(/\/torneos\/14\/sala$/)
 })
 
-prueba('una sala completa genera cruces y permite abrir el cuadro provisional', async ({ page: pagina }) => {
+prueba('una sala completa genera cruces y permite abrir el cuadro', async ({ page: pagina }) => {
   await prepararSesion(pagina)
   await pagina.goto('/torneos/17/sala')
 
   await esperar(pagina.getByText('Los cruces se generaron automáticamente.').first()).toBeVisible()
   await pagina.getByRole('link', { name: 'Ver cuadro' }).click()
   await esperar(pagina).toHaveURL(/\/torneos\/17\/cuadro$/)
-  await esperar(pagina.getByRole('heading', { name: 'Cuadro del torneo' })).toBeVisible()
+  await esperar(pagina.getByRole('heading', { name: 'Copa Completa', exact: true })).toBeVisible()
 })
 
 prueba('muestra un estado específico para un torneo inexistente', async ({ page: pagina }) => {
