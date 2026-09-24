@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate as usarNavegacion } from 'react-router-dom'
+import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
+import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteTemporizador from '../componentes/ComponenteTemporizador.jsx'
 import TarjetaPregunta from '../componentes/TarjetaPregunta.jsx'
 import {
@@ -9,6 +10,14 @@ import {
   registrarRespuestaPartida,
 } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosPartidaIndividual.css'
+
+const enlaces = [
+  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
+  { destino: '/partida/ruleta', titulo: 'Jugar', simbolo: '▶' },
+  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
+  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
+  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
+]
 
 const obtenerCategoriaGuardada = () => {
   const categoriaGuardada = sessionStorage.getItem('categoriaPartidaSeleccionada')
@@ -161,86 +170,127 @@ export default function PaginaPartidaIndividual() {
   const progreso = ((indicePreguntaActual + 1) / totalPreguntas) * 100
 
   return (
-    <main className="partida-individual">
-      <aside className="partida-individual__barra-lateral">
-        <div className="partida-individual__marca">
-          <span className="partida-individual__logo">FQ</span>
-          <div>
-            <p className="partida-individual__apodo">FUTBOLQUIZ</p>
-            <strong>ARENA</strong>
-          </div>
-        </div>
-        <div className="partida-individual__estadistica">
-          <span>Puntaje</span>
-          <strong>{puntaje}</strong>
-        </div>
-        <div className="partida-individual__estadistica">
-          <span>Categoría</span>
-          <strong>{categoriaActual}</strong>
+    <div className="inicio partida-individual__pagina">
+      <a className="enlace-salto" href="#contenido-partida">Ir al contenido</a>
+
+      <aside className="inicio__lateral">
+        <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
+          FUTBOLQUIZ<span className="marca__arena">ARENA</span>
+        </Enlace>
+
+        <nav className="inicio__navegacion" aria-label="Navegación principal">
+          {enlaces.map(({ destino, titulo, simbolo }) => (
+            <EnlaceNavegacion
+              key={destino}
+              to={destino}
+              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
+            >
+              <span aria-hidden="true">{simbolo}</span>
+              {titulo}
+            </EnlaceNavegacion>
+          ))}
+        </nav>
+
+        <div className="inicio__acumulado">
+          <p>PUNTAJE ACUMULADO</p>
+          <span>Jugador · {puntaje} pts</span>
         </div>
       </aside>
 
-      <section className="partida-individual__panel">
-        <header className="partida-individual__cabecera">
-          <div>
-            <p className="sobretitulo">PARTIDA INDIVIDUAL</p>
-            <h1>Pregunta {indicePreguntaActual + 1} de {totalPreguntas}</h1>
+      <header className="inicio__cabecera">
+        <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
+        <div className="inicio__saludo-movil"><strong>Hola, Lucas</strong><span>Cuenta de jugador</span></div>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <BotonCerrarSesion />
+      </header>
+
+      <main className="inicio__contenido partida-individual__contenido" id="contenido-partida">
+        <section className="partida-individual__panel">
+          <header className="partida-individual__cabecera">
+            <div>
+              <p className="sobretitulo">PARTIDA INDIVIDUAL</p>
+              <h1>Pregunta {indicePreguntaActual + 1} de {totalPreguntas}</h1>
+            </div>
+            <ComponenteTemporizador tiempoRestante={tiempoRestante} tiempoTotal={parametros.segundosPorPregunta || 15} enCurso={!bloqueado} />
+          </header>
+
+          <div className="partida-individual__progreso" aria-label="Progreso de la partida">
+            <span>{categoriaActual}</span>
+            <div className="partida-individual__progreso-barra">
+              <div style={{ width: `${progreso}%` }} />
+            </div>
           </div>
-          <ComponenteTemporizador tiempoRestante={tiempoRestante} tiempoTotal={parametros.segundosPorPregunta || 15} enCurso={!bloqueado} />
-        </header>
 
-        <div className="partida-individual__progreso" aria-label="Progreso de la partida">
-          <span>{categoriaActual}</span>
-          <div className="partida-individual__progreso-barra">
-            <div style={{ width: `${progreso}%` }} />
+          <TarjetaPregunta
+            pregunta={preguntaActual}
+            indicePregunta={indicePreguntaActual}
+            totalPreguntas={totalPreguntas}
+            respuestaSeleccionada={respuestaSeleccionada}
+            respuestaCorrecta={respuestaCorrecta}
+            mostrarFeedback={mostrarFeedback}
+            bloqueado={bloqueado}
+            onSeleccionar={(opcionId) => {
+              const opcionElegida = preguntaActual.opciones.find((opcion) => opcion.id === opcionId)
+              const esCorrecta = opcionElegida?.id === preguntaActual.opcionCorrectaId
+              manejarRespuesta(opcionElegida?.id ?? null, esCorrecta, false)
+            }}
+          />
+
+          {mostrarFeedback && (
+            <div className="partida-individual__acciones">
+              <Boton alHacerClic={() => {
+                const siguienteIndice = indicePreguntaActual + 1
+                if (siguienteIndice >= preguntas.length) {
+                  const resultado = finalizarPartidaIndividual(partidaId, [...respuestas, {
+                    idPartida: partidaId,
+                    idPregunta: preguntaActual.id,
+                    opcionSeleccionada: respuestaSeleccionada,
+                    tiempoEmpleado: (parametros.segundosPorPregunta || 15) - tiempoRestante,
+                    esCorrecta: respuestaCorrecta,
+                    tiempoAgotado: false,
+                  }])
+                  sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
+                  navegar('/partida/resultado')
+                  return
+                }
+
+                setIndicePreguntaActual(siguienteIndice)
+                setTiempoRestante(parametros.segundosPorPregunta || 15)
+                setRespuestaSeleccionada(null)
+                setMostrarFeedback(false)
+                setBloqueado(false)
+                setRespuestaCorrecta(null)
+              }}>
+                Siguiente
+              </Boton>
+            </div>
+          )}
+        </section>
+
+        <aside className="partida-individual__barra-derecha" aria-label="Resumen de partida">
+          <div className="partida-individual__estado-partida">Partida activa</div>
+
+          <div className="partida-individual__resumen-card">
+            <span>Ronda</span>
+            <strong>{indicePreguntaActual + 1}/{totalPreguntas}</strong>
           </div>
-        </div>
 
-        <TarjetaPregunta
-          pregunta={preguntaActual}
-          indicePregunta={indicePreguntaActual}
-          totalPreguntas={totalPreguntas}
-          respuestaSeleccionada={respuestaSeleccionada}
-          respuestaCorrecta={respuestaCorrecta}
-          mostrarFeedback={mostrarFeedback}
-          bloqueado={bloqueado}
-          onSeleccionar={(opcionId) => {
-            const opcionElegida = preguntaActual.opciones.find((opcion) => opcion.id === opcionId)
-            const esCorrecta = opcionElegida?.id === preguntaActual.opcionCorrectaId
-            manejarRespuesta(opcionElegida?.id ?? null, esCorrecta, false)
-          }}
-        />
-
-        {mostrarFeedback && (
-          <div className="partida-individual__acciones">
-            <Boton alHacerClic={() => {
-              const siguienteIndice = indicePreguntaActual + 1
-              if (siguienteIndice >= preguntas.length) {
-                const resultado = finalizarPartidaIndividual(partidaId, [...respuestas, {
-                  idPartida: partidaId,
-                  idPregunta: preguntaActual.id,
-                  opcionSeleccionada: respuestaSeleccionada,
-                  tiempoEmpleado: (parametros.segundosPorPregunta || 15) - tiempoRestante,
-                  esCorrecta: respuestaCorrecta,
-                  tiempoAgotado: false,
-                }])
-                sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
-                navegar('/partida/resultado')
-                return
-              }
-
-              setIndicePreguntaActual(siguienteIndice)
-              setTiempoRestante(parametros.segundosPorPregunta || 15)
-              setRespuestaSeleccionada(null)
-              setMostrarFeedback(false)
-              setBloqueado(false)
-              setRespuestaCorrecta(null)
-            }}>
-              Siguiente
-            </Boton>
+          <div className="partida-individual__resumen-card">
+            <span>Puntaje</span>
+            <strong>{puntaje}</strong>
           </div>
-        )}
-      </section>
-    </main>
+
+          <div className="partida-individual__resumen-card">
+            <span>Tiempo</span>
+            <strong>{tiempoRestante}s</strong>
+          </div>
+
+          <div className="partida-individual__resumen-card">
+            <span>Categoría</span>
+            <strong>{categoriaActual}</strong>
+          </div>
+        </aside>
+      </main>
+    </div>
   )
 }
