@@ -65,9 +65,9 @@ export default function PaginaUnirseTorneo() {
 
     try {
       const resultado = await unirseATorneo(codigo, datos.contrasena)
-      establecerMensajeExito(`Te uniste a “${resultado.nombre}”. Actualizando tus torneos…`)
+      establecerMensajeExito(`Te uniste a “${resultado.nombre}”. Abriendo la sala…`)
       await new Promise((resolver) => setTimeout(resolver, 600))
-      navegar('/torneos')
+      navegar(`/torneos/${resultado.idTorneo}/sala`)
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos ingresar al torneo. Intentá de nuevo.')
     } finally {

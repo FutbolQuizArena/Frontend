@@ -1,5 +1,8 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
 import { prepararSesion } from './datosSesion.js'
+import { interceptarDetallesTorneo } from './datosTorneoDetalle.js'
+
+prueba.beforeEach(async ({ page: pagina }) => { await interceptarDetallesTorneo(pagina) })
 
 prueba('sin sesión, la sala redirige a login', async ({ page: pagina }) => {
   await pagina.goto('/torneos/14/sala')
@@ -40,6 +43,32 @@ prueba('la sala incompleta no permite abrir el cuadro', async ({ page: pagina })
 
   await esperar(pagina.getByRole('link', { name: 'Ver cuadro' })).toHaveCount(0)
   await esperar(pagina).toHaveURL(/\/torneos\/14\/sala$/)
+})
+
+prueba('salir de la sala llama al backend y vuelve al listado', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  let recibida = false
+  await pagina.route('**/api/torneos/14/salir', (ruta) => {
+    recibida = true
+    esperar(ruta.request().method()).toBe('DELETE')
+    return ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ message: 'Salida exitosa' }) })
+  })
+  await pagina.goto('/torneos/14/sala')
+  await pagina.getByRole('button', { name: 'Salir del torneo' }).first().click()
+  await esperar(pagina).toHaveURL(/\/torneos$/)
+  esperar(recibida).toBe(true)
+})
+
+prueba('el creador puede cancelar la salida antes de cerrar el torneo para todos', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 10, nombre: 'Lucas', email: 'lucas@futbolquiz.com', rol: 'JUGADOR', puntaje_total: 0 }) }))
+  let huboSalida = false
+  await pagina.route('**/api/torneos/14/salir', (ruta) => { huboSalida = true; return ruta.fulfill({ status: 200, body: '{}' }) })
+  pagina.once('dialog', (dialogo) => dialogo.dismiss())
+  await pagina.goto('/torneos/14/sala')
+  await pagina.getByRole('button', { name: 'Salir del torneo' }).first().click()
+  await esperar(pagina).toHaveURL(/\/torneos\/14\/sala$/)
+  esperar(huboSalida).toBe(false)
 })
 
 prueba('una sala completa genera cruces y permite abrir el cuadro', async ({ page: pagina }) => {

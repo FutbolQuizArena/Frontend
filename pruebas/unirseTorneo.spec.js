@@ -1,5 +1,8 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
 import { prepararSesion } from './datosSesion.js'
+import { interceptarDetallesTorneo } from './datosTorneoDetalle.js'
+
+prueba.beforeEach(async ({ page: pagina }) => { await interceptarDetallesTorneo(pagina) })
 
 const torneoUnido = {
   nombre: 'Liga de Campeones',
@@ -50,7 +53,7 @@ prueba('ingresa con un código abierto y bloquea envíos duplicados', async ({ p
 
   await esperar(pagina.locator('button[aria-busy="true"]')).toBeDisabled()
   await esperar(pagina.getByRole('status')).toContainText('Liga de Campeones')
-  await esperar(pagina).toHaveURL(/\/torneos$/)
+  await esperar(pagina).toHaveURL(/\/torneos\/5\/sala$/)
   esperar(cantidadSolicitudes).toBe(1)
 })
 
@@ -67,7 +70,7 @@ prueba('permite ingresar a un torneo protegido con la contraseña correcta', asy
   await pagina.getByRole('button', { name: 'Unirme al torneo' }).click()
 
   await esperar(pagina.getByRole('status')).toContainText('Copa de Amigos')
-  await esperar(pagina).toHaveURL(/\/torneos$/)
+  await esperar(pagina).toHaveURL(/\/torneos\/14\/sala$/)
 })
 
 for (const [codigo, contrasena, mensaje] of [

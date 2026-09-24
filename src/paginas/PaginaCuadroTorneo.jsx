@@ -12,6 +12,7 @@ function formatearPuntos(puntos) {
 
 function CuadroLlaves({ torneo, completo = false }) {
   const indiceRondaActual = Math.max(0, torneo.rondas.findIndex((ronda) => ronda.nombre === torneo.rondaActual))
+  const numeroCampeon = String(torneo.rondas.length + 1).padStart(2, '0')
 
   return (
     <section className={`llaves-torneo${completo ? ' llaves-torneo--completo' : ''}`} aria-label="Cuadro de llaves">
@@ -25,7 +26,7 @@ function CuadroLlaves({ torneo, completo = false }) {
           </section>
         ))}
         <section className="llaves-torneo__ronda llaves-torneo__campeon">
-          <header><span>04</span><h2>Campeón</h2></header>
+          <header><span>{numeroCampeon}</span><h2>Campeón</h2></header>
           <div><span aria-hidden="true">♛</span><small>CAMPEÓN</small><strong>{torneo.campeon?.nombre || 'Por definir'}</strong></div>
         </section>
       </div>
@@ -36,10 +37,9 @@ function CuadroLlaves({ torneo, completo = false }) {
 function TorneoFinalizado({ torneo }) {
   const [mostrarCuadro, establecerMostrarCuadro] = usarEstado(false)
   const [mensajeCompartir, establecerMensajeCompartir] = usarEstado('')
-  const resultado = torneo.resultadoUsuario
 
   async function compartirResultado() {
-    const texto = `${torneo.campeon.nombre} ganó ${torneo.nombre} en FutbolQuiz Arena.`
+    const texto = `${torneo.campeon?.nombre || 'El campeón'} ganó ${torneo.nombre} en FutbolQuiz Arena.`
     establecerMensajeCompartir('')
 
     try {
@@ -70,21 +70,15 @@ function TorneoFinalizado({ torneo }) {
 
   return (
     <div className="torneo-finalizado">
-      <header><span>TORNEO FINALIZADO</span><h1>{torneo.nombre}</h1><p>{torneo.participantes} participantes · {torneo.fechaFinalizacion}</p></header>
+      <header><span>TORNEO FINALIZADO</span><h1>{torneo.nombre}</h1><p>{torneo.participantes} participantes</p></header>
       <section className="torneo-finalizado__campeon" aria-labelledby="titulo-campeon">
         <div className="torneo-finalizado__trofeo" aria-hidden="true">♛</div>
         <span>¡CAMPEÓN!</span>
-        <h2 id="titulo-campeon">{torneo.campeon.nombre}</h2>
+        <h2 id="titulo-campeon">{torneo.campeon?.nombre || 'Por definir'}</h2>
         <p>Campeón de {torneo.nombre}</p>
-        <strong>+{formatearPuntos(torneo.premio)} puntos</strong>
+        {torneo.premio !== null && <strong>+{formatearPuntos(torneo.premio)} puntos</strong>}
       </section>
-      <dl className="torneo-finalizado__resumen">
-        <div><dt>Tu resultado</dt><dd>{resultado.instancia}</dd></div>
-        <div><dt>Partidas jugadas</dt><dd>{resultado.partidasJugadas}</dd></div>
-        <div><dt>Puntos obtenidos</dt><dd>+{formatearPuntos(resultado.puntosObtenidos)}</dd></div>
-        <div><dt>Fecha</dt><dd>{torneo.fechaFinalizacion}</dd></div>
-      </dl>
-      <p className="torneo-finalizado__balance">{resultado.victorias} victorias · {resultado.derrotas} derrota</p>
+      <p className="torneo-finalizado__balance">El resumen personal estará disponible cuando el backend publique los resultados de las partidas.</p>
       <div className="torneo-finalizado__acciones">
         <button type="button" onClick={compartirResultado}>Compartir resultado</button>
         <button type="button" onClick={() => establecerMostrarCuadro(true)}>Ver cuadro completo</button>
@@ -128,12 +122,24 @@ export default function PaginaCuadroTorneo() {
   }
 
   if (mensajeError) {
-    const noEncontrado = codigoError === 'TORNEO_NO_ENCONTRADO'
+    const noEncontrado = codigoError === 'TORNEO_NO_DISPONIBLE' || codigoError === 'TORNEO_NO_ENCONTRADO' || codigoError === 'RECURSO_NO_ENCONTRADO'
     return (
       <MarcoTorneo tituloMovil="Cuadro del torneo" subtituloMovil={`Torneo #${idTorneo}`}>
         <section className="estado-pantalla-torneo" role="alert">
           <strong>{noEncontrado ? 'Torneo inexistente' : 'No pudimos cargar el cuadro'}</strong><p>{mensajeError}</p>
           {noEncontrado ? <Enlace to="/torneos">Volver a Torneos</Enlace> : <button type="button" onClick={() => establecerIntentoCarga((intento) => intento + 1)}>Reintentar</button>}
+        </section>
+      </MarcoTorneo>
+    )
+  }
+
+  if (torneo.estado === 'ESPERANDO_JUGADORES' || torneo.rondas.length === 0) {
+    return (
+      <MarcoTorneo tituloMovil="Cuadro del torneo" subtituloMovil={torneo.nombre}>
+        <section className="estado-pantalla-torneo" aria-live="polite">
+          <strong>Los cruces todavía no están disponibles</strong>
+          <p>Cuando se complete el cupo, el cuadro aparecerá aquí.</p>
+          <Enlace to={`/torneos/${idTorneo}/sala`}>Volver a la sala</Enlace>
         </section>
       </MarcoTorneo>
     )
@@ -149,12 +155,12 @@ export default function PaginaCuadroTorneo() {
           </header>
           <dl className="cuadro-torneo__resumen">
             <div><dt>Ronda actual</dt><dd>{torneo.rondaActual}</dd></div>
-            <div><dt>Próxima partida</dt><dd>{torneo.proximaPartida}</dd></div>
-            <div><dt>Premio</dt><dd>{formatearPuntos(torneo.premio)} puntos</dd></div>
+            <div><dt>Próxima partida</dt><dd>Por definir</dd></div>
+            <div><dt>Premio</dt><dd>Pendiente</dd></div>
           </dl>
           <h2 className="cuadro-torneo__camino">Tu camino a la final</h2>
           <CuadroLlaves torneo={torneo} />
-          <aside className="cuadro-torneo__proximo"><div><small>PRÓXIMO PARTIDO</small><strong>Final · {torneo.proximaPartida}</strong></div><Enlace to="/duelo">Entrar al partido</Enlace></aside>
+          <aside className="cuadro-torneo__proximo"><div><small>PRÓXIMO PARTIDO</small><strong>Pendiente de programación</strong></div></aside>
         </div>
       )}
     </MarcoTorneo>

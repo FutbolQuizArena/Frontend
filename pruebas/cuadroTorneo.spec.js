@@ -1,5 +1,8 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
 import { prepararSesion } from './datosSesion.js'
+import { interceptarDetallesTorneo } from './datosTorneoDetalle.js'
+
+prueba.beforeEach(async ({ page: pagina }) => { await interceptarDetallesTorneo(pagina) })
 
 prueba('sin sesión, el cuadro redirige a login', async ({ page: pagina }) => {
   await pagina.goto('/torneos/1/cuadro')
@@ -13,8 +16,14 @@ prueba('muestra las rondas y cruces del torneo en curso', async ({ page: pagina 
   await esperar(pagina.getByRole('heading', { name: 'Copa de Campeones', exact: true })).toBeVisible()
   await esperar(pagina.getByText('Semifinales', { exact: true }).first()).toBeVisible()
   await esperar(pagina.getByText('Final', { exact: true }).first()).toBeVisible()
-  await esperar(pagina.getByLabel('Partido entre Lucas y Fede_9')).toBeVisible()
-  await esperar(pagina.getByRole('link', { name: 'Entrar al partido' })).toHaveAttribute('href', '/duelo')
+  await esperar(pagina.getByLabel('Partido entre Lucas y SofiGol')).toBeVisible()
+})
+
+prueba('si el torneo espera jugadores, ofrece volver a la sala', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  await pagina.goto('/torneos/14/cuadro')
+  await esperar(pagina.getByText('Los cruces todavía no están disponibles')).toBeVisible()
+  await esperar(pagina.getByRole('link', { name: 'Volver a la sala' })).toHaveAttribute('href', '/torneos/14/sala')
 })
 
 prueba('muestra el campeón y el resumen de un torneo finalizado', async ({ page: pagina }) => {
@@ -22,8 +31,7 @@ prueba('muestra el campeón y el resumen de un torneo finalizado', async ({ page
   await pagina.goto('/torneos/9/cuadro')
   await esperar(pagina.getByText('¡CAMPEÓN!')).toBeVisible()
   await esperar(pagina.getByRole('heading', { name: 'SofiGol' })).toBeVisible()
-  await esperar(pagina.getByText('Semifinal', { exact: true })).toBeVisible()
-  await esperar(pagina.getByText('+420')).toBeVisible()
+  await esperar(pagina.getByText('El resumen personal estará disponible cuando el backend publique los resultados de las partidas.')).toBeVisible()
   await esperar(pagina.getByRole('link', { name: 'Volver a torneos' })).toHaveAttribute('href', '/torneos')
 })
 
