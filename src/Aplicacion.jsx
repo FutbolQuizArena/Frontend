@@ -13,7 +13,9 @@ import PaginaCuadroTorneo from './paginas/PaginaCuadroTorneo.jsx'
 import PaginaRuletaCategoria from './paginas/PaginaRuletaCategoria.jsx'
 import PaginaPartidaIndividual from './paginas/PaginaPartidaIndividual.jsx'
 import PaginaResultadoPartida from './paginas/PaginaResultadoPartida.jsx'
+import PaginaResultadoIndividual from './paginas/PaginaResultadoIndividual.jsx'
 import PaginaSeleccionModo from './paginas/PaginaSeleccionModo.jsx'
+import PaginaEsperandoRival from './paginas/PaginaEsperandoRival.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -31,12 +33,14 @@ export default function Aplicacion() {
         <Ruta path="/juegos/modos" element={<PaginaSeleccionModo />} />
         <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
         <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/duelo/esperando" textoAccion="Ir a la espera" />} />
-        <Ruta path="/duelo/esperando" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/duelo/esperando" element={<PaginaEsperandoRival />} />
         <Ruta path="/duelo/modo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/duelo/partida" element={<PaginaPendiente titulo="Partida en duelo" destinoAccion="/home" textoAccion="Volver al inicio" />} />
         <Ruta path="/partida/ruleta" element={<PaginaRuletaCategoria />} />
         <Ruta path="/partida/juegan" element={<PaginaPartidaIndividual />} />
         <Ruta path="/partida/individual" element={<PaginaPartidaIndividual />} />
-        <Ruta path="/partida/resultado" element={<PaginaResultadoPartida />} />
+        <Ruta path="/partida/resultado" element={<PaginaResultadoIndividual />} />
+        <Ruta path="/resultado-individual" element={<PaginaResultadoIndividual />} />
         <Ruta path="/torneos" element={<PaginaTorneos />} />
         <Ruta path="/torneos/crear" element={<PaginaCrearTorneo />} />
         <Ruta path="/torneos/unirse" element={<PaginaUnirseTorneo />} />

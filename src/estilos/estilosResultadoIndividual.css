@@ -1,0 +1,266 @@
+.resultado-individual__pagina {
+  min-height: 100svh;
+  padding-left: 240px;
+  background: var(--color-fondo);
+}
+
+.resultado-individual__contenido {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px 56px 80px 48px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 24px 28px;
+  align-items: start;
+}
+
+.resultado-individual__panel {
+  background: rgba(12, 27, 21, 0.88);
+  border: 1px solid rgba(122, 149, 134, 0.28);
+  border-radius: 26px;
+  padding: 28px 30px 30px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+}
+
+.resultado-individual__intro {
+  margin-bottom: 24px;
+}
+
+.resultado-individual__intro h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 3vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+}
+
+.resultado-individual__resumen {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(53, 196, 102, 0.18), rgba(31, 51, 41, 0.95));
+  border: 1px solid rgba(53, 196, 102, 0.28);
+}
+
+.resultado-individual__trofeo {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  background: rgba(9, 21, 16, 0.72);
+  border: 1px solid rgba(233, 185, 73, 0.35);
+  font-size: 3rem;
+  box-shadow: inset 0 0 20px rgba(233, 185, 73, 0.08);
+}
+
+.resultado-individual__totales {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resultado-individual__etiqueta {
+  color: var(--color-principal);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.resultado-individual__totales strong {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.resultado-individual__totales small {
+  color: var(--color-secundario);
+  font-size: 0.9rem;
+}
+
+.resultado-individual__estadisticas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.resultado-individual__tarjeta-estadistica {
+  background: rgba(15, 29, 23, 0.9);
+  border: 1px solid rgba(122, 149, 134, 0.22);
+  border-radius: 16px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resultado-individual__tarjeta-estadistica span {
+  color: var(--color-secundario);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resultado-individual__tarjeta-estadistica strong {
+  font-size: 1.8rem;
+  line-height: 1.2;
+}
+
+.resultado-individual__progreso {
+  margin-top: 22px;
+}
+
+.resultado-individual__progreso-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--color-secundario);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.resultado-individual__progreso-meta strong {
+  color: var(--color-texto);
+  font-size: 1.15rem;
+}
+
+.resultado-individual__progreso-barra {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(122, 149, 134, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.resultado-individual__progreso-barra div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(53, 196, 102, 0.9), rgba(111, 233, 138, 0.9), rgba(233, 185, 73, 0.8));
+  transition: width 0.25s ease;
+}
+
+.resultado-individual__acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.resultado-individual__acciones .boton {
+  max-width: 220px;
+}
+
+.resultado-individual__boton-secundario {
+  background: rgba(5, 11, 9, 0.8);
+  border-color: rgba(122, 149, 134, 0.28);
+  color: var(--color-texto);
+}
+
+.resultado-individual__boton-secundario:hover {
+  background: rgba(17, 30, 24, 0.9);
+}
+
+.resultado-individual__barra-derecha {
+  background: rgba(8, 18, 14, 0.9);
+  border: 1px solid rgba(122, 149, 134, 0.28);
+  border-radius: 18px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.resultado-individual__estado-partida {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(53, 196, 102, 0.16);
+  border: 1px solid rgba(53, 196, 102, 0.45);
+  color: var(--color-principal);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.resultado-individual__resumen-card {
+  background: rgba(15, 29, 23, 0.9);
+  border: 1px solid rgba(122, 149, 134, 0.22);
+  border-radius: 16px;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resultado-individual__resumen-card span {
+  color: var(--color-secundario);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resultado-individual__resumen-card strong {
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+@media (max-width: 1100px) {
+  .resultado-individual__pagina {
+    padding-left: 180px;
+  }
+
+  .resultado-individual__contenido {
+    padding: 24px 24px 50px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .resultado-individual__barra-derecha {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .resultado-individual__pagina {
+    padding: 0 0 calc(90px + env(safe-area-inset-bottom));
+  }
+
+  .resultado-individual__contenido {
+    max-width: 600px;
+    padding: 24px 18px 0;
+  }
+
+  .resultado-individual__panel {
+    padding: 20px 18px 22px;
+  }
+
+  .resultado-individual__resumen {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .resultado-individual__estadisticas {
+    grid-template-columns: 1fr;
+  }
+
+  .resultado-individual__acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resultado-individual__acciones .boton,
+  .resultado-individual__boton-secundario {
+    width: 100%;
+    max-width: none;
+  }
+}
