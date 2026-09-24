@@ -27,6 +27,13 @@ const modosDisponibles = [
     icono: '⚔️',
     etiqueta: 'Competencia',
   },
+  {
+    titulo: 'Juego local',
+    descripcion: 'Disputá un duelo presencial 1v1 en el mismo dispositivo con turnos alternados.',
+    destino: '/duelo/local',
+    icono: '📱',
+    etiqueta: 'Local',
+  },
 ]
 
 export default function PaginaSeleccionModo() {
