@@ -44,6 +44,9 @@ export default function PaginaRuletaCategoria() {
   const manejarFinalGiro = (categoriaSeleccionada) => {
     setCategoriaElegida(categoriaSeleccionada)
     setGiroActivo(false)
+    if (categoriaSeleccionada?.nombre) {
+      sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaSeleccionada.nombre)
+    }
   }
 
   return (
@@ -105,7 +108,10 @@ export default function PaginaRuletaCategoria() {
                 <div className="ruleta-categoria__resultado" role="dialog" aria-modal="true" aria-labelledby="categoria-resultante">
                   <p className="ruleta-categoria__etiqueta">Categoría seleccionada:</p>
                   <h2 id="categoria-resultante">{categoriaElegida.nombre}</h2>
-                  <Boton alHacerClic={() => navegar('/partida/juegan')}>
+                  <Boton alHacerClic={() => {
+                    sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaElegida.nombre)
+                    navegar('/partida/juegan')
+                  }}>
                     Continuar a la Partida
                   </Boton>
                 </div>
