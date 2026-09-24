@@ -64,14 +64,14 @@ Al ingresar correctamente se muestra una confirmación y se abre `/torneos/:idTo
 
 Las rutas protegidas `/torneos/:idTorneo/sala` y `/torneos/:idTorneo` muestran la sala y el detalle del torneo. Ambas leen `idTorneo` desde la URL, contemplan carga, error y torneo inexistente, y adaptan los frames de Figma a escritorio y móvil con un único componente por pantalla.
 
-La sala muestra código, cupos y participantes. Copiar usa la API del portapapeles y confirma el resultado. Solo el organizador puede iniciar y el botón se habilita al completar el cupo; el inicio exitoso abre `/torneos/:idTorneo/cuadro`, que continúa como placeholder hasta la actividad 3.3.5.
+La sala muestra código, cupos y participantes. Copiar usa la API del portapapeles y confirma el resultado. Al completar el cupo, el mock refleja el flujo definido en el alcance: el torneo pasa a estar en curso y los cruces se generan automáticamente. `/torneos/:idTorneo/cuadro` continúa como placeholder hasta la actividad 3.3.5.
 
-`servicioTorneos.js` mantiene mocks para `obtenerSalaTorneo(idTorneo)`, `obtenerDetalleTorneo(idTorneo)` e `iniciarTorneo(idTorneo)`. IDs temporales para probarlos:
+`servicioTorneos.js` mantiene mocks para `obtenerSalaTorneo(idTorneo)` y `obtenerDetalleTorneo(idTorneo)`. IDs temporales para probarlos:
 
 - `5`: sala en espera con el usuario como participante y detalle en espera.
 - `14`: sala en espera con el usuario como organizador; faltan dos participantes.
 - `16`: sala en espera con el usuario como participante; faltan cuatro participantes.
-- `17`: sala completa con el usuario como organizador, lista para iniciar.
+- `17`: sala completa y en curso, con cruces generados automáticamente.
 - `1`: detalle de torneo en curso.
 - `9`: detalle de torneo finalizado.
 - `404` o cualquier ID no definido: torneo inexistente.
