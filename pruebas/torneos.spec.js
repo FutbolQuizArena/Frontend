@@ -89,6 +89,33 @@ prueba('la vista móvil usa tarjetas, acciones rápidas y navegación inferior',
   await pagina.screenshot({ path: 'test-results/torneos-finalizados-movil.png', fullPage: true })
 })
 
+prueba('cada torneo propio conserva su acción y todos aparecen también en móvil', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  const torneosPropios = [...listados.mios, {
+    id: 3, nombre: 'Copa del Barrio', cantidad_participantes: 4, cantidad_participantes_actual: 1,
+    tiene_contrasena: false, estado: 'ESPERANDO_JUGADORES', fecha_creacion: '2026-09-24T12:00:00Z',
+    creador_id: 1, codigo_acceso: 'BARRIO',
+  }]
+  await pagina.route('**/api/torneos?filtro=mios', (ruta) => ruta.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify(torneosPropios),
+  }))
+  await pagina.setViewportSize({ width: 1440, height: 900 })
+  await pagina.goto('/torneos')
+
+  const listado = pagina.getByRole('region', { name: 'Mis torneos' })
+  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toBeVisible()
+  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toHaveAttribute('href', '/torneos/1/cuadro')
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' })).toHaveCount(2)
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' }).nth(0)).toHaveAttribute('href', '/torneos/2/sala')
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' }).nth(1)).toHaveAttribute('href', '/torneos/3/sala')
+
+  await pagina.setViewportSize({ width: 390, height: 844 })
+  await esperar(listado.getByText('Copa del Barrio')).toBeVisible()
+  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toBeVisible()
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' })).toHaveCount(2)
+  esperar(await pagina.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+})
+
 prueba('el servicio permite salir de un torneo con autorización', async ({ page: pagina }) => {
   await prepararSesion(pagina)
   let solicitudRecibida = false
