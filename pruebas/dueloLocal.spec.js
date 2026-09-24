@@ -1,8 +1,17 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
+import { obtenerPreguntasDueloLocal } from '../src/servicios/servicioDuelosLocales.js'
 import { prepararSesion } from './datosSesion.js'
 
 prueba.beforeEach(async ({ page: pagina }) => {
   await prepararSesion(pagina)
+})
+
+prueba('cada jugador responde 4 preguntas en el duelo local', () => {
+  const preguntas = obtenerPreguntasDueloLocal()
+
+  esperar(preguntas.length).toBe(8)
+  esperar(preguntas.filter((_, indice) => indice % 2 === 0).length).toBe(4)
+  esperar(preguntas.filter((_, indice) => indice % 2 !== 0).length).toBe(4)
 })
 
 prueba('muestra el formulario inicial de preparación del duelo local', async ({ page: pagina }) => {
@@ -47,7 +56,7 @@ prueba('al finalizar calcula ganador y muestra resultado final', async ({ page: 
   await pagina.getByLabel('Jugador 2').fill('Mati')
   await pagina.getByRole('button', { name: 'Comenzar Duelo' }).click()
 
-  for (let i = 0; i < 3; i += 1) {
+  for (let i = 0; i < 8; i += 1) {
     await pagina.getByRole('button', { name: /opción/i }).first().click()
     await pagina.getByRole('button', { name: '¡Estoy Listo!' }).click()
   }
