@@ -7,8 +7,8 @@ function textoParticipantes(torneo) {
 export default function TarjetaTorneo({ torneo, tipo }) {
   const esFinalizado = tipo === 'finalizados'
   const esDisponible = tipo === 'disponibles'
-  const destino = esFinalizado ? `/torneos/${torneo.id}` : esDisponible ? '/torneos/unirse' : torneo.estadoOriginal === 'ESPERANDO_JUGADORES' ? `/torneos/${torneo.id}/sala` : `/torneos/${torneo.id}/cuadro`
-  const textoAccion = esFinalizado ? 'Ver detalle' : esDisponible ? 'Unirme' : torneo.estadoOriginal === 'ESPERANDO_JUGADORES' ? 'Ir a la sala' : 'Ver cuadro'
+  const destino = esFinalizado ? `/torneos/${torneo.id}` : esDisponible ? '/torneos/unirse' : `/torneos/${torneo.id}/sala`
+  const textoAccion = esFinalizado ? 'Ver detalle' : esDisponible ? 'Unirme' : 'Ir a la sala'
   const valorProgreso = esFinalizado ? Math.max(torneo.victorias || 0, 1) : torneo.progreso || 0
 
   return (
