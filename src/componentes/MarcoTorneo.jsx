@@ -26,7 +26,7 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
         <Enlace className="marca marco-torneo__marca" to="/home" aria-label="FutbolQuiz Arena">FUTBOLQUIZ<span className="marca__arena">{administrador ? 'ADMIN' : 'ARENA'}</span></Enlace>
         <nav className="marco-torneo__navegacion" aria-label="Navegación principal">
           {administrador && <p className="marco-admin__gestion">GESTIÓN</p>}
-          {(administrador ? [{ destino: `/admin${sufijoAdmin}`, titulo: 'Preguntas', simbolo: '?' }, { destino: `/admin/categorias${sufijoAdmin}`, titulo: 'Categorías', simbolo: '▦' }, { destino: '/home', titulo: 'Volver al juego', simbolo: '←' }] : enlaces).map(({ destino, titulo, simbolo }) => (
+          {(administrador ? [{ destino: `/admin${sufijoAdmin}`, titulo: 'Preguntas', simbolo: '?' }, { destino: `/admin/categorias${sufijoAdmin}`, titulo: 'Categorías', simbolo: '▦' }, { destino: `/admin/usuarios${sufijoAdmin}`, titulo: 'Usuarios', simbolo: '●' }, { destino: '/home', titulo: 'Volver al juego', simbolo: '←' }] : [...enlaces, ...(usuario?.rol === 'ADMINISTRADOR' ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])]).map(({ destino, titulo, simbolo }) => (
             <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin') && !destino.includes('categorias')} className={({ isActive: activo }) => `marco-torneo__enlace${activo ? ' marco-torneo__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>

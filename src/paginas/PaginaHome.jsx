@@ -47,7 +47,7 @@ export default function PaginaHome() {
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
         <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
+          {[...enlaces, ...(esAdministrador ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])].map(({ destino, titulo, simbolo }) => (
             <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>

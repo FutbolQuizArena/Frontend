@@ -23,6 +23,7 @@ import PaginaPreguntasAdmin from './paginas/PaginaPreguntasAdmin.jsx'
 import PaginaCategoriasAdmin from './paginas/PaginaCategoriasAdmin.jsx'
 import PaginaFormularioPreguntaAdmin from './paginas/PaginaFormularioPreguntaAdmin.jsx'
 import PaginaFormularioCategoriaAdmin from './paginas/PaginaFormularioCategoriaAdmin.jsx'
+import PaginaUsuariosAdmin from './paginas/PaginaUsuariosAdmin.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -62,6 +63,7 @@ export default function Aplicacion() {
         <Ruta path="/perfil" element={<PaginaPerfil />} />
         <Ruta path="/admin" element={<PaginaPreguntasAdmin />} />
         <Ruta path="/admin/categorias" element={<PaginaCategoriasAdmin />} />
+        <Ruta path="/admin/usuarios" element={<PaginaUsuariosAdmin />} />
         <Ruta path="/admin/categorias/nueva" element={<PaginaFormularioCategoriaAdmin />} />
         <Ruta path="/admin/categorias/:idCategoria/editar" element={<PaginaFormularioCategoriaAdmin />} />
         <Ruta path="/admin/preguntas/nueva" element={<PaginaFormularioPreguntaAdmin />} />

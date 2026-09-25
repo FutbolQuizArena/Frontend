@@ -6,5 +6,6 @@ dist/
 playwright-report/
 test-results/
 *.local
-docs/
+docs/*
+!docs/swagger.md
 

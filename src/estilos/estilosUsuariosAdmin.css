@@ -1,0 +1,12 @@
+.marco-admin .admin-usuarios .admin-preguntas__panel { padding: 0; border: 0; background: transparent; }
+.marco-admin .admin-usuarios__tabla .admin-preguntas__cabecera,
+.marco-admin .admin-usuarios__tabla li { grid-template-columns: minmax(130px, 1.2fr) minmax(180px, 1.6fr) minmax(110px, .8fr) minmax(130px, .8fr); }
+.admin-usuarios__tabla li > span { overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .marco-admin .admin-usuarios__tabla .admin-preguntas__cabecera { display: none; }
+  .marco-admin .admin-usuarios__tabla li { grid-template-columns: 1fr auto; align-items: start; gap: 10px; }
+  .marco-admin .admin-usuarios__tabla li strong { grid-column: 1 / -1; }
+  .marco-admin .admin-usuarios__tabla li span[data-etiqueta='Correo'] { grid-column: 1 / -1; }
+  .marco-admin .admin-usuarios__tabla li span[data-etiqueta='Rol'] { grid-column: 1; }
+  .marco-admin .admin-usuarios__tabla li .admin-categorias__estado { grid-column: 2; grid-row: 3; font-size: 9px; }
+}
