@@ -73,3 +73,7 @@ export async function eliminarPreguntaAdmin(idPregunta) {
   if (indice < 0) throw new Error('No encontramos esa pregunta.')
   preguntasTemporales = preguntasTemporales.filter((pregunta) => pregunta.id !== Number(idPregunta))
 }
+
+export async function renombrarCategoriaPreguntasAdmin(nombreAnterior, nombreNuevo) {
+  preguntasTemporales = preguntasTemporales.map((pregunta) => pregunta.categoria === nombreAnterior ? { ...pregunta, categoria: nombreNuevo } : pregunta)
+}
