@@ -61,7 +61,7 @@ export default function PaginaPartidaIndividual() {
     const cargarPartida = async () => {
       try {
         const categoria = obtenerCategoriaGuardada()
-        const partida = await iniciarPartidaIndividual()
+        const partida = await iniciarPartidaIndividual(parametros.totalPreguntas || 10, categoria || 'Aleatoria')
 
         if (cancelado) {
           return

@@ -23,10 +23,11 @@ export default function TarjetaPregunta({
 
       <div className="tarjeta-pregunta__opciones" role="list">
         {pregunta.opciones.map((opcion) => {
-          const esCorrecta = opcion.id === pregunta.opcionCorrectaId
+          const tieneRespuestaCorrecta = Boolean(pregunta.opcionCorrectaId)
           const esSeleccionada = opcion.id === respuestaSeleccionada
+          const esCorrecta = tieneRespuestaCorrecta ? opcion.id === pregunta.opcionCorrectaId : Boolean(respuestaCorrecta) && esSeleccionada
           const esCorrectaMostrada = mostrarFeedback && esCorrecta
-          const esIncorrectaMostrada = mostrarFeedback && esSeleccionada && !esCorrecta
+          const esIncorrectaMostrada = mostrarFeedback && esSeleccionada && (!tieneRespuestaCorrecta ? !respuestaCorrecta : !esCorrecta)
 
           const claseBoton = [
             'tarjeta-pregunta__opcion',

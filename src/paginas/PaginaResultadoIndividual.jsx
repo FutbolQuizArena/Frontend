@@ -35,15 +35,19 @@ export default function PaginaResultadoIndividual() {
           return
         }
 
+        const puntajeApi = Number(resultadoApi?.puntajeFinal ?? 0)
+        const puntajePersistido = Number(resultadoGuardado?.puntaje_final ?? resultadoGuardado?.puntaje ?? 0)
+        const puntajeFinal = puntajeApi > 0 ? puntajeApi : puntajePersistido
+
         const siguienteResultado = {
           ...resultadoGuardado,
-          partidaId: resultadoApi.partidaId,
-          puntaje: Number(resultadoApi.puntajeFinal ?? resultadoGuardado?.puntaje ?? 0),
-          puntaje_final: Number(resultadoApi.puntajeFinal ?? resultadoGuardado?.puntaje_final ?? resultadoGuardado?.puntaje ?? 0),
+          partidaId: Number(resultadoApi?.partidaId ?? resultadoGuardado?.partidaId ?? partidaId),
+          puntaje: puntajeFinal,
+          puntaje_final: puntajeFinal,
           totalRespuestas: Number(resultadoGuardado?.totalRespuestas ?? 10),
           respuestasCorrectas: Number(resultadoGuardado?.respuestasCorrectas ?? 0),
           finalizada: true,
-          fecha_fin: resultadoApi.fechaFin,
+          fecha_fin: resultadoApi?.fechaFin ?? resultadoGuardado?.fecha_fin ?? null,
         }
 
         sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(siguienteResultado))
