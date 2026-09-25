@@ -34,6 +34,8 @@ Abrir `/admin` con una sesión de administrador para consultar el listado de pre
 
 El listado usa datos temporales, identificados en pantalla como ejemplos. El Swagger publicado aún no incluye un endpoint administrativo de preguntas. `servicioPreguntasAdmin.js` marca el punto de integración cuando se acuerde la ruta y el contrato de respuesta. Crear, editar y eliminar preguntas corresponden a 5.2.2 y 5.2.3.
 
+Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
+
 ## Perfil
 
 Abrir `/perfil` para consultar y editar el usuario autenticado. La pantalla muestra nombre y correo en escritorio y móvil; los campos de contraseña aparecen en escritorio. Usuario, biografía y avatar no se envían porque no forman parte del contrato actual.

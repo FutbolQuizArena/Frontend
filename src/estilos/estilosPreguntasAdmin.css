@@ -5,6 +5,7 @@
 .admin-preguntas__encabezado p, .admin-preguntas__titulo p { margin: 0; color: var(--color-secundario); }
 .admin-preguntas__encabezado > a { flex-shrink: 0; padding: 12px 17px; border: 1px solid var(--color-borde); border-radius: 12px; color: var(--color-texto); background: var(--color-elevado); text-decoration: none; font-size: 13px; font-weight: 700; }
 .admin-preguntas__panel, .admin-preguntas__estado { padding: 26px; border: 1px solid var(--color-borde); border-radius: 20px; background: var(--color-sutil); }
+.admin-preguntas__aviso { margin: 0 0 22px; padding: 12px 14px; border: 1px solid var(--color-dorado); border-radius: 10px; color: var(--color-dorado); font-size: 12px; }
 .admin-preguntas__titulo { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .admin-preguntas__titulo h2 { margin: 0 0 8px; font-size: 23px; }
 .admin-preguntas__titulo p { font-size: 13px; }

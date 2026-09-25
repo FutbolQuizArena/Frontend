@@ -1,5 +1,5 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
-import { Link as Enlace } from 'react-router-dom'
+import { Link as Enlace, useSearchParams as usarParametrosBusqueda } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { obtenerPreguntasAdmin } from '../servicios/servicioPreguntasAdmin.js'
@@ -9,6 +9,8 @@ import '../estilos/estilosPreguntasAdmin.css'
 const tamanioPagina = 5
 
 export default function PaginaPreguntasAdmin() {
+  const [parametrosBusqueda] = usarParametrosBusqueda()
+  const vistaPrevia = import.meta.env.DEV && parametrosBusqueda.get('vistaPrevia') === '1'
   const [rol, establecerRol] = usarEstado(null)
   const [preguntas, establecerPreguntas] = usarEstado([])
   const [cargando, establecerCargando] = usarEstado(true)
@@ -23,13 +25,16 @@ export default function PaginaPreguntasAdmin() {
     let vigente = true
     establecerCargando(true)
     establecerMensajeError('')
-    obtenerPerfil()
-      .then(async (perfil) => {
-        if (!vigente) return
-        establecerRol(perfil.rol)
-        if (perfil.rol === 'ADMINISTRADOR') {
-          const resultado = await obtenerPreguntasAdmin()
-          if (vigente) establecerPreguntas(resultado)
+    const obtenerContenido = async () => {
+      if (vistaPrevia) return { rolUsuario: 'VISTA_PREVIA', preguntasAdmin: await obtenerPreguntasAdmin() }
+      const perfil = await obtenerPerfil()
+      return { rolUsuario: perfil.rol, preguntasAdmin: perfil.rol === 'ADMINISTRADOR' ? await obtenerPreguntasAdmin() : [] }
+    }
+    obtenerContenido()
+      .then(({ rolUsuario, preguntasAdmin }) => {
+        if (vigente) {
+          establecerRol(rolUsuario)
+          establecerPreguntas(preguntasAdmin)
         }
       })
       .catch((error) => {
@@ -37,7 +42,7 @@ export default function PaginaPreguntasAdmin() {
       })
       .finally(() => { if (vigente) establecerCargando(false) })
     return () => { vigente = false }
-  }, [intentoCarga])
+  }, [intentoCarga, vistaPrevia])
 
   const categorias = [...new Set(preguntas.map((pregunta) => pregunta.categoria))].sort((a, b) => a.localeCompare(b, 'es-AR'))
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
@@ -63,10 +68,11 @@ export default function PaginaPreguntasAdmin() {
 
         {cargando && <p className="admin-preguntas__estado" role="status">Cargando preguntas…</p>}
         {!cargando && mensajeError && <div className="admin-preguntas__estado" role="alert"><p>{mensajeError}</p><button type="button" onClick={() => establecerIntentoCarga((intento) => intento + 1)}>Reintentar</button></div>}
-        {!cargando && !mensajeError && rol !== 'ADMINISTRADOR' && <div className="admin-preguntas__estado" role="alert"><p>Solo los administradores pueden consultar esta sección.</p><Enlace to="/home">Volver al inicio</Enlace></div>}
+        {!cargando && !mensajeError && rol !== 'ADMINISTRADOR' && !vistaPrevia && <div className="admin-preguntas__estado" role="alert"><p>Solo los administradores pueden consultar esta sección.</p><Enlace to="/home">Volver al inicio</Enlace></div>}
 
-        {!cargando && !mensajeError && rol === 'ADMINISTRADOR' && (
+        {!cargando && !mensajeError && (rol === 'ADMINISTRADOR' || vistaPrevia) && (
           <section className="admin-preguntas__panel" aria-labelledby="titulo-preguntas-admin">
+            {vistaPrevia && <p className="admin-preguntas__aviso" role="status">Vista previa local: rol de administrador simulado y preguntas de ejemplo.</p>}
             <div className="admin-preguntas__titulo"><div><h2 id="titulo-preguntas-admin">Preguntas</h2><p>{preguntas.length} preguntas de ejemplo</p></div><span>Datos temporales</span></div>
             <div className="admin-preguntas__filtros">
               <label>Buscar pregunta<input type="search" value={busqueda} onChange={(evento) => cambiarBusqueda(evento.target.value)} placeholder="Escribí parte del enunciado" /></label>

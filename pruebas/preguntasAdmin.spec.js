@@ -8,6 +8,14 @@ prueba('un jugador no puede consultar el banco de preguntas', async ({ page: pag
   await esperar(pagina.getByRole('heading', { name: 'Preguntas' })).toHaveCount(0)
 })
 
+prueba('una cuenta normal puede revisar la vista previa solo en desarrollo', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  await pagina.goto('/admin?vistaPrevia=1')
+  await esperar(pagina.getByText('rol de administrador simulado')).toBeVisible()
+  await esperar(pagina.getByRole('heading', { name: 'Preguntas' })).toBeVisible()
+  await esperar(pagina.getByRole('listitem')).toHaveCount(5)
+})
+
 prueba('el administrador busca, filtra y pagina las preguntas de ejemplo', async ({ page: pagina }) => {
   await prepararSesion(pagina)
   await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 2, nombre: 'Admin', email: 'admin@futbolquiz.com', rol: 'ADMINISTRADOR', puntaje_total: 0 }) }))
