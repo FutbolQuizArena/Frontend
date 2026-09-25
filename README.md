@@ -34,9 +34,9 @@ Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. 
 
 ## Administración: preguntas — actividad 5.2.1
 
-Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y estado, paginación de cinco elementos y diseños de escritorio y móvil. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
+Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y estado, y diseños de escritorio y móvil. La vista previa pagina de a cinco; la sesión real usa las páginas de seis elementos del backend. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
 
-Con una cuenta administradora real, el listado consulta `GET /api/admin/preguntas` con JWT, reuniendo las páginas que entrega el backend. La búsqueda, los filtros y la paginación visible se aplican sobre ese listado.
+Con una cuenta administradora real, el listado consulta una página por vez de `GET /api/admin/preguntas` con JWT. La búsqueda y los filtros se envían al backend; el frontend usa `total` y `total_paginas` para mostrar la paginación.
 
 Desde el listado se puede abrir **Nueva pregunta** o elegir **Editar** en el menú de tres puntos. El formulario 5.2.2 permite escribir el enunciado, elegir categoría, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. En una sesión real, usa `POST /api/admin/preguntas`, `GET/PATCH /api/admin/preguntas/{id}` y los identificadores de categoría del backend.
 

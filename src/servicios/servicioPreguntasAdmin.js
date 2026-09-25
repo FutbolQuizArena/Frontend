@@ -70,10 +70,17 @@ function copiarPregunta(pregunta) {
 
 export async function obtenerPreguntasAdmin(opciones = {}) {
   if (!usarEjemplos(opciones)) {
-    const primera = await solicitarApi('/api/admin/preguntas?page=1')
-    if (!Array.isArray(primera?.items) || !Number.isInteger(primera.total_paginas)) throw new Error('El servidor devolvió un listado de preguntas inesperado.')
-    const siguientes = await Promise.all(Array.from({ length: Math.max(0, primera.total_paginas - 1) }, (_, indice) => solicitarApi(`/api/admin/preguntas?page=${indice + 2}`)))
-    return [primera, ...siguientes].flatMap((pagina) => pagina.items.map(adaptarPregunta))
+    const parametros = new URLSearchParams({ page: String(opciones.pagina || 1) })
+    if (opciones.buscar?.trim()) parametros.set('buscar', opciones.buscar.trim())
+    if (opciones.categoriaId && opciones.categoriaId !== 'todas') parametros.set('categoria_id', opciones.categoriaId)
+    if (opciones.estado && opciones.estado !== 'todas') parametros.set('estado', opciones.estado)
+    const respuesta = await solicitarApi(`/api/admin/preguntas?${parametros}`)
+    if (!Array.isArray(respuesta?.items) || !Number.isInteger(respuesta.total_paginas)) throw new Error('El servidor devolvió un listado de preguntas inesperado.')
+    return {
+      preguntas: respuesta.items.map(adaptarPregunta),
+      total: respuesta.total,
+      totalPaginas: Math.max(1, respuesta.total_paginas),
+    }
   }
   return preguntasTemporales.map(copiarPregunta)
 }

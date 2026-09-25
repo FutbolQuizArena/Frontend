@@ -13,6 +13,7 @@ async function prepararAdmin(pagina) {
 prueba('el administrador vuelve al panel y consulta preguntas reales con JWT', async ({ page: pagina }) => {
   await prepararAdmin(pagina)
   const solicitudes = []
+  await pagina.route('**/api/admin/categorias', (ruta) => ruta.fulfill({ json: [categoria] }))
   await pagina.route('**/api/admin/preguntas*', (ruta) => {
     solicitudes.push({ url: ruta.request().url(), autorizacion: ruta.request().headers().authorization })
     return ruta.fulfill({ json: { items: [pregunta], total: 1, page: 1, total_paginas: 1 } })
@@ -25,6 +26,29 @@ prueba('el administrador vuelve al panel y consulta preguntas reales con JWT', a
   esperar(solicitudes[0].autorizacion).toMatch(/^Bearer /)
   await pagina.getByRole('link', { name: 'Volver al juego' }).click()
   await esperar(pagina.getByRole('link', { name: 'Administración' })).toBeVisible()
+})
+
+prueba('el listado real solicita solo la página visible y envía los filtros al backend', async ({ page: pagina }) => {
+  await prepararAdmin(pagina)
+  const solicitudes = []
+  await pagina.route('**/api/admin/categorias', (ruta) => ruta.fulfill({ json: [categoria] }))
+  await pagina.route('**/api/admin/preguntas?*', (ruta) => {
+    const parametros = new URL(ruta.request().url()).searchParams
+    solicitudes.push(Object.fromEntries(parametros))
+    const item = parametros.get('page') === '2' ? { ...pregunta, id: 13, enunciado: 'Pregunta de la segunda página' } : pregunta
+    return ruta.fulfill({ json: { items: [item], total: 480, page: Number(parametros.get('page')), total_paginas: 80 } })
+  })
+  await pagina.goto('/admin')
+  await esperar(pagina.getByText(pregunta.enunciado)).toBeVisible()
+  esperar(solicitudes.every(({ page }) => page === '1')).toBe(true)
+  await pagina.getByRole('button', { name: 'Siguiente' }).click()
+  await esperar(pagina.getByText('Pregunta de la segunda página')).toBeVisible()
+  esperar(solicitudes.at(-1).page).toBe('2')
+  await pagina.getByLabel('Categoría').selectOption('7')
+  await esperar(pagina.getByText('Página 1 de 80')).toBeVisible()
+  await esperar.poll(() => solicitudes.at(-1)).toMatchObject({ page: '1', categoria_id: '7' })
+  await pagina.getByLabel('Buscar pregunta').fill('mundial')
+  await esperar.poll(() => solicitudes.at(-1)).toMatchObject({ page: '1', buscar: 'mundial', categoria_id: '7' })
 })
 
 prueba('el formulario envía el contrato real y recarga el listado', async ({ page: pagina }) => {
