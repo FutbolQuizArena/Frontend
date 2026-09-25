@@ -4,6 +4,7 @@ import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import TarjetaComparativaDuelo from '../componentes/TarjetaComparativaDuelo.jsx'
 import { obtenerResultadoDuelo, solicitarRevanchaDuelo } from '../servicios/servicioDuelos.js'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosResultadoDuelo.css'
 
 const enlaces = [
@@ -37,9 +38,22 @@ export default function PaginaResultadoDuelo() {
   const { idDuelo } = usarParametros()
   const [resultado, setResultado] = usarEstado(null)
   const [cargando, setCargando] = usarEstado(true)
+  const [perfilLocal, setPerfilLocal] = usarEstado({ nombre: 'Jugador', alias: 'Jugador', avatar: 'J' })
 
   usarEfecto(() => {
     let activo = true
+
+    obtenerPerfil()
+      .then((perfil) => {
+        if (!activo) return
+        const nombre = perfil?.nombre ?? 'Jugador'
+        setPerfilLocal({
+          nombre,
+          alias: perfil?.nombre ? nombre.split(' ')[0] : 'Jugador',
+          avatar: perfil?.iniciales ?? (nombre ? nombre.slice(0, 2).toUpperCase() : 'J'),
+        })
+      })
+      .catch(() => {})
 
     const cargarResultado = async () => {
       try {
@@ -216,10 +230,10 @@ export default function PaginaResultadoDuelo() {
       <header className="inicio__cabecera resultado-duelo__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, Lucas</strong>
+          <strong>Hola, {perfilLocal.alias}</strong>
           <span>Cuenta de jugador</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfilLocal.avatar}</Enlace>
         <BotonCerrarSesion />
       </header>
 

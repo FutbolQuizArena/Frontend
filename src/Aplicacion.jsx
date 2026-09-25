@@ -36,7 +36,7 @@ export default function Aplicacion() {
         <Ruta path="/jugar" element={<PaginaSeleccionModo />} />
         <Ruta path="/juegos/modos" element={<PaginaSeleccionModo />} />
         <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
-        <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/duelo/esperando" textoAccion="Ir a la espera" />} />
+        <Ruta path="/duelo" element={<PaginaEsperandoRival />} />
         <Ruta path="/duelo/esperando" element={<PaginaEsperandoRival />} />
         <Ruta path="/duelo/modo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
         <Ruta path="/duelo/partida" element={<PaginaPartidaDuelo />} />
