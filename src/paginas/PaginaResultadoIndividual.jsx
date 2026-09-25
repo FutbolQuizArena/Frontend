@@ -1,6 +1,8 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
+import { obtenerResultadoPartida } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosResultadoIndividual.css'
 
 const enlaces = [
@@ -13,10 +15,52 @@ const enlaces = [
 
 export default function PaginaResultadoIndividual() {
   const navegar = usarNavegacion()
-  const resultadoGuardado = sessionStorage.getItem('resultadoPartidaIndividual')
-  const resultado = resultadoGuardado ? JSON.parse(resultadoGuardado) : null
+  const resultadoGuardado = useMemo(() => {
+    const valor = sessionStorage.getItem('resultadoPartidaIndividual')
+    return valor ? JSON.parse(valor) : null
+  }, [])
+  const [resultado, setResultado] = useState(resultadoGuardado)
 
-  const puntaje = Number(resultado?.puntaje ?? 0)
+  useEffect(() => {
+    const partidaId = Number(resultadoGuardado?.partidaId ?? resultadoGuardado?.partida_id ?? 0)
+    if (!partidaId) {
+      return undefined
+    }
+
+    let cancelado = false
+
+    obtenerResultadoPartida(partidaId)
+      .then((resultadoApi) => {
+        if (cancelado) {
+          return
+        }
+
+        const siguienteResultado = {
+          ...resultadoGuardado,
+          partidaId: resultadoApi.partidaId,
+          puntaje: Number(resultadoApi.puntajeFinal ?? resultadoGuardado?.puntaje ?? 0),
+          puntaje_final: Number(resultadoApi.puntajeFinal ?? resultadoGuardado?.puntaje_final ?? resultadoGuardado?.puntaje ?? 0),
+          totalRespuestas: Number(resultadoGuardado?.totalRespuestas ?? 10),
+          respuestasCorrectas: Number(resultadoGuardado?.respuestasCorrectas ?? 0),
+          finalizada: true,
+          fecha_fin: resultadoApi.fechaFin,
+        }
+
+        sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(siguienteResultado))
+        setResultado(siguienteResultado)
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setResultado(resultadoGuardado)
+        }
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [resultadoGuardado])
+
+  const puntaje = Number(resultado?.puntaje_final ?? resultado?.puntaje ?? 0)
   const respuestasCorrectas = Number(resultado?.respuestasCorrectas ?? 0)
   const totalRespuestas = Number(resultado?.totalRespuestas ?? 10)
   const porcentaje = totalRespuestas ? Math.round((respuestasCorrectas / totalRespuestas) * 100) : 0
