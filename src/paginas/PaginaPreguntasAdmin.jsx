@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
+import NavegacionAdmin from '../componentes/NavegacionAdmin.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { eliminarPreguntaAdmin, obtenerPreguntasAdmin } from '../servicios/servicioPreguntasAdmin.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
@@ -86,6 +87,7 @@ export default function PaginaPreguntasAdmin() {
         {ubicacion.state?.avisoPregunta && <p className="admin-preguntas__aviso" role="status">{ubicacion.state.avisoPregunta}</p>}
         {aviso && <p className="admin-preguntas__aviso" role="status">{aviso}</p>}
         {vistaPrevia && <p className="admin-preguntas__aviso" role="status">Vista previa local: rol de administrador simulado y preguntas de ejemplo.</p>}
+        <NavegacionAdmin vistaPrevia={vistaPrevia} />
         <div className="admin-preguntas__titulo"><div><h2 id="titulo-preguntas-admin">Preguntas</h2><p>{preguntas.length} preguntas de ejemplo</p></div><div className="admin-preguntas__acciones"><span>Datos temporales</span><Link to={`/admin/preguntas/nueva${sufijo}`}>Nueva pregunta</Link></div></div>
         <div className="admin-preguntas__filtros"><label>Buscar pregunta<input type="search" value={busqueda} onChange={(evento) => cambiarBusqueda(evento.target.value)} placeholder="Escribí parte del enunciado" /></label><label>Categoría<select value={categoria} onChange={(evento) => cambiarCategoria(evento.target.value)}><option value="todas">Todas las categorías</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Dificultad<select value={dificultad} onChange={(evento) => cambiarDificultad(evento.target.value)}><option value="todas">Todas</option><option>Fácil</option><option>Media</option><option>Difícil</option></select></label></div>
         <p className="admin-preguntas__cantidad" role="status">{filtradas.length} {filtradas.length === 1 ? 'resultado' : 'resultados'}</p>
