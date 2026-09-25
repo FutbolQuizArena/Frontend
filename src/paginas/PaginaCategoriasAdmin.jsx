@@ -6,6 +6,7 @@ import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { obtenerCategoriasAdmin } from '../servicios/servicioCategoriasAdmin.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 import '../estilos/estilosPreguntasAdmin.css'
+import '../estilos/estilosMarcoAdmin.css'
 
 export default function PaginaCategoriasAdmin() {
   const [parametros] = useSearchParams()
@@ -34,9 +35,9 @@ export default function PaginaCategoriasAdmin() {
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
   const visibles = categorias.filter((categoria) => categoria.nombre.toLocaleLowerCase('es-AR').includes(consulta))
 
-  return <MarcoTorneo tituloMovil="Administración" subtituloMovil="Categorías">
-    <div className="admin-preguntas">
-      <header className="admin-preguntas__encabezado"><div><span className="admin-preguntas__seccion">PANEL DE ADMINISTRACIÓN</span><h1>Categorías</h1><p>Creá y organizá las categorías del banco de preguntas.</p></div><Link to="/home">Volver al juego</Link></header>
+  return <MarcoTorneo administrador sufijoAdmin={vistaPrevia ? '?vistaPrevia=1' : ''} tituloMovil="Administración" subtituloMovil="Categorías">
+    <div className="admin-preguntas admin-categorias">
+      <header className="admin-preguntas__encabezado"><div><h1>Categorías</h1><p>Creá y organizá las categorías del banco de preguntas.</p></div></header>
       {cargando && <p className="admin-preguntas__estado" role="status">Cargando categorías…</p>}
       {!cargando && error && <div className="admin-preguntas__estado" role="alert"><p>{error}</p><button type="button" onClick={() => establecerIntento((actual) => actual + 1)}>Reintentar</button></div>}
       {!cargando && !error && rol !== 'ADMINISTRADOR' && !vistaPrevia && <div className="admin-preguntas__estado" role="alert"><p>Solo los administradores pueden consultar esta sección.</p><Link to="/home">Volver al inicio</Link></div>}

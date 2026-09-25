@@ -4,6 +4,7 @@ import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { actualizarPreguntaAdmin, crearPreguntaAdmin, obtenerPreguntaAdmin, obtenerPreguntasAdmin } from '../servicios/servicioPreguntasAdmin.js'
 import '../estilos/estilosPreguntasAdmin.css'
+import '../estilos/estilosMarcoAdmin.css'
 
 const formularioVacio = { enunciado: '', categoria: '', dificultad: 'Fácil', opciones: ['', '', '', ''], respuestaCorrecta: null }
 
@@ -76,20 +77,20 @@ export default function PaginaFormularioPreguntaAdmin() {
     }
   }
 
-  return <MarcoTorneo tituloMovil="Administración" subtituloMovil="Preguntas">
-    <main className="admin-preguntas admin-formulario">
-      <header className="admin-preguntas__encabezado"><div><span className="admin-preguntas__seccion">PANEL DE ADMINISTRACIÓN</span><h1>{idPregunta ? 'Editar pregunta' : 'Nueva pregunta'}</h1><p>Completá el enunciado y marcá una de las cuatro respuestas como correcta.</p></div><Link to={regreso}>Volver a preguntas</Link></header>
+  return <MarcoTorneo administrador sufijoAdmin={vistaPrevia ? '?vistaPrevia=1' : ''} tituloMovil={idPregunta ? 'Editar pregunta' : 'Nueva pregunta'} subtituloMovil="Gestión de contenido">
+    <div className="admin-preguntas admin-formulario">
+      <header className="admin-preguntas__encabezado"><div><h1>{idPregunta ? 'Editar pregunta' : 'Nueva pregunta'}</h1><p>Completá el enunciado y marcá una de las cuatro respuestas como correcta.</p></div><Link to={regreso}>Volver a preguntas</Link></header>
       {cargando && <p role="status">Cargando pregunta…</p>}
       {!cargando && rol !== 'ADMINISTRADOR' && !vistaPrevia && !error && <p role="alert">Solo los administradores pueden gestionar preguntas.</p>}
-      {!cargando && error && !encontrada && <p role="alert">{error}</p>}
+      {!cargando && error && (!encontrada || (rol !== 'ADMINISTRADOR' && !vistaPrevia)) && <p role="alert">{error}</p>}
       {!cargando && (rol === 'ADMINISTRADOR' || vistaPrevia) && encontrada && <form className="admin-formulario__panel" onSubmit={guardar} noValidate>
-        <p className="admin-preguntas__aviso">Datos temporales: esta versión todavía no guarda en el backend y los cambios se pierden al recargar.</p>
+
         <label>Enunciado de la pregunta<textarea value={datos.enunciado} onChange={(evento) => establecerDatos({ ...datos, enunciado: evento.target.value })} rows="3" maxLength="500" /></label>
-        <div className="admin-formulario__fila"><label>Categoría<select value={datos.categoria} onChange={(evento) => establecerDatos({ ...datos, categoria: evento.target.value })}><option value="">Seleccioná una categoría</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Dificultad<select value={datos.dificultad} onChange={(evento) => establecerDatos({ ...datos, dificultad: evento.target.value })}><option>Fácil</option><option>Media</option><option>Difícil</option></select></label></div>
-        <fieldset><legend>Opciones de respuesta</legend><p>Seleccioná la opción correcta.</p>{datos.opciones.map((opcion, indice) => <div className="admin-formulario__opcion" key={indice}><label htmlFor={`opcion-${indice}`}>Opción {indice + 1}</label><input id={`opcion-${indice}`} value={opcion} onChange={(evento) => cambiarOpcion(indice, evento.target.value)} maxLength="200" /><label className="admin-formulario__radio"><input type="radio" name="correcta" checked={datos.respuestaCorrecta === indice} onChange={() => establecerDatos({ ...datos, respuestaCorrecta: indice })} />Correcta</label></div>)}</fieldset>
+        <div className="admin-formulario__fila"><label>Categoría<select value={datos.categoria} onChange={(evento) => establecerDatos({ ...datos, categoria: evento.target.value })}><option value="">Seleccioná una categoría</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Respuesta correcta<select aria-label="Respuesta correcta" value={datos.respuestaCorrecta ?? ''} onChange={(evento) => establecerDatos({ ...datos, respuestaCorrecta: evento.target.value === '' ? null : Number(evento.target.value) })}><option value="">Seleccionar opción</option>{['A', 'B', 'C', 'D'].map((letra, indice) => <option key={letra} value={indice}>Opción {letra}</option>)}</select></label></div>
+        <fieldset><legend>Opciones de respuesta</legend><p>Seleccioná la opción correcta.</p>{datos.opciones.map((opcion, indice) => <div className={`admin-formulario__opcion${datos.respuestaCorrecta === indice ? ' admin-formulario__opcion--correcta' : ''}`} key={indice}><label htmlFor={`opcion-${indice}`}>Opción {String.fromCharCode(65 + indice)}</label><input id={`opcion-${indice}`} value={opcion} onChange={(evento) => cambiarOpcion(indice, evento.target.value)} maxLength="200" /><label className="admin-formulario__radio"><input type="radio" name="correcta" checked={datos.respuestaCorrecta === indice} onChange={() => establecerDatos({ ...datos, respuestaCorrecta: indice })} />Correcta</label></div>)}</fieldset><p className="admin-formulario__nota">Cada pregunta debe tener exactamente cuatro opciones y una única respuesta correcta.</p>
         {error && <p className="admin-formulario__error" role="alert">{error}</p>}
-        <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{guardando ? 'Guardando…' : 'Guardar pregunta'}</button></div>
+        <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p><div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{guardando ? 'Guardando…' : idPregunta ? 'Guardar cambios' : 'Guardar pregunta'}</button></div>
       </form>}
-    </main>
+    </div>
   </MarcoTorneo>
 }
