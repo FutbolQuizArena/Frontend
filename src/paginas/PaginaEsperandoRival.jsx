@@ -88,15 +88,16 @@ export default function PaginaEsperandoRival() {
         }
 
         // Si ya nos emparejó de inmediato (somos jugador 2 y el duelo está EN_CURSO):
-        const estaEnCurso = (duelo.estado === 'EN_CURSO' || duelo.estado === 'FINALIZADA' || duelo.estado === 'FINALIZADO') && duelo.rival
+        const estaEnCurso = duelo.estado === 'EN_CURSO' || duelo.estado === 'FINALIZADA' || duelo.estado === 'FINALIZADO'
         if (estaEnCurso) {
+          const rivalFinal = duelo.rival || { id: 'rival-online', nombre: 'Rival', alias: 'Rival', avatar: 'RV', nivel: 'Online', puntuacion: 0 }
           const guardado = JSON.parse(window.sessionStorage.getItem('dueloActual') || '{}')
           window.sessionStorage.setItem('dueloActual', JSON.stringify({
             ...guardado,
             jugadorLocal: duelo.jugadorLocal || guardado.jugadorLocal,
-            rival: duelo.rival,
+            rival: rivalFinal,
           }))
-          setRival(duelo.rival)
+          setRival(rivalFinal)
           setEstadoBusqueda('encontrado')
           window.setTimeout(() => {
             if (activo && !canceladoRef.current) {
@@ -113,8 +114,7 @@ export default function PaginaEsperandoRival() {
             if (!activo || canceladoRef.current) return
 
             const rivalListo = estadoActual &&
-              (estadoActual.estado === 'EN_CURSO' || estadoActual.estado === 'FINALIZADA' || estadoActual.estado === 'FINALIZADO') &&
-              estadoActual.rival
+              (estadoActual.estado === 'EN_CURSO' || estadoActual.estado === 'FINALIZADA' || estadoActual.estado === 'FINALIZADO')
 
             if (rivalListo) {
               if (intervaloPolling) {
@@ -122,17 +122,17 @@ export default function PaginaEsperandoRival() {
                 intervaloPolling = null
               }
 
-              // Guardar estado actualizado en sessionStorage
+              const rivalFinal = estadoActual.rival || { id: 'rival-online', nombre: 'Rival', alias: 'Rival', avatar: 'RV', nivel: 'Online', puntuacion: 0 }
               const guardado = JSON.parse(window.sessionStorage.getItem('dueloActual') || '{}')
               window.sessionStorage.setItem('dueloActual', JSON.stringify({
                 ...guardado,
                 id: estadoActual.id || duelo.id,
                 estado: estadoActual.estado,
                 jugadorLocal: estadoActual.jugadorLocal || guardado.jugadorLocal,
-                rival: estadoActual.rival,
+                rival: rivalFinal,
               }))
 
-              setRival(estadoActual.rival)
+              setRival(rivalFinal)
               setEstadoBusqueda('encontrado')
 
               window.setTimeout(() => {

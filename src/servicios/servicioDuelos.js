@@ -82,12 +82,13 @@ function normalizarDueloOnline(respuesta, usuarioActual = null) {
     puntuacion: Number(usuarioActual?.puntajeTotal ?? 0),
   }
 
-  const rival = (estaEnCurso && rivalNombre)
+  const rivalTextoNombre = rivalNombre || 'Rival'
+  const rival = estaEnCurso
     ? {
         id: rivalId ?? 'rival-online',
-        nombre: rivalNombre,
-        alias: generarAlias(rivalNombre),
-        avatar: generarAvatar(rivalNombre),
+        nombre: rivalTextoNombre,
+        alias: generarAlias(rivalTextoNombre),
+        avatar: generarAvatar(rivalTextoNombre),
         nivel: 'Online',
         puntuacion: rivalPuntaje,
       }
@@ -254,12 +255,13 @@ export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
       const puntajeLocal = esJugador1 ? Number(respuesta?.puntaje_jugador1 ?? 0) : Number(respuesta?.puntaje_jugador2 ?? 0)
       const aciertosLocal = esJugador1 ? Number(respuesta?.aciertos_jugador1 ?? 0) : Number(respuesta?.aciertos_jugador2 ?? 0)
 
-      const rival = (tieneRival && rivalNombre)
+      const rivalTextoNombre = rivalNombre || 'Rival'
+      const rival = tieneRival
         ? {
             id: rivalId ?? 'rival-online',
-            nombre: rivalNombre,
-            alias: generarAlias(rivalNombre),
-            avatar: generarAvatar(rivalNombre),
+            nombre: rivalTextoNombre,
+            alias: generarAlias(rivalTextoNombre),
+            avatar: generarAvatar(rivalTextoNombre),
             nivel: 'Online',
             puntuacion: rivalPuntaje,
             aciertos: rivalAciertos,
