@@ -19,6 +19,7 @@ import PaginaSeleccionModo from './paginas/PaginaSeleccionModo.jsx'
 import PaginaEsperandoRival from './paginas/PaginaEsperandoRival.jsx'
 import PaginaPartidaDuelo from './paginas/PaginaPartidaDuelo.jsx'
 import PaginaDueloLocal from './paginas/PaginaDueloLocal.jsx'
+import PaginaPreguntasAdmin from './paginas/PaginaPreguntasAdmin.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -56,7 +57,7 @@ export default function Aplicacion() {
         <Ruta path="/torneos/:idTorneo" element={<PaginaDetalleTorneo />} />
         <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking" />} />
         <Ruta path="/perfil" element={<PaginaPerfil />} />
-        <Ruta path="/admin" element={<PaginaPendiente titulo="Administración" />} />
+        <Ruta path="/admin" element={<PaginaPreguntasAdmin />} />
       </Ruta>
       <Ruta path="*" element={
         <main className="pagina-no-encontrada">
