@@ -66,7 +66,6 @@ export default function PaginaEsperandoRival() {
     const temporizador = window.setInterval(() => {
       setTiempoEspera((anterior) => anterior + 1)
     }, 1000)
-
     return () => window.clearInterval(temporizador)
   }, [])
 
@@ -191,17 +190,19 @@ export default function PaginaEsperandoRival() {
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>{jugadorLocal.alias} · {jugadorLocal.puntuacion} pts</span>
+          <span>{jugadorLocal?.alias ?? 'Jugador'} · {jugadorLocal?.puntuacion ?? 0} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera pagina-esperando-rival__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, {jugadorLocal.alias}</strong>
+          <strong>Hola, {jugadorLocal?.nombre ?? jugadorLocal?.alias ?? 'Jugador'}</strong>
           <span>Cuenta de jugador</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{jugadorLocal.avatar}</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">
+          {jugadorLocal?.avatar ?? 'JQ'}
+        </Enlace>
         <BotonCerrarSesion />
       </header>
 
@@ -231,19 +232,21 @@ export default function PaginaEsperandoRival() {
           </div>
 
           <div className="pagina-esperando-rival__tarjetas">
-            <article className="pagina-esperando-rival__jugador pagina-esperando-rival__jugador--local">
-              <div className="pagina-esperando-rival__avatar" aria-label={`Jugador local ${jugadorLocal.alias}`}>
-                {jugadorLocal.avatar}
-              </div>
-              <div>
-                <span className="pagina-esperando-rival__etiqueta">Tú</span>
-                <h2>{jugadorLocal.alias}</h2>
-                <p>{jugadorLocal.nivel}</p>
-              </div>
-            </article>
+            {jugadorLocal && (
+              <article className="pagina-esperando-rival__jugador pagina-esperando-rival__jugador--local">
+                <div className="pagina-esperando-rival__avatar" aria-label={`Jugador local ${jugadorLocal.alias}`}>
+                  {jugadorLocal.avatar}
+                </div>
+                <div>
+                  <span className="pagina-esperando-rival__etiqueta">Tú</span>
+                  <h2>{jugadorLocal.alias}</h2>
+                  <p>{jugadorLocal.nivel}</p>
+                </div>
+              </article>
+            )}
 
             <article className="pagina-esperando-rival__jugador pagina-esperando-rival__jugador--rival">
-              <div className="pagina-esperando-rival__avatar pagina-esperando-rival__avatar--rival" aria-label="Rival pendiente">
+              <div className="pagina-esperando-rival__avatar pagina-esperando-rival__avatar--rival" aria-label={rival ? `Rival ${rival.nombre}` : 'Rival pendiente'}>
                 {rival ? rival.avatar : '…'}
               </div>
               <div>
