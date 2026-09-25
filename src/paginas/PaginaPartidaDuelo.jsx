@@ -1,9 +1,10 @@
-import { useEffect as usarEfecto, useState as usarEstado } from 'react'
+import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import MarcadorDuelo from '../componentes/MarcadorDuelo.jsx'
 import TarjetaJugadorDuelo from '../componentes/TarjetaJugadorDuelo.jsx'
-import { obtenerPreguntasDuelo, registrarRespuestaDuelo, simularRespuestaRival } from '../servicios/servicioDuelos.js'
+import { generarAlias, generarAvatar, obtenerPreguntasDuelo, registrarRespuestaDuelo, simularRespuestaRival } from '../servicios/servicioDuelos.js'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosPartidaDuelo.css'
 
 const enlaces = [
@@ -14,23 +15,21 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
-const jugadorLocalBase = {
-  nombre: 'Lucas',
-  alias: 'Luki',
-  avatar: 'LM',
-}
-
-const rivalBase = {
-  nombre: 'Rival',
-  alias: 'Oponente',
-  avatar: 'RV',
-}
-
 const obtenerTiempoBase = () => 15
 
 export default function PaginaPartidaDuelo() {
   const navegar = usarNavegacion()
-  const [partidaId] = usarEstado(() => (window.crypto?.randomUUID ? window.crypto.randomUUID() : `duelo-${Date.now()}`))
+  const [partidaId, setPartidaId] = usarEstado(() => (window.crypto?.randomUUID ? window.crypto.randomUUID() : `duelo-${Date.now()}`))
+  const [jugadorLocal, setJugadorLocal] = usarEstado({
+    nombre: 'Jugador',
+    alias: 'Tú',
+    avatar: 'JQ',
+  })
+  const [rival, setRival] = usarEstado({
+    nombre: 'Rival',
+    alias: 'Oponente',
+    avatar: 'RV',
+  })
   const [preguntas, setPreguntas] = usarEstado([])
   const [indicePregunta, setIndicePregunta] = usarEstado(0)
   const [respuestaSeleccionada, setRespuestaSeleccionada] = usarEstado(null)
@@ -44,23 +43,62 @@ export default function PaginaPartidaDuelo() {
   const [aciertosRival, setAciertosRival] = usarEstado(0)
   const [estadoRival, setEstadoRival] = usarEstado('Esperando respuesta')
 
+  const puntajeLocalRef = usarReferencia(0)
+  const aciertosLocalRef = usarReferencia(0)
+  const puntajeRivalRef = usarReferencia(0)
+  const aciertosRivalRef = usarReferencia(0)
+
   const preguntaActual = preguntas[indicePregunta] ?? null
   const totalPreguntas = preguntas.length || 1
-
   const categoriaActual = preguntaActual?.categoria ?? 'Historia'
 
   usarEfecto(() => {
+    let activo = true
+
+    // Cargar información guardada del duelo actual
+    if (typeof window !== 'undefined') {
+      const guardado = window.sessionStorage.getItem('dueloActual')
+      if (guardado) {
+        try {
+          const duelo = JSON.parse(guardado)
+          if (duelo.id) setPartidaId(duelo.id)
+          if (duelo.jugadorLocal) setJugadorLocal(duelo.jugadorLocal)
+          if (duelo.rival) setRival(duelo.rival)
+        } catch {
+          // fallback
+        }
+      }
+    }
+
+    // Cargar perfil real si faltan datos del usuario local
+    obtenerPerfil()
+      .then((perfil) => {
+        if (!activo || !perfil) return
+        const alias = perfil.nombre ? perfil.nombre.split(' ')[0] : 'Tú'
+        setJugadorLocal((prev) => ({
+          ...prev,
+          nombre: perfil.nombre || prev.nombre,
+          alias: alias || prev.alias,
+          avatar: perfil.iniciales || prev.avatar,
+        }))
+      })
+      .catch(() => {})
+
     const preguntasCargadas = obtenerPreguntasDuelo('duelo-demo')
     setPreguntas(preguntasCargadas)
+
+    return () => {
+      activo = false
+    }
   }, [])
 
   usarEfecto(() => {
-    if (!preguntaActual || bloqueado || mostrarFeedback) {
+    if (!preguntaActual || bloqueado || estadoFeedback) {
       return undefined
     }
 
     if (tiempoRestante <= 0) {
-      manejarRespuesta(null, false, true)
+      manejarRespuesta(null, true)
       return undefined
     }
 
@@ -76,61 +114,96 @@ export default function PaginaPartidaDuelo() {
     }, 1000)
 
     return () => window.clearInterval(temporizador)
-  }, [bloqueado, mostrarFeedback, preguntaActual, tiempoRestante])
+  }, [bloqueado, estadoFeedback, preguntaActual, tiempoRestante])
 
   const avanzarPregunta = () => {
     const siguienteIndice = indicePregunta + 1
 
     if (siguienteIndice >= preguntas.length) {
+      const totalPuntajeLocal = puntajeLocalRef.current
+      const totalAciertosLocal = aciertosLocalRef.current
+      const totalPuntajeRival = puntajeRivalRef.current
+      const totalAciertosRival = aciertosRivalRef.current
+      const empate = totalPuntajeLocal === totalPuntajeRival
+      const ganoLocal = totalPuntajeLocal > totalPuntajeRival
+      const ganador = empate ? 'empate' : (ganoLocal ? 'local' : 'rival')
+
       const resultado = {
         idPartida: partidaId,
-        puntajeLocal,
-        puntajeRival,
-        aciertosLocal,
-        aciertosRival,
+        ganador,
+        resultadoTexto: empate ? 'EMPATE' : (ganoLocal ? '¡VICTORIA!' : 'DERROTA'),
+        jugadorLocal: {
+          nombre: jugadorLocal.nombre,
+          alias: jugadorLocal.alias,
+          avatar: jugadorLocal.avatar,
+          puntaje: totalPuntajeLocal,
+          aciertos: totalAciertosLocal,
+          totalPreguntas: preguntas.length || 10,
+          tiempoPromedio: 0,
+        },
+        oponente: {
+          nombre: rival.nombre,
+          alias: rival.alias,
+          avatar: rival.avatar,
+          puntaje: totalPuntajeRival,
+          aciertos: totalAciertosRival,
+          totalPreguntas: preguntas.length || 10,
+          tiempoPromedio: 0,
+        },
+        resumen: {
+          diferencia: Math.abs(totalPuntajeLocal - totalPuntajeRival),
+          porcentajeLocal: Math.round((totalAciertosLocal / (preguntas.length || 10)) * 100),
+          porcentajeOponente: Math.round((totalAciertosRival / (preguntas.length || 10)) * 100),
+        },
         finalizada: true,
       }
       sessionStorage.setItem('resultadoDuelo', JSON.stringify(resultado))
-      navegar('/duelo/resultado')
+      navegar(`/duelo/${partidaId}/resultado`)
       return
     }
 
     setIndicePregunta(siguienteIndice)
     setRespuestaSeleccionada(null)
     setEstadoFeedback(null)
-    setMostrarFeedback(false)
     setBloqueado(false)
     setTiempoRestante(obtenerTiempoBase())
     setEstadoRival('Respondiendo...')
   }
 
-  const manejarRespuesta = (opcionSeleccionada, esCorrecta, tiempoAgotado = false) => {
+  const manejarRespuesta = async (opcionSeleccionada, tiempoAgotado = false) => {
     if (!preguntaActual || bloqueado) {
       return
     }
 
+    setBloqueado(true)
+    setRespuestaSeleccionada(opcionSeleccionada)
+
     const tiempoUsado = tiempoAgotado ? obtenerTiempoBase() : Math.max(1, obtenerTiempoBase() - tiempoRestante)
-    registrarRespuestaDuelo(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
+    
+    // Registrar respuesta real en el backend:
+    const resultadoApi = await registrarRespuestaDuelo(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
+    const acerto = Boolean(resultadoApi?.esCorrecta)
+    const puntosGanados = Number(resultadoApi?.puntajeObtenido ?? 0)
+
+    setEstadoFeedback(acerto ? 'correcta' : 'incorrecta')
+
+    if (acerto) {
+      puntajeLocalRef.current += puntosGanados
+      aciertosLocalRef.current += 1
+      setPuntajeLocal(puntajeLocalRef.current)
+      setAciertosLocal(aciertosLocalRef.current)
+    }
 
     const respuestaRival = simularRespuestaRival(preguntaActual.id)
     const rivalAcerto = Boolean(respuestaRival?.correcta)
-
-    setRespuestaSeleccionada(opcionSeleccionada)
-    setBloqueado(true)
-    setMostrarFeedback(true)
-    setEstadoFeedback(esCorrecta ? 'correcta' : 'incorrecta')
     setEstadoRival(rivalAcerto ? 'Respondió correctamente' : 'Respondió incorrectamente')
-
-    if (esCorrecta) {
-      const puntos = 100 + (tiempoRestante * 5)
-      setPuntajeLocal((valorActual) => valorActual + puntos)
-      setAciertosLocal((valorActual) => valorActual + 1)
-    }
 
     if (rivalAcerto) {
       const puntosRival = 100 + Math.max(0, (obtenerTiempoBase() - 1) * 4)
-      setPuntajeRival((valorActual) => valorActual + puntosRival)
-      setAciertosRival((valorActual) => valorActual + 1)
+      puntajeRivalRef.current += puntosRival
+      aciertosRivalRef.current += 1
+      setPuntajeRival(puntajeRivalRef.current)
+      setAciertosRival(aciertosRivalRef.current)
     }
 
     window.setTimeout(() => {
@@ -164,17 +237,17 @@ export default function PaginaPartidaDuelo() {
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · {puntajeLocal} pts</span>
+          <span>{jugadorLocal.alias} · {puntajeLocal} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola</strong>
+          <strong>Hola, {jugadorLocal.alias}</strong>
           <span>Cuenta de jugador</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{jugadorLocal.avatar}</Enlace>
         <BotonCerrarSesion />
       </header>
 
@@ -186,9 +259,9 @@ export default function PaginaPartidaDuelo() {
 
         <section className="partida-duelo__marcadores" aria-label="Marcadores del duelo">
           <TarjetaJugadorDuelo
-            nombre={jugadorLocalBase.nombre}
-            alias={jugadorLocalBase.alias}
-            avatar={jugadorLocalBase.avatar}
+            nombre={jugadorLocal.nombre}
+            alias={jugadorLocal.alias}
+            avatar={jugadorLocal.avatar}
             puntaje={puntajeLocal}
             aciertos={aciertosLocal}
             estado={bloqueado ? 'Respuesta enviada' : 'Respondiendo...'}
@@ -202,9 +275,9 @@ export default function PaginaPartidaDuelo() {
           />
 
           <TarjetaJugadorDuelo
-            nombre={rivalBase.nombre}
-            alias={rivalBase.alias}
-            avatar={rivalBase.avatar}
+            nombre={rival.nombre}
+            alias={rival.alias}
+            avatar={rival.avatar}
             puntaje={puntajeRival}
             aciertos={aciertosRival}
             estado={estadoRival}
@@ -221,10 +294,9 @@ export default function PaginaPartidaDuelo() {
 
           <div className="partida-duelo__lista-opciones">
             {preguntaActual.opciones.map((opcion) => {
-              const opcionEsCorrecta = opcion.id === preguntaActual.opcionCorrectaId
               const opcionSeleccionada = respuestaSeleccionada === opcion.id
-              const showCorrect = mostrarFeedback && opcionEsCorrecta
-              const showIncorrect = mostrarFeedback && opcionSeleccionada && !opcionEsCorrecta
+              const showCorrect = Boolean(estadoFeedback && opcionSeleccionada && estadoFeedback === 'correcta')
+              const showIncorrect = Boolean(estadoFeedback && opcionSeleccionada && estadoFeedback === 'incorrecta')
 
               return (
                 <button
@@ -236,10 +308,9 @@ export default function PaginaPartidaDuelo() {
                     showIncorrect ? 'partida-duelo__opcion--incorrecta' : '',
                   ].filter(Boolean).join(' ')}
                   data-testid="opcion-duelo"
-                  disabled={bloqueado || mostrarFeedback}
+                  disabled={bloqueado || Boolean(estadoFeedback)}
                   onClick={() => {
-                    const seleccion = opcion.id
-                    manejarRespuesta(seleccion, seleccion === preguntaActual.opcionCorrectaId, false)
+                    manejarRespuesta(opcion.id, false)
                   }}
                 >
                   {opcion.texto}
@@ -248,7 +319,7 @@ export default function PaginaPartidaDuelo() {
             })}
           </div>
 
-          {mostrarFeedback && (
+          {estadoFeedback && (
             <div className="partida-duelo__feedback">
               <strong>{estadoFeedback === 'correcta' ? 'Respuesta correcta' : 'Respuesta incorrecta'}</strong>
               {' '}El rival también está resolviendo la pregunta.
