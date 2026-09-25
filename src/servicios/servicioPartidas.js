@@ -9,6 +9,51 @@ export const categoriasPartidas = [
   'Tácticas',
 ]
 
+function normalizarCategoriaBackend(categoria) {
+  if (!categoria) {
+    return null
+  }
+
+  if (typeof categoria === 'string') {
+    return { nombre: categoria }
+  }
+
+  return {
+    id: categoria.id ?? categoria.categoria_id ?? categoria.slug ?? null,
+    nombre: categoria.nombre ?? categoria.titulo ?? categoria.descripcion ?? 'Categoría',
+    color: categoria.color ?? null,
+  }
+}
+
+export async function obtenerCategoriasDisponibles() {
+  const rutasPosibles = ['/api/categorias', '/api/partidas/categorias']
+
+  for (const ruta of rutasPosibles) {
+    try {
+      const respuesta = await solicitarApi(ruta, { metodo: 'GET' })
+      const categorias = Array.isArray(respuesta)
+        ? respuesta
+        : Array.isArray(respuesta?.items)
+          ? respuesta.items
+          : Array.isArray(respuesta?.categorias)
+            ? respuesta.categorias
+            : []
+
+      const categoriasNormalizadas = categorias
+        .map(normalizarCategoriaBackend)
+        .filter(Boolean)
+
+      if (categoriasNormalizadas.length > 0) {
+        return categoriasNormalizadas
+      }
+    } catch {
+      // El backend actual no expone categorías; se usa fallback local.
+    }
+  }
+
+  return categoriasPartidas.map((nombre) => ({ nombre }))
+}
+
 function mapearPreguntaBackend(pregunta) {
   const opciones = [
     { id: 'A', texto: pregunta.opcion_a },

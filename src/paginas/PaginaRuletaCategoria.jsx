@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteRuleta from '../componentes/ComponenteRuleta.jsx'
-import { obtenerCategoriaAleatoria } from '../servicios/servicioPartidas.js'
+import { categoriasPartidas, obtenerCategoriaAleatoria, obtenerCategoriasDisponibles } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosRuleta.css'
 
 const enlaces = [
@@ -14,24 +14,38 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
-const categoriasBase = [
-  { nombre: 'Historia' },
-  { nombre: 'Mundiales' },
-  { nombre: 'Clubes' },
-  { nombre: 'Jugadores' },
-  { nombre: 'Reglas' },
-  { nombre: 'Tácticas' },
-]
+const categoriasBase = categoriasPartidas.map((nombre) => ({ nombre }))
 
 export default function PaginaRuletaCategoria() {
   const navegar = usarNavegacion()
   const ruletaReferencial = useRef(null)
+  const [categoriasDisponibles, setCategoriasDisponibles] = useState(categoriasBase)
   const [categoriaElegida, setCategoriaElegida] = useState(null)
   const [categoriaSiguiente, setCategoriaSiguiente] = useState(null)
   const [giroActivo, setGiroActivo] = useState(false)
 
+  useEffect(() => {
+    let cancelado = false
+
+    obtenerCategoriasDisponibles()
+      .then((categorias) => {
+        if (!cancelado && Array.isArray(categorias) && categorias.length > 0) {
+          setCategoriasDisponibles(categorias)
+        }
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setCategoriasDisponibles(categoriasBase)
+        }
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [])
+
   const manejarGiro = () => {
-    const siguienteCategoria = obtenerCategoriaAleatoria(categoriasBase)
+    const siguienteCategoria = obtenerCategoriaAleatoria(categoriasDisponibles)
     setCategoriaElegida(null)
     setCategoriaSiguiente(siguienteCategoria)
     setGiroActivo(true)
@@ -93,7 +107,7 @@ export default function PaginaRuletaCategoria() {
           <div className="ruleta-categoria__contenido">
             <ComponenteRuleta
               ref={ruletaReferencial}
-              categorias={categoriasBase}
+              categorias={categoriasDisponibles}
               resultadoSeleccionado={categoriaSiguiente}
               alFinalizarGiro={manejarFinalGiro}
               deshabilitado={giroActivo}
