@@ -1,18 +1,21 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
-import { Link as Enlace, useParams as usarParametros } from 'react-router-dom'
+import { Link as Enlace, useNavigate as usarNavegacion, useParams as usarParametros } from 'react-router-dom'
 import ListaParticipantesTorneo from '../componentes/ListaParticipantesTorneo.jsx'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
-import { obtenerSalaTorneo } from '../servicios/servicioTorneos.js'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerSalaTorneo, salirDelTorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 
 export default function PaginaSalaTorneo() {
   const { idTorneo } = usarParametros()
+  const navegar = usarNavegacion()
   const [sala, establecerSala] = usarEstado(null)
   const [cargando, establecerCargando] = usarEstado(true)
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [codigoError, establecerCodigoError] = usarEstado('')
   const [mensajeAccion, establecerMensajeAccion] = usarEstado('')
   const [intentoCarga, establecerIntentoCarga] = usarEstado(0)
+  const [saliendo, establecerSaliendo] = usarEstado(false)
 
   usarEfecto(() => {
     let vigente = true
@@ -34,6 +37,17 @@ export default function PaginaSalaTorneo() {
     return () => { vigente = false }
   }, [idTorneo, intentoCarga])
 
+  usarEfecto(() => {
+    if (sala?.estado !== 'ESPERANDO JUGADORES') return undefined
+    let vigente = true
+    const intervalo = window.setInterval(() => {
+      obtenerSalaTorneo(idTorneo).then((resultado) => {
+        if (vigente) establecerSala(resultado)
+      }).catch(() => {})
+    }, 15000)
+    return () => { vigente = false; window.clearInterval(intervalo) }
+  }, [idTorneo, sala?.estado])
+
   async function copiarCodigo() {
     establecerMensajeAccion('')
     try {
@@ -45,12 +59,27 @@ export default function PaginaSalaTorneo() {
     }
   }
 
+  async function manejarSalida() {
+    establecerMensajeError('')
+    establecerSaliendo(true)
+    try {
+      const usuario = await obtenerPerfil()
+      if (usuario.id === sala.creadorId && !window.confirm('Sos el creador: salir cancelará el torneo para todos los participantes. ¿Querés continuar?')) return
+      await salirDelTorneo(idTorneo)
+      navegar('/torneos', { replace: true })
+    } catch (error) {
+      establecerMensajeError(error.message || 'No pudimos salir del torneo.')
+    } finally {
+      establecerSaliendo(false)
+    }
+  }
+
   if (cargando) {
     return <MarcoTorneo tituloMovil="Sala del torneo" subtituloMovil={`Torneo #${idTorneo}`}><section className="estado-pantalla-torneo" aria-live="polite"><span className="estado-pantalla-torneo__carga" /><p>Cargando sala…</p></section></MarcoTorneo>
   }
 
   if (mensajeError && !sala) {
-    const noEncontrado = codigoError === 'TORNEO_NO_ENCONTRADO'
+    const noEncontrado = codigoError === 'TORNEO_NO_DISPONIBLE' || codigoError === 'TORNEO_NO_ENCONTRADO' || codigoError === 'RECURSO_NO_ENCONTRADO'
     return (
       <MarcoTorneo tituloMovil="Sala del torneo" subtituloMovil={`Torneo #${idTorneo}`}>
         <section className="estado-pantalla-torneo" role="alert">
@@ -63,6 +92,7 @@ export default function PaginaSalaTorneo() {
   }
 
   const participantesCompletos = sala.participantes.length === sala.capacidad
+  const crucesGenerados = sala.estado !== 'ESPERANDO JUGADORES'
   const lugaresFaltantes = sala.capacidad - sala.participantes.length
 
   return (
@@ -81,20 +111,21 @@ export default function PaginaSalaTorneo() {
         </section>
 
         <div className="sala-torneo__columnas">
-          <ListaParticipantesTorneo participantes={sala.participantes} capacidad={sala.capacidad} nombreOrganizador={sala.organizador} />
+          <ListaParticipantesTorneo participantes={sala.participantes} capacidad={sala.capacidad} />
           <aside className="sala-torneo__pasos">
             <h2>¿Qué sigue?</h2>
-            <ol><li className="completado">Compartí el código</li><li className={participantesCompletos ? 'completado' : ''}>Completá los {sala.capacidad} lugares</li><li className={participantesCompletos ? 'completado' : ''}>Se generan los cruces</li><li>Comienza el torneo</li></ol>
-            <p className="sala-torneo__aviso-participante">{participantesCompletos ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generarán automáticamente al completar el cupo.'}</p>
-            {participantesCompletos && <Enlace className="sala-torneo__ver-cuadro" to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace>}
-            <Enlace className="sala-torneo__salir" to="/torneos">Volver a Torneos</Enlace>
+            <ol><li className="completado">Compartí el código</li><li className="completado">Completá los {sala.capacidad} lugares</li><li className={crucesGenerados ? 'completado' : ''}>Se generan los cruces</li><li className={crucesGenerados ? 'completado' : ''}>Comienza el torneo</li></ol>
+            <p className="sala-torneo__aviso-participante">{crucesGenerados ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generarán automáticamente al completar el cupo.'}</p>
+            {crucesGenerados && <Enlace className="sala-torneo__ver-cuadro" to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace>}
+            {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={manejarSalida} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}
           </aside>
         </div>
 
         <section className="sala-torneo__compartir-movil"><small>Compartir código</small><button type="button" onClick={copiarCodigo}><strong>{sala.codigo}</strong><span aria-hidden="true">▣</span></button></section>
         <div className="sala-torneo__accion-movil">
-          {participantesCompletos ? <Enlace to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace> : <p>Esperando {lugaresFaltantes} jugadores</p>}
-          <small>{participantesCompletos ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generan al completar el cupo.'}</small>
+          {crucesGenerados ? <Enlace to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace> : <p>{participantesCompletos ? 'Preparando los cruces' : `Esperando ${lugaresFaltantes} jugadores`}</p>}
+          <small>{crucesGenerados ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generan al completar el cupo.'}</small>
+          {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={manejarSalida} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}
         </div>
         {mensajeError && <p className="mensaje mensaje--error sala-torneo__mensaje" role="alert">{mensajeError}</p>}
         {mensajeAccion && <p className="mensaje mensaje--exito sala-torneo__mensaje" role="status">{mensajeAccion}</p>}

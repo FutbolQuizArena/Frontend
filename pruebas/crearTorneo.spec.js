@@ -39,6 +39,17 @@ prueba('muestra y valida el formulario de creación', async ({ page: pagina }) =
 prueba('crea un torneo con el endpoint real y evita envíos duplicados', async ({ page: pagina }) => {
   await prepararSesion(pagina)
   let cantidadSolicitudes = 0
+  await pagina.route('**/api/torneos/27', (ruta) => ruta.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      ...torneoCreado,
+      creador_nombre: 'Jugador',
+      cantidad_participantes_actual: 1,
+      participantes: [{ usuario_id: 1, nombre: 'Jugador', es_creador: true }],
+      cuadro: [],
+    }),
+  }))
   await pagina.route('**/api/torneos', async (ruta) => {
     cantidadSolicitudes += 1
     const solicitud = ruta.request()
@@ -55,9 +66,10 @@ prueba('crea un torneo con el endpoint real y evita envíos duplicados', async (
   await pagina.getByRole('button', { name: 'Crear torneo', exact: true }).click()
 
   await esperar(pagina.getByRole('button', { name: 'Creando torneo…' })).toBeDisabled()
-  await esperar(pagina.getByRole('status')).toHaveText('Torneo creado correctamente. Código de acceso: BARR27')
+  await esperar(pagina).toHaveURL(/\/torneos\/27\/sala$/)
+  await esperar(pagina.getByRole('heading', { name: 'Sala del torneo' })).toBeVisible()
+  await esperar(pagina.locator('.sala-torneo__codigo strong')).toHaveText('BARR27')
   esperar(cantidadSolicitudes).toBe(1)
-  await esperar(pagina).toHaveURL(/\/torneos\/crear$/)
 })
 
 prueba('muestra el message real devuelto por el backend', async ({ page: pagina }) => {

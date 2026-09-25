@@ -3,12 +3,11 @@ import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegac
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
-import CampoTexto from '../componentes/CampoTexto.jsx'
 import { actualizarPerfil, obtenerPerfil } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosPerfil.css'
 
 const datosIniciales = {
-  nombre: '', usuario: '', correo: '', bio: '', contrasenaActual: '', nuevaContrasena: '', iniciales: 'FQ', puntajeTotal: 0,
+  nombre: '', correo: '', contrasenaActual: '', nuevaContrasena: '', iniciales: 'FQ', puntajeTotal: 0,
 }
 
 const enlaces = [
@@ -27,6 +26,7 @@ function validarPerfil(datos) {
   if (datos.nuevaContrasena && datos.nuevaContrasena.length < 8) {
     errores.nuevaContrasena = 'La nueva contraseña debe tener al menos 8 caracteres.'
   }
+  if (datos.nuevaContrasena && !datos.contrasenaActual) errores.contrasenaActual = 'Ingresá tu contraseña actual.'
 
   return errores
 }
@@ -48,8 +48,8 @@ export default function PaginaPerfil() {
       .then((perfil) => {
         if (estaMontado) establecerDatos((anteriores) => ({ ...anteriores, ...perfil }))
       })
-      .catch(() => {
-        if (estaMontado) establecerMensajeError('No pudimos cargar tus datos. Intentá de nuevo.')
+      .catch((error) => {
+        if (estaMontado) establecerMensajeError(error.message || 'No pudimos cargar tus datos. Intentá de nuevo.')
       })
       .finally(() => {
         if (estaMontado) establecerCargando(false)
@@ -86,9 +86,9 @@ export default function PaginaPerfil() {
     try {
       const perfilActualizado = await actualizarPerfil({
         nombre: datos.nombre.trim(),
-        usuario: datos.usuario.trim(),
         correo: datos.correo.trim(),
-        bio: datos.bio.trim(),
+        contrasenaActual: datos.contrasenaActual,
+        nuevaContrasena: datos.nuevaContrasena,
       })
       establecerDatos((anteriores) => ({ ...anteriores, ...perfilActualizado, contrasenaActual: '', nuevaContrasena: '' }))
       establecerMensajeExito('Tus cambios se guardaron correctamente.')
@@ -114,7 +114,7 @@ export default function PaginaPerfil() {
             </EnlaceNavegacion>
           ))}
         </nav>
-        <div className="perfil__acumulado"><p>PUNTAJE ACUMULADO</p><span>Jugador · {datos.puntajeTotal.toLocaleString('es-AR')} pts</span></div>
+        <div className="perfil__acumulado"><p>PUNTAJE ACUMULADO</p><span>{datos.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · {datos.puntajeTotal.toLocaleString('es-AR')} pts</span></div>
       </aside>
 
       <header className="perfil__cabecera">
@@ -137,17 +137,13 @@ export default function PaginaPerfil() {
             <legend className="solo-lectores">Datos del perfil</legend>
             <CampoEntrada etiqueta="Nombre" nombre="nombre" valor={datos.nombre} alCambiar={manejarCambio}
               error={errores.nombre} autocompletar="name" requerido={true} />
-            <div className="perfil__solo-movil"><CampoEntrada etiqueta="Usuario" nombre="usuario" valor={datos.usuario}
-              alCambiar={manejarCambio} autocompletar="username" requerido={false} /></div>
             <CampoEntrada etiqueta="Correo electrónico" nombre="correo" tipo="email" valor={datos.correo}
               alCambiar={manejarCambio} error={errores.correo} autocompletar="email" requerido={true} />
             <div className="perfil__solo-escritorio"><CampoEntrada etiqueta="Contraseña actual" nombre="contrasenaActual"
-              tipo="password" valor={datos.contrasenaActual} alCambiar={manejarCambio} autocompletar="current-password" requerido={false} /></div>
+              tipo="password" valor={datos.contrasenaActual} alCambiar={manejarCambio} error={errores.contrasenaActual} autocompletar="current-password" requerido={false} /></div>
             <div className="perfil__solo-escritorio"><CampoEntrada etiqueta="Nueva contraseña (opcional)" nombre="nuevaContrasena"
               tipo="password" valor={datos.nuevaContrasena} alCambiar={manejarCambio} error={errores.nuevaContrasena}
               autocompletar="new-password" requerido={false} /></div>
-            <div className="perfil__solo-movil"><CampoTexto etiqueta="Bio" nombre="bio" valor={datos.bio}
-              alCambiar={manejarCambio} ejemplo="Contanos sobre vos" /></div>
           </fieldset>
           <p className="perfil__nota perfil__solo-escritorio">Tu historial y puntaje no cambian al editar los datos.</p>
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}

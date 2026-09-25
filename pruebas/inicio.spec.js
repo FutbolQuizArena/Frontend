@@ -5,10 +5,13 @@ prueba.beforeEach(async ({ page: pagina }) => {
   await prepararSesion(pagina)
 })
 
-prueba('la Home permite navegar y solo Torneos consulta su endpoint real', async ({ page: pagina }) => {
+prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina }) => {
   const solicitudes = []
   await pagina.route('**/api/**', (ruta) => {
     solicitudes.push(ruta.request().url())
+    if (ruta.request().url().endsWith('/api/usuarios/me')) {
+      return ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 1, nombre: 'Lucas', email: 'lucas@futbolquiz.com', rol: 'JUGADOR', puntaje_total: 2450 }) })
+    }
     if (ruta.request().url().endsWith('/api/torneos?filtro=mios')) {
       return ruta.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
     }
@@ -41,7 +44,7 @@ prueba('la Home permite navegar y solo Torneos consulta su endpoint real', async
     }
   }
   esperar(solicitudes.length).toBeGreaterThan(0)
-  esperar([...new Set(solicitudes)]).toEqual(['https://api.futbolquiz.test/api/torneos?filtro=mios'])
+  esperar([...new Set(solicitudes)].sort()).toEqual(['https://api.futbolquiz.test/api/torneos?filtro=mios', 'https://api.futbolquiz.test/api/usuarios/me'].sort())
   await pagina.screenshot({ path: 'test-results/inicio-escritorio.png', fullPage: true })
 })
 
@@ -64,14 +67,7 @@ prueba('la Home se adapta al celular y mantiene accesibles los enlaces', async (
 })
 
 prueba('el acceso al panel aparece para un administrador', async ({ page: pagina }) => {
-  // Cambia únicamente el dato temporal servido a este navegador de prueba.
-  await pagina.route('**/src/paginas/PaginaHome.jsx', async (ruta) => {
-    const respuesta = await ruta.fetch()
-    const codigo = await respuesta.text()
-    const codigoAdministrador = codigo.replace(/rol: ["']JUGADOR["']/, 'rol: "ADMINISTRADOR"')
-    esperar(codigoAdministrador).not.toBe(codigo)
-    await ruta.fulfill({ response: respuesta, body: codigoAdministrador })
-  })
+  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 1, nombre: 'Admin', email: 'admin@futbolquiz.com', rol: 'ADMINISTRADOR', puntaje_total: 0 }) }))
   await pagina.goto('/home')
   await esperar(pagina.getByRole('link', { name: 'Ir al panel de Admin' })).toHaveAttribute('href', '/admin')
   await pagina.getByRole('link', { name: 'Ir al panel de Admin' }).click()

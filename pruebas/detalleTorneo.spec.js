@@ -1,5 +1,8 @@
 import { test as prueba, expect as esperar } from '@playwright/test'
 import { prepararSesion } from './datosSesion.js'
+import { interceptarDetallesTorneo } from './datosTorneoDetalle.js'
+
+prueba.beforeEach(async ({ page: pagina }) => { await interceptarDetallesTorneo(pagina) })
 
 prueba('sin sesión, el detalle redirige a login', async ({ page: pagina }) => {
   await pagina.goto('/torneos/1')
@@ -15,8 +18,8 @@ prueba('obtiene el ID de la ruta y muestra el detalle activo', async ({ page: pa
   await esperar(dialogo.getByText('EN CURSO')).toBeVisible()
   await esperar(dialogo.getByText('Eliminación directa')).toBeVisible()
   await esperar(dialogo.getByText('8 participantes')).toBeVisible()
-  await esperar(dialogo.getByText('Semifinal · Hoy 21:00')).toBeVisible()
-  await esperar(dialogo.getByRole('link', { name: 'Continuar' })).toHaveAttribute('href', '/torneos/1/cuadro')
+  await esperar(dialogo.getByText('Semifinales')).toBeVisible()
+  await esperar(dialogo.getByRole('link', { name: 'Ver cuadro' })).toHaveAttribute('href', '/torneos/1/cuadro')
 })
 
 prueba('muestra el resultado de un torneo finalizado', async ({ page: pagina }) => {
@@ -25,7 +28,7 @@ prueba('muestra el resultado de un torneo finalizado', async ({ page: pagina }) 
 
   const dialogo = pagina.getByRole('dialog')
   await esperar(dialogo.getByText('FINALIZADO')).toBeVisible()
-  await esperar(dialogo.getByText('Semifinal · 3 victorias')).toBeVisible()
+  await esperar(dialogo.getByText('Campeón: SofiGol')).toBeVisible()
   await esperar(dialogo.getByRole('link', { name: 'Ver cuadro' })).toHaveAttribute('href', '/torneos/9/cuadro')
 })
 

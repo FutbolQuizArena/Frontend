@@ -8,7 +8,7 @@ function obtenerIniciales(nombre) {
     .toUpperCase()
 }
 
-export default function ListaParticipantesTorneo({ participantes, capacidad, nombreOrganizador }) {
+export default function ListaParticipantesTorneo({ participantes, capacidad }) {
   const lugaresDisponibles = Math.max(capacidad - participantes.length, 0)
   const lugares = [
     ...participantes.map((participante) => ({ ...participante, disponible: false })),
@@ -21,10 +21,10 @@ export default function ListaParticipantesTorneo({ participantes, capacidad, nom
       <p className="lista-participantes__etiqueta-movil">JUGADORES</p>
       <div className="lista-participantes__grilla">
         {lugares.map((participante, indice) => {
-          const esOrganizador = !participante.disponible && participante.nombre === nombreOrganizador
+          const esOrganizador = participante.esCreador
           return (
             <article className={`lista-participantes__jugador${participante.disponible ? ' lista-participantes__jugador--disponible' : ''}`} key={participante.id}>
-              <span className={`lista-participantes__avatar lista-participantes__avatar--${indice % 3}`} aria-hidden="true">
+              <span className={`lista-participantes__avatar${participante.disponible ? '' : ` lista-participantes__avatar--${indice % 3}`}`} aria-hidden="true">
                 {participante.disponible ? '+' : obtenerIniciales(participante.nombre)}
               </span>
               <div>

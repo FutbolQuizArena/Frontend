@@ -146,7 +146,7 @@ export default function PaginaTorneos() {
           <section className={`torneos__listado torneos__listado--${seccionActiva}`} aria-label={seccion.etiqueta}>
             <h2 className="torneos__titulo-listado">{seccionActiva === 'propios' ? 'ACTIVOS' : seccionActiva === 'finalizados' ? 'ÚLTIMOS RESULTADOS' : 'TORNEOS DISPONIBLES'}</h2>
             <div className="torneos__encabezados" aria-hidden="true">
-              {seccionActiva === 'propios' && <><span>Nombre</span><span>Formato</span><span>Inicio</span><span>Jugadores</span><span /></>}
+              {seccionActiva === 'propios' && <><span>Nombre</span><span>Formato</span><span>Inicio</span><span>Jugadores</span><span>Estado</span><span /></>}
               {seccionActiva === 'finalizados' && <><span>Torneo</span><span>Fecha</span><span>Campeón</span><span>Tu resultado</span><span /></>}
             </div>
             <div className="torneos__tarjetas">

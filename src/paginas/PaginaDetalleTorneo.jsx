@@ -35,7 +35,7 @@ export default function PaginaDetalleTorneo() {
   }
 
   if (mensajeError) {
-    const noEncontrado = codigoError === 'TORNEO_NO_ENCONTRADO'
+    const noEncontrado = codigoError === 'TORNEO_NO_DISPONIBLE' || codigoError === 'TORNEO_NO_ENCONTRADO' || codigoError === 'RECURSO_NO_ENCONTRADO'
     return (
       <MarcoTorneo tituloMovil="Torneos" subtituloMovil="Competí y llegá a la final">
         <section className="estado-pantalla-torneo" role="alert">

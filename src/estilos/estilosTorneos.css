@@ -30,11 +30,11 @@
 @keyframes girar-carga { to { transform: rotate(360deg); } }
 .torneos__listado { margin-top: 32px; }
 .torneos__listado--propios, .torneos__listado--finalizados { min-height: 420px; padding: 22px 16px 38px; border: 1px solid var(--color-borde); border-radius: 20px; background: var(--color-superficie); }
-.torneos__encabezados { display: grid; grid-template-columns: 2fr 1.1fr .9fr .65fr .75fr; gap: 16px; padding: 0 7px 20px; border-bottom: 1px solid var(--color-borde); color: var(--color-secundario); font-size: 12px; font-weight: 700; }
+.torneos__encabezados { display: grid; grid-template-columns: 2fr 1.1fr .9fr .65fr .75fr 140px; gap: 12px; padding: 0 7px 20px; border-bottom: 1px solid var(--color-borde); color: var(--color-secundario); font-size: 12px; font-weight: 700; }
 .torneos__listado--finalizados .torneos__encabezados { grid-template-columns: 2fr .9fr .75fr .7fr .55fr; }
 .torneos__tarjetas { display: grid; gap: 20px; padding-top: 22px; }
 .tarjeta-torneo { position: relative; min-width: 0; }
-.torneos__listado--propios .tarjeta-torneo, .torneos__listado--finalizados .tarjeta-torneo { display: grid; grid-template-columns: 2fr 1.1fr .9fr .65fr .75fr; gap: 16px; align-items: center; min-height: 74px; padding: 15px 16px; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-superficie); }
+.torneos__listado--propios .tarjeta-torneo, .torneos__listado--finalizados .tarjeta-torneo { display: grid; grid-template-columns: 2fr 1.1fr .9fr .65fr .75fr 140px; gap: 12px; align-items: center; min-height: 74px; padding: 15px 16px; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-superficie); }
 .torneos__listado--finalizados .tarjeta-torneo { grid-template-columns: 2fr .9fr .75fr .7fr .55fr; min-height: 48px; padding: 12px 0; border-color: transparent; border-radius: 10px; }
 .torneos__listado--propios .tarjeta-torneo:first-child, .torneos__listado--finalizados .tarjeta-torneo:nth-child(2) { border-color: var(--color-principal); background: var(--color-elevado); }
 .tarjeta-torneo h3 { margin: 0; font-size: 16px; }
@@ -47,10 +47,9 @@
 .torneos__listado--propios .tarjeta-torneo__inicio { grid-column: 3; grid-row: 1; color: var(--color-texto); }
 .torneos__listado--propios .tarjeta-torneo__participantes { grid-column: 4; grid-row: 1; color: var(--color-texto); font-weight: 600; }
 .torneos__listado--propios .tarjeta-torneo__estado { grid-column: 5; grid-row: 1; }
-.torneos__listado--propios .tarjeta-torneo__accion { display: none; }
-.torneos__listado--propios .tarjeta-torneo:last-child { margin-bottom: 18px; }
-.torneos__listado--propios .tarjeta-torneo:last-child .tarjeta-torneo__accion { position: absolute; right: 8px; bottom: -28px; display: grid; width: 200px; min-height: 48px; place-items: center; border: 1px solid var(--color-borde); border-radius: 12px; color: var(--color-texto); background: var(--color-elevado); font-size: 14px; font-weight: 600; text-decoration: none; }
-.torneos__listado--propios .tarjeta-torneo:last-child .tarjeta-torneo__accion span { display: none; }
+.torneos__listado--propios .tarjeta-torneo__accion { grid-column: 6; grid-row: 1; display: grid; min-height: 44px; place-items: center; border: 1px solid var(--color-borde); border-radius: 12px; color: var(--color-texto); background: var(--color-elevado); font-size: 12px; font-weight: 600; text-decoration: none; }
+.torneos__listado--propios .tarjeta-torneo__accion span { display: none; }
+.torneos__listado--propios .tarjeta-torneo__accion:hover, .torneos__listado--propios .tarjeta-torneo__accion:focus-visible { border-color: var(--color-principal); }
 .tarjeta-torneo__detalle-movil, .tarjeta-torneo progress { display: none; }
 .torneos__listado--disponibles .torneos__encabezados { display: none; }
 .torneos__listado--disponibles .torneos__tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 28px; padding: 0; }
@@ -76,6 +75,14 @@
   .torneos__contenido { padding-right: 24px; padding-left: 24px; }
   .torneos__pestanas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .torneos__listado--disponibles .torneos__tarjetas { grid-template-columns: 1fr; }
+  .torneos__listado--propios .torneos__encabezados { display: none; }
+  .torneos__listado--propios .tarjeta-torneo { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto; grid-template-rows: auto auto; }
+  .torneos__listado--propios .tarjeta-torneo h3 { grid-column: 1; grid-row: 1; }
+  .torneos__listado--propios .tarjeta-torneo__formato { grid-column: 2; grid-row: 1; }
+  .torneos__listado--propios .tarjeta-torneo__estado { grid-column: 3; grid-row: 1; }
+  .torneos__listado--propios .tarjeta-torneo__inicio { grid-column: 1; grid-row: 2; }
+  .torneos__listado--propios .tarjeta-torneo__participantes { grid-column: 2; grid-row: 2; }
+  .torneos__listado--propios .tarjeta-torneo__accion { grid-column: 3; grid-row: 2; min-width: 140px; }
 }
 
 @media (max-width: 900px) {
@@ -109,16 +116,14 @@
   .torneos__listado--disponibles .torneos__titulo-listado { display: none; }
   .torneos__encabezados { display: none; }
   .torneos__tarjetas, .torneos__listado--disponibles .torneos__tarjetas { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0; }
-  .torneos__listado--propios .tarjeta-torneo:nth-child(n + 3), .torneos__listado--disponibles .tarjeta-torneo:nth-child(n + 4), .torneos__listado--finalizados .tarjeta-torneo:nth-child(n + 4) { display: none; }
   .torneos__listado--propios .tarjeta-torneo, .torneos__listado--disponibles .tarjeta-torneo, .torneos__listado--finalizados .tarjeta-torneo { display: grid; grid-template-columns: 1fr auto; grid-template-areas: 'estado accion' 'nombre accion' 'detalle accion' 'progreso progreso'; gap: 8px 10px; min-height: 135px; padding: 15px; border: 1px solid var(--color-borde); border-radius: 18px; background: var(--color-superficie); }
   .torneos__listado--propios .tarjeta-torneo:first-child, .torneos__listado--finalizados .tarjeta-torneo:nth-child(2) { background: var(--color-superficie); }
   .tarjeta-torneo__estado, .torneos__listado--propios .tarjeta-torneo__estado, .torneos__listado--disponibles .tarjeta-torneo__estado, .torneos__listado--finalizados .tarjeta-torneo__estado { display: block; grid-area: estado; justify-self: start; min-width: 100px; padding: 7px 12px; border: 0; text-align: center; }
   .tarjeta-torneo h3, .torneos__listado--propios .tarjeta-torneo h3, .torneos__listado--disponibles .tarjeta-torneo h3, .torneos__listado--finalizados .tarjeta-torneo h3 { grid-area: nombre; align-self: auto; font-size: 18px; }
   .tarjeta-torneo__detalle-movil { display: block; grid-area: detalle; color: var(--color-secundario); font-size: 12px; }
   .tarjeta-torneo__accion, .torneos__listado--propios .tarjeta-torneo__accion, .torneos__listado--disponibles .tarjeta-torneo__accion, .torneos__listado--finalizados .tarjeta-torneo__accion { display: grid; grid-area: accion; min-width: 24px; place-items: center; align-self: stretch; padding: 0; color: var(--color-principal); background: transparent; font-size: 0; text-decoration: none; }
-  .torneos__listado--propios .tarjeta-torneo:last-child { margin-bottom: 0; }
-  .torneos__listado--propios .tarjeta-torneo:last-child .tarjeta-torneo__accion { position: static; display: grid; width: auto; min-height: 0; border: 0; color: var(--color-principal); background: transparent; font-size: 0; }
-  .torneos__listado--propios .tarjeta-torneo:last-child .tarjeta-torneo__accion span { display: inline; }
+  .torneos__listado--propios .tarjeta-torneo__accion { position: static; display: grid; width: auto; min-height: 0; border: 0; color: var(--color-principal); background: transparent; font-size: 0; }
+  .torneos__listado--propios .tarjeta-torneo__accion span { display: inline; }
   .tarjeta-torneo__accion span, .torneos__listado--disponibles .tarjeta-torneo__accion span { display: inline; font-size: 28px; font-weight: 700; }
   .tarjeta-torneo progress { display: block; grid-area: progreso; width: 100%; height: 6px; margin-top: 4px; overflow: hidden; border: 0; border-radius: 999px; background: #193426; accent-color: var(--color-principal); }
   .tarjeta-torneo progress::-webkit-progress-bar { background: #193426; }
