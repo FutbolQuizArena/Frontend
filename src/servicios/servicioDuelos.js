@@ -288,8 +288,14 @@ export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
     .catch(() => null)
 }
 
+let promesaBusquedaEnVuelo = null
+
 export function buscarRivalDuelo(usuarioActual = null) {
-  return solicitarApi('/api/duelos/online', { metodo: 'POST', datos: {} })
+  if (promesaBusquedaEnVuelo) {
+    return promesaBusquedaEnVuelo
+  }
+
+  const promesa = solicitarApi('/api/duelos/online', { metodo: 'POST', datos: {} })
     .then((respuesta) => {
       const duelo = normalizarDueloOnline(respuesta, usuarioActual)
       if (typeof window !== 'undefined') {
@@ -313,9 +319,20 @@ export function buscarRivalDuelo(usuarioActual = null) {
 
       return fallback
     })
+    .finally(() => {
+      setTimeout(() => {
+        if (promesaBusquedaEnVuelo === promesa) {
+          promesaBusquedaEnVuelo = null
+        }
+      }, 500)
+    })
+
+  promesaBusquedaEnVuelo = promesa
+  return promesaBusquedaEnVuelo
 }
 
 export function cancelarBusquedaDuelo() {
+  promesaBusquedaEnVuelo = null
   if (typeof window !== 'undefined') {
     window.sessionStorage.removeItem('dueloActual')
   }
