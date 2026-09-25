@@ -20,6 +20,7 @@ import PaginaEsperandoRival from './paginas/PaginaEsperandoRival.jsx'
 import PaginaPartidaDuelo from './paginas/PaginaPartidaDuelo.jsx'
 import PaginaDueloLocal from './paginas/PaginaDueloLocal.jsx'
 import PaginaPreguntasAdmin from './paginas/PaginaPreguntasAdmin.jsx'
+import PaginaFormularioPreguntaAdmin from './paginas/PaginaFormularioPreguntaAdmin.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
@@ -58,6 +59,8 @@ export default function Aplicacion() {
         <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking" />} />
         <Ruta path="/perfil" element={<PaginaPerfil />} />
         <Ruta path="/admin" element={<PaginaPreguntasAdmin />} />
+        <Ruta path="/admin/preguntas/nueva" element={<PaginaFormularioPreguntaAdmin />} />
+        <Ruta path="/admin/preguntas/:idPregunta/editar" element={<PaginaFormularioPreguntaAdmin />} />
       </Ruta>
       <Ruta path="*" element={
         <main className="pagina-no-encontrada">

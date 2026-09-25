@@ -16,7 +16,23 @@
 .admin-preguntas__filtros input::placeholder { color: var(--color-tenue); }
 .admin-preguntas__cantidad { margin: 0 0 12px; color: var(--color-secundario); font-size: 12px; }
 .admin-preguntas__tabla { overflow: hidden; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-superficie); }
-.admin-preguntas__cabecera, .admin-preguntas__tabla li { display: grid; grid-template-columns: minmax(0, 3fr) minmax(140px, 1.2fr) minmax(100px, .8fr); align-items: center; gap: 16px; padding: 15px 18px; }
+.admin-preguntas__cabecera, .admin-preguntas__tabla li { display: grid; grid-template-columns: minmax(0, 3fr) minmax(140px, 1.2fr) minmax(100px, .8fr) auto; align-items: center; gap: 16px; padding: 15px 18px; }
+.admin-preguntas__acciones { display: flex; align-items: center; gap: 12px; }
+.admin-preguntas__acciones span { color: var(--color-secundario); font-size: 12px; }
+.admin-preguntas__acciones a, .admin-formulario__acciones button { padding: 12px 16px; border: 0; border-radius: 10px; color: #08140e; background: var(--color-principal); font: inherit; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.admin-preguntas__editar { color: var(--color-principal); font-weight: 700; }
+.admin-formulario__panel { display: grid; gap: 22px; max-width: 780px; padding: 28px; border: 1px solid var(--color-borde); border-radius: 18px; background: var(--color-sutil); }
+.admin-formulario__panel > label, .admin-formulario__fila label { display: grid; gap: 8px; font-size: 13px; font-weight: 700; }
+.admin-formulario__panel textarea, .admin-formulario__panel select, .admin-formulario__opcion > input { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--color-borde); border-radius: 10px; color: var(--color-texto); background: var(--color-campo); font: inherit; }
+.admin-formulario__fila { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.admin-formulario__panel fieldset { display: grid; gap: 14px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.admin-formulario__panel legend { margin-bottom: 8px; font-weight: 700; }
+.admin-formulario__panel fieldset > p { margin: 0; color: var(--color-secundario); font-size: 13px; }
+.admin-formulario__opcion { display: grid; grid-template-columns: 80px minmax(0, 1fr) auto; align-items: center; gap: 12px; font-size: 13px; }
+.admin-formulario__radio { display: flex; align-items: center; gap: 7px; }
+.admin-formulario__error { margin: 0; color: var(--color-dorado); }
+.admin-formulario__acciones { display: flex; align-items: center; justify-content: flex-end; gap: 18px; }
+.admin-formulario__acciones a { color: var(--color-texto); }
 .admin-preguntas__cabecera { color: var(--color-secundario); font-size: 11px; font-weight: 700; }
 .admin-preguntas__tabla ul { margin: 0; padding: 0; list-style: none; }
 .admin-preguntas__tabla li { min-height: 66px; border-top: 1px solid var(--color-borde); font-size: 12px; }
@@ -35,6 +51,11 @@
   .admin-preguntas__filtros label:first-child { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
+  .admin-preguntas__titulo, .admin-preguntas__acciones { flex-wrap: wrap; }
+  .admin-formulario__panel { padding: 16px; }
+  .admin-formulario__fila { grid-template-columns: 1fr; }
+  .admin-formulario__opcion { grid-template-columns: 1fr auto; }
+  .admin-formulario__opcion > label:first-child { grid-column: 1 / -1; }
   .admin-preguntas__encabezado { display: block; }
   .admin-preguntas__encabezado > a { display: inline-block; margin-top: 18px; }
   .admin-preguntas__panel { padding: 16px; }
