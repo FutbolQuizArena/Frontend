@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import TarjetaModoJuego from '../componentes/TarjetaModoJuego.jsx'
+import { modosJuegoBase, obtenerModosJuego } from '../servicios/servicioModosJuego.js'
 import '../estilos/estilosHome.css'
 import '../estilos/estilosSeleccionModo.css'
 
@@ -12,31 +14,37 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
-const modosDisponibles = [
-  {
-    titulo: 'Partida Individual',
-    descripcion: 'Jugá una partida rápida con categorías y respuestas de alto nivel.',
-    destino: '/partida/ruleta',
-    icono: '⚽',
-    etiqueta: 'Partida rápida',
-  },
-  {
-    titulo: 'Duelo 1v1',
-    descripcion: 'Desafiá a otro jugador y comprobá quién domina el campo.',
-    destino: '/duelo/esperando',
-    icono: '⚔️',
-    etiqueta: 'Competencia',
-  },
-  {
-    titulo: 'Juego local',
-    descripcion: 'Disputá un duelo presencial 1v1 en el mismo dispositivo con turnos alternados.',
-    destino: '/duelo/local',
-    icono: '📱',
-    etiqueta: 'Local',
-  },
-]
-
 export default function PaginaSeleccionModo() {
+  const [modosDisponibles, setModosDisponibles] = useState(modosJuegoBase)
+  const [cargandoModos, setCargandoModos] = useState(true)
+
+  useEffect(() => {
+    let activo = true
+
+    async function cargarModos() {
+      try {
+        const modos = await obtenerModosJuego()
+        if (activo) {
+          setModosDisponibles(modos)
+        }
+      } catch {
+        if (activo) {
+          setModosDisponibles(modosJuegoBase)
+        }
+      } finally {
+        if (activo) {
+          setCargandoModos(false)
+        }
+      }
+    }
+
+    cargarModos()
+
+    return () => {
+      activo = false
+    }
+  }, [])
+
   return (
     <div className="seleccion-modo">
       <a className="enlace-salto" href="#contenido-seleccion-modo">Ir al contenido</a>
@@ -84,10 +92,14 @@ export default function PaginaSeleccionModo() {
           <Enlace className="seleccion-modo__volver" to="/home">Volver al inicio</Enlace>
         </header>
 
+        {cargandoModos && (
+          <p className="seleccion-modo__estado" aria-live="polite">Cargando modos de juego…</p>
+        )}
+
         <section className="seleccion-modo__grid" aria-label="Modos de juego disponibles">
-          {modosDisponibles.map(({ titulo, descripcion, destino, icono, etiqueta }) => (
+          {modosDisponibles.map(({ id, titulo, descripcion, destino, icono, etiqueta }) => (
             <TarjetaModoJuego
-              key={titulo}
+              key={id ?? titulo}
               titulo={titulo}
               descripcion={descripcion}
               destino={destino}
