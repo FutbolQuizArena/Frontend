@@ -4,6 +4,7 @@ import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteCargandoDuelo from '../componentes/ComponenteCargandoDuelo.jsx'
 import { buscarRivalDuelo, cancelarBusquedaDuelo } from '../servicios/servicioDuelos.js'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosHome.css'
 import '../estilos/estilosEsperandoRival.css'
 
@@ -14,13 +15,6 @@ const enlaces = [
   { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
-
-const jugadorLocal = {
-  nombre: 'Lucas',
-  alias: 'Luki',
-  nivel: 'Rookie',
-  avatar: 'LM',
-}
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -34,42 +28,60 @@ export default function PaginaEsperandoRival() {
   const [tiempoEspera, setTiempoEspera] = usarEstado(0)
   const [estadoBusqueda, setEstadoBusqueda] = usarEstado('buscando')
   const [rival, setRival] = usarEstado(null)
+  const [jugadorLocal, setJugadorLocal] = usarEstado(null)
 
+  // Temporizador de espera
   usarEfecto(() => {
     const temporizador = window.setInterval(() => {
       setTiempoEspera((anterior) => anterior + 1)
     }, 1000)
-
     return () => window.clearInterval(temporizador)
   }, [])
 
+  // Cargar perfil del jugador loggeado
+  usarEfecto(() => {
+        let activo = true
+        obtenerPerfil()
+          .then((perfil) => {
+            if (activo && !canceladoRef.current) {
+              const alias = perfil.nombre?.split(' ')[0] ?? ''
+              const avatar = perfil.iniciales ?? ''
+              const nivel = perfil.rol ?? ''
+              setJugadorLocal({
+                id: perfil.id,
+                nombre: perfil.nombre,
+                alias,
+                avatar,
+                nivel,
+                puntuacion: perfil.puntajeTotal ?? 0,
+              })
+            }
+          })
+          .catch(() => {})
+        return () => { activo = false }
+  }, [])
+
+  // Buscar rival y obtener duelo completo
   usarEfecto(() => {
     let activo = true
-
     buscarRivalDuelo()
-      .then((rivalEncontrado) => {
-        if (!activo || canceladoRef.current || !rivalEncontrado) {
-          return
+      .then((duelo) => {
+        if (!activo || canceladoRef.current) return
+        if (duelo?.rival) {
+          setRival(duelo.rival)
+          setJugadorLocal(duelo.jugadorLocal)
+          setEstadoBusqueda('encontrado')
+          window.setTimeout(() => {
+            navegar('/duelo/partida')
+          }, 1400)
         }
-
-        setRival(rivalEncontrado)
-        setEstadoBusqueda('encontrado')
-
-        window.setTimeout(() => {
-          navegar('/duelo/partida')
-        }, 1400)
+        // Si no hay rival, seguimos esperando
       })
       .catch(() => {
-        if (!activo || canceladoRef.current) {
-          return
-        }
-
+        if (!activo || canceladoRef.current) return
         setEstadoBusqueda('error')
       })
-
-    return () => {
-      activo = false
-    }
+    return () => { activo = false }
   }, [navegar])
 
   const manejarCancelarBusqueda = () => {
@@ -107,10 +119,12 @@ export default function PaginaEsperandoRival() {
       <header className="inicio__cabecera pagina-esperando-rival__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, Lucas</strong>
+          <strong>Hola, {jugadorLocal?.nombre ?? ''}</strong>
           <span>Cuenta de jugador</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">
+          {jugadorLocal?.avatar ?? ''}
+        </Enlace>
         <BotonCerrarSesion />
       </header>
 
@@ -136,19 +150,21 @@ export default function PaginaEsperandoRival() {
           </div>
 
           <div className="pagina-esperando-rival__tarjetas">
-            <article className="pagina-esperando-rival__jugador pagina-esperando-rival__jugador--local">
-              <div className="pagina-esperando-rival__avatar" aria-label={`Jugador local ${jugadorLocal.alias}`}>
-                {jugadorLocal.avatar}
-              </div>
-              <div>
-                <span className="pagina-esperando-rival__etiqueta">Tú</span>
-                <h2>{jugadorLocal.alias}</h2>
-                <p>{jugadorLocal.nivel}</p>
-              </div>
-            </article>
+            {jugadorLocal && (
+              <article className="pagina-esperando-rival__jugador pagina-esperando-rival__jugador--local">
+                <div className="pagina-esperando-rival__avatar" aria-label={`Jugador local ${jugadorLocal.alias}`}>
+                  {jugadorLocal.avatar}
+                </div>
+                <div>
+                  <span className="pagina-esperando-rival__etiqueta">Tú</span>
+                  <h2>{jugadorLocal.alias}</h2>
+                  <p>{jugadorLocal.nivel}</p>
+                </div>
+              </article>
+            )}
 
             <article className="pagina-esperando-rival__jugador pagina-esperando-rival__jugador--rival">
-              <div className="pagina-esperando-rival__avatar pagina-esperando-rival__avatar--rival" aria-label="Rival pendiente">
+              <div className="pagina-esperando-rival__avatar pagina-esperando-rival__avatar--rival" aria-label={rival ? `Rival ${rival.nombre}` : 'Rival pendiente'}>
                 {rival ? rival.avatar : '…'}
               </div>
               <div>
