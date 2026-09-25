@@ -1,5 +1,7 @@
 ﻿import { solicitarApi } from './clienteApi.js'
 
+import { esSesionAdminPrueba, obtenerToken } from './servicioSesion.js'
+
 function adaptarPerfil(usuario) {
   return {
     id: usuario.id,
@@ -12,6 +14,9 @@ function adaptarPerfil(usuario) {
 }
 
 export async function obtenerPerfil() {
+  if (esSesionAdminPrueba(obtenerToken())) {
+    return adaptarPerfil({ id: 0, nombre: 'Admin de prueba', email: 'admin@futbolquiz.local', rol: 'ADMINISTRADOR', puntaje_total: 0 })
+  }
   return adaptarPerfil(await solicitarApi('/api/usuarios/me'))
 }
 

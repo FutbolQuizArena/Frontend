@@ -200,12 +200,14 @@ export async function buscarRivalDuelo() {
     rival,
   }
 
-  if (typeof window !== 'undefined') {
-    window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
-  }
 
-  return duelo
+if (typeof window !== 'undefined') {
+  window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
 }
+return duelo
+}
+
+
 
 export function cancelarBusquedaDuelo() {
   if (typeof window !== 'undefined') {

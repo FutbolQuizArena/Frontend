@@ -21,11 +21,8 @@ const jugadorLocalBase = {
   avatar: 'J',
 }
 
-const rivalBase = {
-  nombre: 'Rival',
-  alias: 'Oponente',
-  avatar: 'RV',
-}
+// No rival by default; will be set when matched
+const rivalBase = null;
 
 const obtenerTiempoBase = () => 15
 
@@ -41,7 +38,7 @@ export default function PaginaPartidaDuelo() {
   const [bloqueado, setBloqueado] = usarEstado(false)
   const [tiempoRestante, setTiempoRestante] = usarEstado(obtenerTiempoBase())
   const [jugadorLocal, setJugadorLocal] = usarEstado(jugadorLocalBase)
-  const [rivalActual, setRivalActual] = usarEstado(rivalBase)
+  const [rivalActual, setRivalActual] = usarEstado(null);
   const [puntajeLocal, setPuntajeLocal] = usarEstado(0)
   const [puntajeRival, setPuntajeRival] = usarEstado(0)
   const [aciertosLocal, setAciertosLocal] = usarEstado(0)
@@ -256,14 +253,20 @@ export default function PaginaPartidaDuelo() {
             tiempoTotal={obtenerTiempoBase()}
           />
 
-          <TarjetaJugadorDuelo
-            nombre={rivalActual.nombre}
-            alias={rivalActual.alias}
-            avatar={rivalActual.avatar}
-            puntaje={puntajeRival}
-            aciertos={aciertosRival}
-            estado={estadoRival}
-          />
+{rivalActual ? (
+            <TarjetaJugadorDuelo
+              nombre={rivalActual.nombre}
+              alias={rivalActual.alias}
+              avatar={rivalActual.avatar}
+              puntaje={puntajeRival}
+              aciertos={aciertosRival}
+              estado={estadoRival}
+            />
+          ) : (
+            <div className="partida-duelo__rival-espera">
+              <p>Esperando rival...</p>
+            </div>
+          )}
         </section>
 
         <section className="partida-duelo__tarjeta" aria-live="polite">

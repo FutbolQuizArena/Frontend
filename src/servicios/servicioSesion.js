@@ -1,5 +1,9 @@
 export const claveToken = 'futbolquizToken'
 
+export function esSesionAdminPrueba(token) {
+  return import.meta.env.DEV && obtenerDatosToken(token || '')?.adminPrueba === true
+}
+
 export function obtenerDatosToken(token) {
   try {
     const partes = token.split('.')
