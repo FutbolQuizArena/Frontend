@@ -4,6 +4,8 @@ React con Vite. Registro, login, Home, edición de perfil, sesión JWT y módulo
 
 El recorrido de cambios y decisiones del proyecto está en [CHANGELOG.md](CHANGELOG.md).
 
+El contrato del backend consultado para esta integración está resumido en [docs/swagger.md](docs/swagger.md), junto al enlace a Swagger y OpenAPI.
+
 ## Desarrollo local
 
 Requiere Node.js 22.12 o superior y npm.
@@ -43,6 +45,8 @@ La actividad 5.2.3 agrega **Eliminar** al menú de cada fila. Muestra la pregunt
 La actividad 5.2.4 agrega `/admin/categorias`: listado y búsqueda de categorías, con acceso por rol y navegación desde Preguntas. Las categorías, estados y cantidades de preguntas usan datos temporales; falta conectarlas al endpoint administrativo correspondiente. El listado toma como referencia las pantallas de categorías desktop y mobile de Figma. Crear y editar categorías corresponden a 5.2.5, y la navegación completa del panel a 5.2.8.
 
 La actividad 5.2.5 agrega `/admin/categorias/nueva` y `/admin/categorias/:idCategoria/editar`. El formulario permite escribir nombre, descripción opcional y estado. No admite nombres vacíos o repetidos. Al renombrar una categoría temporal, las preguntas asociadas conservan la relación y el nuevo nombre puede elegirse en el formulario de preguntas. Estos cambios se pierden al recargar hasta integrar los endpoints administrativos documentados por el backend.
+
+La actividad 5.2.6 agrega `/admin/usuarios`: listado y búsqueda de usuarios por nombre o correo, con filtros de rol y estado. Una sesión administradora real consulta `GET /api/admin/usuarios` con JWT Bearer; la cuenta admin local y `vistaPrevia=1` usan datos de ejemplo solo en desarrollo. El listado tiene paginación visual y estados de carga, error y vacío. Habilitar o deshabilitar cuentas corresponde a 5.2.7 y todavía no está en esta pantalla.
 
 Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
 
