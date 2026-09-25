@@ -24,7 +24,7 @@ export default function ListaParticipantesTorneo({ participantes, capacidad }) {
           const esOrganizador = participante.esCreador
           return (
             <article className={`lista-participantes__jugador${participante.disponible ? ' lista-participantes__jugador--disponible' : ''}`} key={participante.id}>
-              <span className={`lista-participantes__avatar lista-participantes__avatar--${indice % 3}`} aria-hidden="true">
+              <span className={`lista-participantes__avatar${participante.disponible ? '' : ` lista-participantes__avatar--${indice % 3}`}`} aria-hidden="true">
                 {participante.disponible ? '+' : obtenerIniciales(participante.nombre)}
               </span>
               <div>

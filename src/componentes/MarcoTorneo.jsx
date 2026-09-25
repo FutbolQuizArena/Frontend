@@ -26,7 +26,7 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
         <Enlace className="marca marco-torneo__marca" to="/home" aria-label="FutbolQuiz Arena">FUTBOLQUIZ<span className="marca__arena">ARENA</span></Enlace>
         <nav className="marco-torneo__navegacion" aria-label="Navegación principal">
           {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} end={destino === '/torneos'} className={({ isActive: activo }) => `marco-torneo__enlace${activo ? ' marco-torneo__enlace--activo' : ''}`}>
+            <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `marco-torneo__enlace${activo ? ' marco-torneo__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}

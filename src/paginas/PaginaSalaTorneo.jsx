@@ -114,7 +114,7 @@ export default function PaginaSalaTorneo() {
           <ListaParticipantesTorneo participantes={sala.participantes} capacidad={sala.capacidad} />
           <aside className="sala-torneo__pasos">
             <h2>¿Qué sigue?</h2>
-            <ol><li className="completado">Compartí el código</li><li className={participantesCompletos ? 'completado' : ''}>Completá los {sala.capacidad} lugares</li><li className={participantesCompletos ? 'completado' : ''}>Se generan los cruces</li><li>Comienza el torneo</li></ol>
+            <ol><li className="completado">Compartí el código</li><li className="completado">Completá los {sala.capacidad} lugares</li><li className={crucesGenerados ? 'completado' : ''}>Se generan los cruces</li><li className={crucesGenerados ? 'completado' : ''}>Comienza el torneo</li></ol>
             <p className="sala-torneo__aviso-participante">{crucesGenerados ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generarán automáticamente al completar el cupo.'}</p>
             {crucesGenerados && <Enlace className="sala-torneo__ver-cuadro" to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace>}
             {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={manejarSalida} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}

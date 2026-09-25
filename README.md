@@ -64,6 +64,8 @@ Las rutas protegidas `/torneos/:idTorneo/sala` y `/torneos/:idTorneo` muestran l
 
 La sala muestra código, cupos y participantes obtenidos de `GET /api/torneos/{torneo_id}` y actualiza esos datos cada 15 segundos mientras espera jugadores. Copiar usa la API del portapapeles y confirma el resultado. Cuando el estado real pasa a `EN_CURSO`, se habilita el acceso a `/torneos/:idTorneo/cuadro`.
 
+El frame de Figma ilustra una sala con 6 de 8 participantes. Justo después de crear un torneo, el backend inscribe únicamente al creador: la sala muestra 1 participante y los cupos restantes, con nombres y código reales.
+
 `obtenerSalaTorneo(idTorneo)` y `obtenerDetalleTorneo(idTorneo)` adaptan esa respuesta real. Las pruebas usan respuestas interceptadas con la forma de Swagger; los IDs de esas pruebas no son torneos de producción.
 
 ## Cuadro de llaves y torneo finalizado — actividad 3.3.5
