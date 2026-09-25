@@ -32,9 +32,13 @@ Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. 
 
 Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y dificultad, paginación de cinco elementos y diseños de escritorio y móvil. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
 
-El listado usa datos temporales, identificados en pantalla como ejemplos. El Swagger publicado aún no incluye un endpoint administrativo de preguntas. `servicioPreguntasAdmin.js` marca el punto de integración cuando se acuerde la ruta y el contrato de respuesta. Crear, editar y eliminar preguntas corresponden a 5.2.2 y 5.2.3.
+El listado usa datos temporales, identificados en pantalla como ejemplos. El Swagger publicado aún no incluye un endpoint administrativo de preguntas. `servicioPreguntasAdmin.js` marca el punto de integración cuando se acuerde la ruta y el contrato de respuesta. Crear y editar preguntas corresponden a 5.2.2; eliminar corresponde a 5.2.3.
+
+Desde el listado se puede abrir **Nueva pregunta** o **Editar**. El formulario 5.2.2 permite escribir el enunciado, elegir categoría y dificultad, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. Las altas y ediciones se guardan solo en memoria del navegador: se ven al volver al listado, pero se pierden al recargar la página. No se envían al backend hasta que estén disponibles sus endpoints administrativos.
 
 Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
+
+También se puede iniciar sesión en desarrollo con `admin@futbolquiz.local` y contraseña `Admin1234!`. Es una cuenta simulada exclusiva de `npm run dev`: abre `/admin` sin contactar al backend y no sirve para operaciones reales. El listado y el formulario siguen usando datos temporales.
 
 ## Perfil
 

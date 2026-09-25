@@ -1,5 +1,5 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
-import { Link as Enlace, useSearchParams as usarParametrosBusqueda } from 'react-router-dom'
+import { Link as Enlace, useLocation as usarUbicacion, useSearchParams as usarParametrosBusqueda } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { obtenerPreguntasAdmin } from '../servicios/servicioPreguntasAdmin.js'
@@ -10,7 +10,9 @@ const tamanioPagina = 5
 
 export default function PaginaPreguntasAdmin() {
   const [parametrosBusqueda] = usarParametrosBusqueda()
+  const ubicacion = usarUbicacion()
   const vistaPrevia = import.meta.env.DEV && parametrosBusqueda.get('vistaPrevia') === '1'
+  const sufijoVistaPrevia = vistaPrevia ? '?vistaPrevia=1' : ''
   const [rol, establecerRol] = usarEstado(null)
   const [preguntas, establecerPreguntas] = usarEstado([])
   const [cargando, establecerCargando] = usarEstado(true)
@@ -72,15 +74,16 @@ export default function PaginaPreguntasAdmin() {
 
         {!cargando && !mensajeError && (rol === 'ADMINISTRADOR' || vistaPrevia) && (
           <section className="admin-preguntas__panel" aria-labelledby="titulo-preguntas-admin">
+            {ubicacion.state?.avisoPregunta && <p className="admin-preguntas__aviso" role="status">{ubicacion.state.avisoPregunta}</p>}
             {vistaPrevia && <p className="admin-preguntas__aviso" role="status">Vista previa local: rol de administrador simulado y preguntas de ejemplo.</p>}
-            <div className="admin-preguntas__titulo"><div><h2 id="titulo-preguntas-admin">Preguntas</h2><p>{preguntas.length} preguntas de ejemplo</p></div><span>Datos temporales</span></div>
+            <div className="admin-preguntas__titulo"><div><h2 id="titulo-preguntas-admin">Preguntas</h2><p>{preguntas.length} preguntas de ejemplo</p></div><div className="admin-preguntas__acciones"><span>Datos temporales</span><Enlace to={`/admin/preguntas/nueva${sufijoVistaPrevia}`}>Nueva pregunta</Enlace></div></div>
             <div className="admin-preguntas__filtros">
               <label>Buscar pregunta<input type="search" value={busqueda} onChange={(evento) => cambiarBusqueda(evento.target.value)} placeholder="Escribí parte del enunciado" /></label>
               <label>Categoría<select value={categoria} onChange={(evento) => cambiarCategoria(evento.target.value)}><option value="todas">Todas las categorías</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label>
               <label>Dificultad<select value={dificultad} onChange={(evento) => cambiarDificultad(evento.target.value)}><option value="todas">Todas</option><option>Fácil</option><option>Media</option><option>Difícil</option></select></label>
             </div>
             <p className="admin-preguntas__cantidad" role="status">{filtradas.length} {filtradas.length === 1 ? 'resultado' : 'resultados'}</p>
-            {visibles.length ? <div className="admin-preguntas__tabla"><div className="admin-preguntas__cabecera" aria-hidden="true"><span>Pregunta</span><span>Categoría</span><span>Dificultad</span></div><ul>{visibles.map((pregunta) => <li key={pregunta.id}><strong>{pregunta.enunciado}</strong><span data-etiqueta="Categoría">{pregunta.categoria}</span><span data-etiqueta="Dificultad">{pregunta.dificultad}</span></li>)}</ul></div> : <p className="admin-preguntas__vacio">No hay preguntas que coincidan con los filtros.</p>}
+            {visibles.length ? <div className="admin-preguntas__tabla"><div className="admin-preguntas__cabecera" aria-hidden="true"><span>Pregunta</span><span>Categoría</span><span>Dificultad</span><span /></div><ul>{visibles.map((pregunta) => <li key={pregunta.id}><strong>{pregunta.enunciado}</strong><span data-etiqueta="Categoría">{pregunta.categoria}</span><span data-etiqueta="Dificultad">{pregunta.dificultad}</span><Enlace className="admin-preguntas__editar" aria-label={`Editar pregunta: ${pregunta.enunciado}`} to={`/admin/preguntas/${pregunta.id}/editar${sufijoVistaPrevia}`}>Editar</Enlace></li>)}</ul></div> : <p className="admin-preguntas__vacio">No hay preguntas que coincidan con los filtros.</p>}
             <nav className="admin-preguntas__paginacion" aria-label="Páginas de preguntas"><span>Página {pagina} de {totalPaginas}</span><div><button type="button" disabled={pagina === 1} onClick={() => establecerPagina((actual) => actual - 1)}>Anterior</button><button type="button" disabled={pagina === totalPaginas} onClick={() => establecerPagina((actual) => actual + 1)}>Siguiente</button></div></nav>
           </section>
         )}
