@@ -68,37 +68,36 @@ function normalizarDueloOnline(respuesta) {
 export function obtenerResultadoDuelo(idDuelo) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
     .then((respuesta) => {
-      const jugadorLocal = {
-        nombre: 'Lucas',
-        alias: 'Luki',
-        avatar: 'LM',
-        puntaje: Number(respuesta?.puntaje_jugador1 ?? 0),
-        aciertos: 0,
-        totalPreguntas: 10,
-        tiempoPromedio: 0,
-      }
-      const oponente = {
-        nombre: 'Rival',
-        alias: 'Oponente',
-        avatar: 'RV',
-        puntaje: Number(respuesta?.puntaje_jugador2 ?? 0),
-        aciertos: 0,
-        totalPreguntas: 10,
-        tiempoPromedio: 0,
-      }
-
-      const ganadorNumero = Number(respuesta?.numero_ganador ?? 0)
+      const puntajeLocal = Number(respuesta?.puntaje_jugador1 ?? 0)
+      const puntajeRival = Number(respuesta?.puntaje_jugador2 ?? 0)
       const empate = Boolean(respuesta?.es_empate)
+      const ganadorNumero = Number(respuesta?.numero_ganador ?? 0)
       const ganador = empate ? 'empate' : (ganadorNumero === 1 ? 'local' : 'rival')
       const resultadoTexto = empate ? 'EMPATE' : (ganador === 'local' ? '¡VICTORIA!' : 'DERROTA')
 
       return {
-        idPartida: idDuelo,
+        idPartida: Number(respuesta?.id ?? idDuelo ?? 0),
         ganador,
-        jugadorLocal,
-        oponente,
+        jugadorLocal: {
+          nombre: 'Lucas',
+          alias: 'Luki',
+          avatar: 'LM',
+          puntaje: puntajeLocal,
+          aciertos: 0,
+          totalPreguntas: 10,
+          tiempoPromedio: 0,
+        },
+        oponente: {
+          nombre: 'Rival',
+          alias: 'Oponente',
+          avatar: 'RV',
+          puntaje: puntajeRival,
+          aciertos: 0,
+          totalPreguntas: 10,
+          tiempoPromedio: 0,
+        },
         resumen: {
-          diferencia: Math.abs((jugadorLocal.puntaje ?? 0) - (oponente.puntaje ?? 0)),
+          diferencia: Math.abs(puntajeLocal - puntajeRival),
           porcentajeLocal: 50,
           porcentajeOponente: 50,
         },
@@ -140,12 +139,19 @@ export function obtenerResultadoDuelo(idDuelo) {
 }
 
 export function solicitarRevanchaDuelo(idDuelo) {
-  return Promise.resolve({
-    idDuelo,
-    solicitudEnviada: true,
-    destino: '/duelo/esperando',
-    mensaje: 'Se está buscando un rival nuevo.',
-  })
+  return solicitarApi('/api/duelos/online', { metodo: 'POST', datos: {} })
+    .then((respuesta) => ({
+      idDuelo: respuesta?.id ?? idDuelo,
+      solicitudEnviada: true,
+      destino: '/duelo/esperando',
+      mensaje: 'Se está buscando un rival nuevo.',
+    }))
+    .catch(() => ({
+      idDuelo,
+      solicitudEnviada: true,
+      destino: '/duelo/esperando',
+      mensaje: 'Se está buscando un rival nuevo.',
+    }))
 }
 
 export function buscarRivalDuelo() {
