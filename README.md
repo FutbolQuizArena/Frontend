@@ -26,7 +26,15 @@ Rutas: `/registro`, `/login` e inicio `/` (login). El alojamiento debe resolver 
 
 Después de iniciar sesión, se abre `/home`. Usa los frames de escritorio y móvil enlazados en `docs/figma.md`, con un único componente y CSS responsive. Reutiliza `Boton` y agrega `TarjetaModo` para Duelo y Administración.
 
-Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. El acceso a Administración aparece solo cuando la respuesta indica `ADMINISTRADOR`; esto controla su visibilidad, no implementa autorización. Ranking, posición y estadísticas de partidas todavía carecen de endpoint y siguen siendo datos de demostración o se muestran como no disponibles. Las rutas `/partida-individual`, `/duelo`, `/ranking` y `/admin` muestran pantallas pendientes, con un enlace para volver.
+Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. El acceso a Administración aparece solo cuando la respuesta indica `ADMINISTRADOR`. Ranking, posición y estadísticas de partidas todavía carecen de endpoint y siguen siendo datos de demostración o se muestran como no disponibles.
+
+## Administración: preguntas — actividad 5.2.1
+
+Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y dificultad, paginación de cinco elementos y diseños de escritorio y móvil. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
+
+El listado usa datos temporales, identificados en pantalla como ejemplos. El Swagger publicado aún no incluye un endpoint administrativo de preguntas. `servicioPreguntasAdmin.js` marca el punto de integración cuando se acuerde la ruta y el contrato de respuesta. Crear, editar y eliminar preguntas corresponden a 5.2.2 y 5.2.3.
+
+Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
 
 ## Perfil
 
@@ -84,7 +92,7 @@ Por defecto, el token se guarda en `sessionStorage`: permanece al recargar y se 
 
 Se descartan JWT malformados o vencidos al restaurar la sesión. Si el JWT contiene `exp`, también se cierra la sesión cuando vence mientras la app está abierta. Si no contiene `exp`, se mantiene hasta cerrar sesión o eliminarlo del almacenamiento. No hay renovación automática de tokens porque no se dispone de contrato de refresh. Decodificar el JWT en el navegador no verifica su firma: el backend debe validar el token y autorizar cada operación real.
 
-`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, todas las rutas de `/torneos`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` sigue siendo un placeholder que requiere sesión; los permisos reales de administrador quedan pendientes del contrato de roles.
+`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, todas las rutas de `/torneos`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` consulta el rol en `GET /api/usuarios/me` y muestra el listado temporal solo a `ADMINISTRADOR`; el backend debe imponer la autorización sobre sus futuros endpoints administrativos.
 
 El usuario, perfil, sala, detalle y cuadro consultan endpoints reales. Ranking y estadísticas de juego no disponibles en `GET /api/usuarios/me` siguen pendientes. El cierre de sesión es local, sin revocación de JWT.
 
