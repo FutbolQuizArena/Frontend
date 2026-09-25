@@ -103,16 +103,16 @@ prueba('cada torneo propio conserva su acción y todos aparecen también en móv
   await pagina.goto('/torneos')
 
   const listado = pagina.getByRole('region', { name: 'Mis torneos' })
-  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toBeVisible()
-  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toHaveAttribute('href', '/torneos/1/cuadro')
-  await esperar(listado.getByRole('link', { name: 'Ir a la sala' })).toHaveCount(2)
-  await esperar(listado.getByRole('link', { name: 'Ir a la sala' }).nth(0)).toHaveAttribute('href', '/torneos/2/sala')
-  await esperar(listado.getByRole('link', { name: 'Ir a la sala' }).nth(1)).toHaveAttribute('href', '/torneos/3/sala')
+  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toHaveCount(0)
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' })).toHaveCount(3)
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' }).nth(0)).toHaveAttribute('href', '/torneos/1/sala')
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' }).nth(1)).toHaveAttribute('href', '/torneos/2/sala')
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' }).nth(2)).toHaveAttribute('href', '/torneos/3/sala')
 
   await pagina.setViewportSize({ width: 390, height: 844 })
   await esperar(listado.getByText('Copa del Barrio')).toBeVisible()
-  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toBeVisible()
-  await esperar(listado.getByRole('link', { name: 'Ir a la sala' })).toHaveCount(2)
+  await esperar(listado.getByRole('link', { name: 'Ver cuadro' })).toHaveCount(0)
+  await esperar(listado.getByRole('link', { name: 'Ir a la sala' })).toHaveCount(3)
   esperar(await pagina.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })
 
