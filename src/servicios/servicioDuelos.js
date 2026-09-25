@@ -13,73 +13,40 @@ const preguntasDueloBase = [
     ],
     opcionCorrectaId: 'A',
   },
-  {
-    id: 'duelo-mundiales-1',
-    categoria: 'Mundiales',
-    enunciado: '¿Cuál selección fue campeona del Mundial 2022?',
-    opciones: [
-      { id: 'A', texto: 'Francia' },
-      { id: 'B', texto: 'Argentina' },
-      { id: 'C', texto: 'Brasil' },
-      { id: 'D', texto: 'Alemania' },
-    ],
-    opcionCorrectaId: 'B',
-  },
-  {
-    id: 'duelo-clubes-1',
-    categoria: 'Clubes',
-    enunciado: '¿Qué club es conocido como “Los Blancos”?',
-    opciones: [
-      { id: 'A', texto: 'Barcelona' },
-      { id: 'B', texto: 'Real Madrid' },
-      { id: 'C', texto: 'Juventus' },
-      { id: 'D', texto: 'Bayern' },
-    ],
-    opcionCorrectaId: 'B',
-  },
-  {
-    id: 'duelo-jugadores-1',
-    categoria: 'Jugadores',
-    enunciado: '¿Quién ganó el Balón de Oro 2023?',
-    opciones: [
-      { id: 'A', texto: 'Kylian Mbappé' },
-      { id: 'B', texto: 'Erling Haaland' },
-      { id: 'C', texto: 'Lionel Messi' },
-      { id: 'D', texto: 'Kevin De Bruyne' },
-    ],
-    opcionCorrectaId: 'C',
-  },
-  {
-    id: 'duelo-reglas-1',
-    categoria: 'Reglas',
-    enunciado: '¿Cuántos jugadores puede haber en el campo por equipo al inicio del partido?',
-    opciones: [
-      { id: 'A', texto: '9' },
-      { id: 'B', texto: '10' },
-      { id: 'C', texto: '11' },
-      { id: 'D', texto: '12' },
-    ],
-    opcionCorrectaId: 'C',
-  },
 ]
 
+function obtenerOpcionCorrectaDemo(idPregunta) {
+  const indice = Number(idPregunta) || 0
+  const pregunta = preguntasDueloBase[indice % preguntasDueloBase.length]
+  return pregunta?.opcionCorrectaId ?? 'A'
+}
+
 function mapearPreguntaDuelo(pregunta) {
+  const idPregunta = Number(pregunta?.id ?? 0)
+  const opciones = [
+    { id: 'A', texto: pregunta?.opcion_a ?? 'Opción A' },
+    { id: 'B', texto: pregunta?.opcion_b ?? 'Opción B' },
+    { id: 'C', texto: pregunta?.opcion_c ?? 'Opción C' },
+    { id: 'D', texto: pregunta?.opcion_d ?? 'Opción D' },
+  ]
+
   return {
-    id: String(pregunta.id),
+    id: String(idPregunta || pregunta?.orden || 'pregunta-duelo'),
     categoria: 'Aleatoria',
-    enunciado: pregunta.enunciado,
-    opciones: [
-      { id: 'A', texto: pregunta.opcion_a },
-      { id: 'B', texto: pregunta.opcion_b },
-      { id: 'C', texto: pregunta.opcion_c },
-      { id: 'D', texto: pregunta.opcion_d },
-    ],
-    opcionCorrectaId: 'A',
+    enunciado: pregunta?.enunciado ?? 'Pregunta del duelo',
+    opciones,
+    opcionCorrectaId: obtenerOpcionCorrectaDemo(idPregunta || pregunta?.orden || 1),
+    orden: Number(pregunta?.orden ?? 1),
   }
 }
 
 function normalizarDueloOnline(respuesta) {
-  const preguntas = Array.isArray(respuesta?.preguntas) ? respuesta.preguntas.map(mapearPreguntaDuelo) : []
+  const preguntas = Array.isArray(respuesta?.preguntas)
+    ? respuesta.preguntas.map(mapearPreguntaDuelo)
+    : preguntasDueloBase.map((pregunta, indice) => ({
+        ...pregunta,
+        id: `${pregunta.id}-${indice}`,
+      }))
 
   return {
     id: Number(respuesta?.id ?? 0),
@@ -101,15 +68,33 @@ function normalizarDueloOnline(respuesta) {
 export function obtenerResultadoDuelo(idDuelo) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
     .then((respuesta) => {
-      const jugadorLocal = { nombre: 'Lucas', alias: 'Luki', avatar: 'LM', puntaje: Number(respuesta?.puntaje_jugador1 ?? 0), aciertos: 0, totalPreguntas: 10, tiempoPromedio: 0 }
-      const oponente = { nombre: 'Rival', alias: 'Oponente', avatar: 'RV', puntaje: Number(respuesta?.puntaje_jugador2 ?? 0), aciertos: 0, totalPreguntas: 10, tiempoPromedio: 0 }
+      const jugadorLocal = {
+        nombre: 'Lucas',
+        alias: 'Luki',
+        avatar: 'LM',
+        puntaje: Number(respuesta?.puntaje_jugador1 ?? 0),
+        aciertos: 0,
+        totalPreguntas: 10,
+        tiempoPromedio: 0,
+      }
+      const oponente = {
+        nombre: 'Rival',
+        alias: 'Oponente',
+        avatar: 'RV',
+        puntaje: Number(respuesta?.puntaje_jugador2 ?? 0),
+        aciertos: 0,
+        totalPreguntas: 10,
+        tiempoPromedio: 0,
+      }
 
-      const ganador = Number(respuesta?.numero_ganador ?? 0)
-      const resultadoTexto = respuesta?.es_empate ? 'EMPATE' : (ganador === 1 ? '¡VICTORIA!' : 'DERROTA')
+      const ganadorNumero = Number(respuesta?.numero_ganador ?? 0)
+      const empate = Boolean(respuesta?.es_empate)
+      const ganador = empate ? 'empate' : (ganadorNumero === 1 ? 'local' : 'rival')
+      const resultadoTexto = empate ? 'EMPATE' : (ganador === 'local' ? '¡VICTORIA!' : 'DERROTA')
 
       return {
         idPartida: idDuelo,
-        ganador: respuesta?.es_empate ? 'empate' : (ganador === 1 ? 'local' : 'rival'),
+        ganador,
         jugadorLocal,
         oponente,
         resumen: {
@@ -207,7 +192,11 @@ export function obtenerPreguntasDuelo(idDuelo) {
       try {
         const duelo = JSON.parse(dueloGuardado)
         if (Array.isArray(duelo?.preguntas) && duelo.preguntas.length > 0) {
-          return duelo.preguntas
+          return duelo.preguntas.map((pregunta, indice) => ({
+            ...pregunta,
+            id: String(pregunta.id ?? `${idDuelo ?? 'duelo-demo'}-${indice + 1}`),
+            categoria: pregunta.categoria ?? 'Aleatoria',
+          }))
         }
       } catch {
         // ignora fallback
@@ -223,26 +212,30 @@ export function obtenerPreguntasDuelo(idDuelo) {
 
 export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada, tiempoEmpleado) {
   const preguntaId = Number(idPregunta)
+  const opcionNormalizada = String(opcionSeleccionada ?? '').toUpperCase()
+
   if (!Number.isFinite(preguntaId) || preguntaId <= 0) {
     return {
       idDuelo,
       idPregunta,
-      opcionSeleccionada,
-      tiempoEmpleado,
+      opcionSeleccionada: opcionNormalizada,
+      tiempoEmpleado: Number(tiempoEmpleado) || 0,
       registrado: true,
+      esCorrecta: opcionNormalizada === obtenerOpcionCorrectaDemo(1),
+      puntajeObtenido: 0,
     }
   }
 
   return solicitarApi(`/api/duelos/preguntas/${encodeURIComponent(preguntaId)}/respuesta`, {
     metodo: 'POST',
     datos: {
-      opcion_seleccionada: String(opcionSeleccionada ?? '').toUpperCase(),
+      opcion_seleccionada: opcionNormalizada,
       tiempo_respuesta_segundos: Number(tiempoEmpleado) || 0,
     },
   }).then((respuesta) => ({
     idDuelo,
     idPregunta,
-    opcionSeleccionada: String(opcionSeleccionada ?? '').toUpperCase(),
+    opcionSeleccionada: opcionNormalizada,
     tiempoEmpleado: Number(tiempoEmpleado) || 0,
     registrado: true,
     esCorrecta: Boolean(respuesta?.es_correcta),
@@ -250,9 +243,11 @@ export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada,
   })).catch(() => ({
     idDuelo,
     idPregunta,
-    opcionSeleccionada: String(opcionSeleccionada ?? '').toUpperCase(),
+    opcionSeleccionada: opcionNormalizada,
     tiempoEmpleado: Number(tiempoEmpleado) || 0,
     registrado: true,
+    esCorrecta: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId),
+    puntajeObtenido: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId) ? 100 : 0,
   }))
 }
 

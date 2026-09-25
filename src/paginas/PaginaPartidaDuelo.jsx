@@ -171,7 +171,7 @@ export default function PaginaPartidaDuelo() {
       <header className="inicio__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, Lucas</strong>
+          <strong>Hola</strong>
           <span>Cuenta de jugador</span>
         </div>
         <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>

@@ -14,7 +14,7 @@ export default function TarjetaJugadorDuelo({
       </div>
 
       <div className="partida-duelo__datos-jugador">
-        <span className="partida-duelo__tipo-jugador">{local ? 'Tú' : 'Rival'}</span>
+        <span className="partida-duelo__tipo-jugador">{local ? 'Tú' : 'Oponente'}</span>
         <h2>{nombre}</h2>
         <p>{alias}</p>
       </div>
