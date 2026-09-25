@@ -10,7 +10,12 @@
 .marco-admin .admin-categorias .admin-preguntas__panel { padding: 20px; border: 1px solid var(--color-borde); border-radius: 20px; background: var(--color-superficie); }
 .marco-admin .admin-categorias__tabla { border: 0; }
 .marco-admin .admin-categorias__tabla li { min-height: 76px; border: 0; border-radius: 12px; }
+.marco-admin .admin-categorias__cabecera, .marco-admin .admin-categorias__tabla li { grid-template-columns: minmax(0, 2fr) minmax(90px, .7fr) minmax(100px, .7fr) 70px; }
+.admin-categorias__editar { color: var(--color-secundario); font-size: 13px; font-weight: 700; text-decoration: none; }
+.admin-categorias__editar:hover, .admin-categorias__editar:focus-visible { color: var(--color-principal); text-decoration: underline; }
 .marco-admin .admin-categorias__busqueda { margin-top: 20px; }
+.admin-formulario-categoria .admin-formulario__panel > label { display: grid; gap: 8px; }
+.admin-formulario-categoria .admin-formulario__panel input { width: 100%; min-height: 48px; padding: 12px; border: 1px solid var(--color-borde); border-radius: 10px; color: var(--color-texto); background: var(--color-campo); font: inherit; }
 .marco-admin .admin-formulario__panel > label, .marco-admin .admin-formulario__fila label { color: var(--color-secundario); font-weight: 400; }
 .marco-admin .admin-formulario__panel textarea { min-height: 92px; }
 .marco-admin .admin-formulario__panel fieldset legend, .marco-admin .admin-formulario__panel fieldset > p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
@@ -59,6 +64,8 @@
   .marco-admin__juego-movil a { display: grid; gap: 6px; text-align: center; color: var(--color-secundario); text-decoration: none; font-size: 10px; }
   .marco-admin__juego-movil span { font-size: 18px; }
   .marco-admin .admin-categorias .admin-preguntas__panel { padding: 0; border: 0; background: transparent; }
+  .marco-admin .admin-categorias__tabla li { position: relative; padding-right: 80px; }
+  .marco-admin .admin-categorias__tabla .admin-categorias__editar { position: absolute; right: 16px; top: 16px; }
   .marco-admin .admin-formulario .admin-preguntas__encabezado h1, .marco-admin .admin-formulario .admin-preguntas__encabezado p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .marco-admin .admin-formulario .admin-preguntas__encabezado > a { margin-top: 0; padding: 8px; }
   .marco-admin .admin-formulario__radio { display: flex; }

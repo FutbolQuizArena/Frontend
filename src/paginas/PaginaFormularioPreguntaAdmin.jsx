@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { actualizarPreguntaAdmin, crearPreguntaAdmin, obtenerPreguntaAdmin, obtenerPreguntasAdmin } from '../servicios/servicioPreguntasAdmin.js'
+import { obtenerCategoriasAdmin } from '../servicios/servicioCategoriasAdmin.js'
 import '../estilos/estilosPreguntasAdmin.css'
 import '../estilos/estilosMarcoAdmin.css'
 
@@ -32,7 +33,8 @@ export default function PaginaFormularioPreguntaAdmin() {
         if (rolActual !== 'ADMINISTRADOR' && !vistaPrevia) return
         const preguntas = await obtenerPreguntasAdmin()
         if (!vigente) return
-        establecerCategorias([...new Set(preguntas.map((pregunta) => pregunta.categoria))].sort((a, b) => a.localeCompare(b, 'es-AR')))
+        const categoriasDisponibles = await obtenerCategoriasAdmin()
+        if (vigente) establecerCategorias(categoriasDisponibles.filter((categoria) => categoria.estado === 'ACTIVA' || categoria.nombre === preguntas.find((pregunta) => pregunta.id === Number(idPregunta))?.categoria).map((categoria) => categoria.nombre).sort((a, b) => a.localeCompare(b, 'es-AR')))
         if (idPregunta) {
           const pregunta = await obtenerPreguntaAdmin(idPregunta)
           if (vigente) { establecerDatos(pregunta); establecerEncontrada(true) }
