@@ -44,6 +44,16 @@
 .admin-preguntas__paginacion button, .admin-preguntas__estado button { min-height: 40px; padding: 9px 14px; border: 1px solid var(--color-borde); border-radius: 10px; color: var(--color-texto); background: var(--color-elevado); cursor: pointer; }
 .admin-preguntas__paginacion button:disabled { opacity: .4; cursor: default; }
 .admin-preguntas__estado { color: var(--color-secundario); }
+.admin-preguntas__fila-acciones { display: flex; align-items: center; gap: 12px; }
+.admin-preguntas__fila-acciones button { padding: 7px 0; border: 0; color: var(--color-dorado); background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
+.admin-preguntas__modal-fondo { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(0 0 0 / 72%); }
+.admin-preguntas__confirmacion { width: min(100%, 450px); padding: 26px; border: 1px solid var(--color-borde); border-radius: 18px; color: var(--color-texto); background: var(--color-superficie); box-shadow: 0 20px 60px rgb(0 0 0 / 35%); }
+.admin-preguntas__confirmacion h2 { margin: 0 0 14px; }
+.admin-preguntas__confirmacion p { overflow-wrap: anywhere; color: var(--color-secundario); }
+.admin-preguntas__confirmacion > div { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.admin-preguntas__confirmacion button { min-height: 40px; padding: 9px 13px; border: 1px solid var(--color-borde); border-radius: 10px; color: var(--color-texto); background: var(--color-elevado); font: inherit; cursor: pointer; }
+.admin-preguntas__confirmacion button:last-child { border-color: var(--color-dorado); color: var(--color-dorado); }
+.admin-preguntas__confirmacion button:disabled { opacity: .5; cursor: wait; }
 
 @media (max-width: 900px) {
   .admin-preguntas__encabezado { margin: 24px 0; }
@@ -66,4 +76,5 @@
   .admin-preguntas__tabla li { grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-superficie); }
   .admin-preguntas__tabla li strong { grid-column: 1 / -1; }
   .admin-preguntas__tabla li span::before { display: block; margin-bottom: 4px; color: var(--color-tenue); font-size: 10px; content: attr(data-etiqueta); }
+  .admin-preguntas__fila-acciones { grid-column: 1 / -1; }
 }

@@ -36,6 +36,8 @@ El listado usa datos temporales, identificados en pantalla como ejemplos. El Swa
 
 Desde el listado se puede abrir **Nueva pregunta** o **Editar**. El formulario 5.2.2 permite escribir el enunciado, elegir categoría y dificultad, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. Las altas y ediciones se guardan solo en memoria del navegador: se ven al volver al listado, pero se pierden al recargar la página. No se envían al backend hasta que estén disponibles sus endpoints administrativos.
 
+La actividad 5.2.3 agrega **Eliminar** a cada fila. Muestra la pregunta en una confirmación; cancelar no cambia el listado y confirmar la elimina solo de los datos temporales. El borrado real queda pendiente del endpoint administrativo del backend.
+
 Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
 
 También se puede iniciar sesión en desarrollo con `admin@futbolquiz.local` y contraseña `Admin1234!`. Es una cuenta simulada exclusiva de `npm run dev`: abre `/admin` sin contactar al backend y no sirve para operaciones reales. El listado y el formulario siguen usando datos temporales.
