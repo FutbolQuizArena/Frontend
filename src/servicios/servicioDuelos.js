@@ -40,7 +40,19 @@ function mapearPreguntaDuelo(pregunta) {
   }
 }
 
-function normalizarDueloOnline(respuesta) {
+export function generarAvatar(nombre) {
+  if (!nombre) return 'JQ'
+  const partes = String(nombre).trim().split(/\s+/)
+  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase()
+  return (partes[0][0] + (partes[1][0] || '')).toUpperCase()
+}
+
+export function generarAlias(nombre) {
+  if (!nombre) return 'Jugador'
+  return String(nombre).trim().split(/\s+/)[0]
+}
+
+function normalizarDueloOnline(respuesta, usuarioActual = null) {
   const preguntas = Array.isArray(respuesta?.preguntas)
     ? respuesta.preguntas.map(mapearPreguntaDuelo)
     : preguntasDueloBase.map((pregunta, indice) => ({
@@ -48,93 +60,160 @@ function normalizarDueloOnline(respuesta) {
         id: `${pregunta.id}-${indice}`,
       }))
 
+  const estado = String(respuesta?.estado ?? 'PENDIENTE_RIVAL').toUpperCase()
+  const estaEnCurso = estado === 'EN_CURSO' || estado === 'FINALIZADA' || estado === 'FINALIZADO'
+
+  const idUsuarioActual = usuarioActual?.id ? Number(usuarioActual.id) : null
+  const esJugador1 = idUsuarioActual !== null ? Number(respuesta?.jugador1_id) === idUsuarioActual : true
+
+  const rivalId = esJugador1 ? (respuesta?.jugador2_id ?? null) : respuesta?.jugador1_id
+  const rivalNombre = esJugador1 ? (respuesta?.jugador2_nombre || null) : (respuesta?.jugador1_nombre || null)
+  const rivalPuntaje = esJugador1 ? Number(respuesta?.puntaje_jugador2 ?? 0) : Number(respuesta?.puntaje_jugador1 ?? 0)
+
+  const nombreLocal = esJugador1
+    ? (respuesta?.jugador1_nombre || usuarioActual?.nombre || 'Tú')
+    : (respuesta?.jugador2_nombre || usuarioActual?.nombre || 'Tú')
+
+  const jugadorLocal = {
+    id: idUsuarioActual ?? (esJugador1 ? respuesta?.jugador1_id : respuesta?.jugador2_id) ?? 0,
+    nombre: nombreLocal,
+    alias: generarAlias(nombreLocal),
+    avatar: generarAvatar(nombreLocal),
+    puntuacion: Number(usuarioActual?.puntajeTotal ?? 0),
+  }
+
+  const rivalTextoNombre = rivalNombre || 'Rival'
+  const rival = estaEnCurso
+    ? {
+        id: rivalId ?? 'rival-online',
+        nombre: rivalTextoNombre,
+        alias: generarAlias(rivalTextoNombre),
+        avatar: generarAvatar(rivalTextoNombre),
+        nivel: 'Online',
+        puntuacion: rivalPuntaje,
+      }
+    : null
+
   return {
     id: Number(respuesta?.id ?? 0),
-    estado: respuesta?.estado ?? 'BUSCANDO',
+    estado,
     modalidad: respuesta?.modalidad ?? 'online',
     categoriaId: respuesta?.categoria_id ?? null,
+    jugadorLocal,
+    rival,
     preguntas,
-    rival: {
-      id: 'rival-online',
-      nombre: 'Rival',
-      alias: 'Oponente',
-      avatar: 'RV',
-      nivel: 'Online',
-      puntuacion: 0,
-    },
   }
 }
 
-export function obtenerResultadoDuelo(idDuelo) {
+export function obtenerResultadoDuelo(idDuelo, usuarioActual = null) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
     .then((respuesta) => {
-      const puntajeLocal = Number(respuesta?.puntaje_jugador1 ?? 0)
-      const puntajeRival = Number(respuesta?.puntaje_jugador2 ?? 0)
+      const idUsuarioActual = usuarioActual?.id ? Number(usuarioActual.id) : null
+      const esJugador1 = idUsuarioActual !== null ? Number(respuesta?.jugador1_id) === idUsuarioActual : true
+
+      const puntajeLocal = esJugador1
+        ? Number(respuesta?.puntaje_jugador1 ?? 0)
+        : Number(respuesta?.puntaje_jugador2 ?? 0)
+      const puntajeRival = esJugador1
+        ? Number(respuesta?.puntaje_jugador2 ?? 0)
+        : Number(respuesta?.puntaje_jugador1 ?? 0)
+
+      const aciertosLocal = esJugador1
+        ? Number(respuesta?.aciertos_jugador1 ?? 0)
+        : Number(respuesta?.aciertos_jugador2 ?? 0)
+      const aciertosRival = esJugador1
+        ? Number(respuesta?.aciertos_jugador2 ?? 0)
+        : Number(respuesta?.aciertos_jugador1 ?? 0)
+
+      const nombreLocal = esJugador1
+        ? (respuesta?.jugador1_nombre || usuarioActual?.nombre || 'Tú')
+        : (respuesta?.jugador2_nombre || usuarioActual?.nombre || 'Tú')
+      const nombreRival = esJugador1
+        ? (respuesta?.jugador2_nombre || 'Rival')
+        : (respuesta?.jugador1_nombre || 'Rival')
+
+      const estado = String(respuesta?.estado ?? '').toUpperCase()
+      const estaFinalizado = estado === 'FINALIZADA' || estado === 'FINALIZADO'
       const empate = Boolean(respuesta?.es_empate)
       const ganadorNumero = Number(respuesta?.numero_ganador ?? 0)
-      const ganador = empate ? 'empate' : (ganadorNumero === 1 ? 'local' : 'rival')
-      const resultadoTexto = empate ? 'EMPATE' : (ganador === 'local' ? '¡VICTORIA!' : 'DERROTA')
+
+      let ganador = 'pendiente'
+      let resultadoTexto = 'PENDIENTE'
+
+      if (estaFinalizado) {
+        if (empate) {
+          ganador = 'empate'
+          resultadoTexto = 'EMPATE'
+        } else if (ganadorNumero === 1) {
+          ganador = esJugador1 ? 'local' : 'rival'
+          resultadoTexto = esJugador1 ? '¡VICTORIA!' : 'DERROTA'
+        } else if (ganadorNumero === 2) {
+          ganador = esJugador1 ? 'rival' : 'local'
+          resultadoTexto = esJugador1 ? 'DERROTA' : '¡VICTORIA!'
+        }
+      }
 
       return {
         idPartida: Number(respuesta?.id ?? idDuelo ?? 0),
+        estado,
         ganador,
         jugadorLocal: {
-          nombre: 'Lucas',
-          alias: 'Luki',
-          avatar: 'LM',
+          nombre: nombreLocal,
+          alias: generarAlias(nombreLocal),
+          avatar: generarAvatar(nombreLocal),
           puntaje: puntajeLocal,
-          aciertos: 0,
+          aciertos: aciertosLocal,
           totalPreguntas: 10,
           tiempoPromedio: 0,
         },
         oponente: {
-          nombre: 'Rival',
-          alias: 'Oponente',
-          avatar: 'RV',
+          nombre: nombreRival,
+          alias: generarAlias(nombreRival),
+          avatar: generarAvatar(nombreRival),
           puntaje: puntajeRival,
-          aciertos: 0,
+          aciertos: aciertosRival,
           totalPreguntas: 10,
           tiempoPromedio: 0,
         },
         resumen: {
           diferencia: Math.abs(puntajeLocal - puntajeRival),
-          porcentajeLocal: 50,
-          porcentajeOponente: 50,
+          porcentajeLocal: Math.round((aciertosLocal / 10) * 100),
+          porcentajeOponente: Math.round((aciertosRival / 10) * 100),
         },
         resultadoTexto,
       }
     })
     .catch(() => {
-      const base = {
+      const nombreUsuario = usuarioActual?.nombre || 'Tú'
+      return {
         idPartida: idDuelo ?? 'duelo-demo',
+        estado: 'PENDIENTE',
         ganador: 'local',
         jugadorLocal: {
-          nombre: 'Lucas',
-          alias: 'Luki',
-          avatar: 'LM',
-          puntaje: 1420,
-          aciertos: 8,
+          nombre: nombreUsuario,
+          alias: generarAlias(nombreUsuario),
+          avatar: generarAvatar(nombreUsuario),
+          puntaje: 0,
+          aciertos: 0,
           totalPreguntas: 10,
-          tiempoPromedio: 6.2,
+          tiempoPromedio: 0,
         },
         oponente: {
           nombre: 'Rival',
           alias: 'Oponente',
           avatar: 'RV',
-          puntaje: 1190,
-          aciertos: 6,
+          puntaje: 0,
+          aciertos: 0,
           totalPreguntas: 10,
-          tiempoPromedio: 8.4,
+          tiempoPromedio: 0,
         },
         resumen: {
-          diferencia: 230,
-          porcentajeLocal: 80,
-          porcentajeOponente: 60,
+          diferencia: 0,
+          porcentajeLocal: 0,
+          porcentajeOponente: 0,
         },
-        resultadoTexto: '¡VICTORIA!',
+        resultadoTexto: 'PENDIENTE',
       }
-
-      return base
     })
 }
 
@@ -154,40 +233,92 @@ export function solicitarRevanchaDuelo(idDuelo) {
     }))
 }
 
-export function buscarRivalDuelo() {
+export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
+  if (!idDuelo) return Promise.resolve(null)
+  return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
+    .then((respuesta) => {
+      const estado = String(respuesta?.estado ?? '').toUpperCase()
+      const tieneRival = estado === 'EN_CURSO' || estado === 'FINALIZADA' || estado === 'FINALIZADO'
+
+      const idUsuarioActual = usuarioActual?.id ? Number(usuarioActual.id) : null
+      const esJugador1 = idUsuarioActual !== null ? Number(respuesta?.jugador1_id) === idUsuarioActual : true
+
+      const rivalId = esJugador1 ? (respuesta?.jugador2_id ?? null) : respuesta?.jugador1_id
+      const rivalNombre = esJugador1 ? (respuesta?.jugador2_nombre || null) : (respuesta?.jugador1_nombre || null)
+      const rivalPuntaje = esJugador1 ? Number(respuesta?.puntaje_jugador2 ?? 0) : Number(respuesta?.puntaje_jugador1 ?? 0)
+      const rivalAciertos = esJugador1 ? Number(respuesta?.aciertos_jugador2 ?? 0) : Number(respuesta?.aciertos_jugador1 ?? 0)
+
+      const nombreLocal = esJugador1
+        ? (respuesta?.jugador1_nombre || usuarioActual?.nombre || 'Tú')
+        : (respuesta?.jugador2_nombre || usuarioActual?.nombre || 'Tú')
+
+      const puntajeLocal = esJugador1 ? Number(respuesta?.puntaje_jugador1 ?? 0) : Number(respuesta?.puntaje_jugador2 ?? 0)
+      const aciertosLocal = esJugador1 ? Number(respuesta?.aciertos_jugador1 ?? 0) : Number(respuesta?.aciertos_jugador2 ?? 0)
+
+      const rivalTextoNombre = rivalNombre || 'Rival'
+      const rival = tieneRival
+        ? {
+            id: rivalId ?? 'rival-online',
+            nombre: rivalTextoNombre,
+            alias: generarAlias(rivalTextoNombre),
+            avatar: generarAvatar(rivalTextoNombre),
+            nivel: 'Online',
+            puntuacion: rivalPuntaje,
+            aciertos: rivalAciertos,
+          }
+        : null
+
+      const jugadorLocal = {
+        id: idUsuarioActual ?? (esJugador1 ? respuesta?.jugador1_id : respuesta?.jugador2_id) ?? 0,
+        nombre: nombreLocal,
+        alias: generarAlias(nombreLocal),
+        avatar: generarAvatar(nombreLocal),
+        puntuacion: puntajeLocal,
+        aciertos: aciertosLocal,
+      }
+
+      return {
+        id: Number(respuesta?.id ?? idDuelo),
+        estado,
+        jugadorLocal,
+        rival,
+        dueloCompleto: respuesta,
+      }
+    })
+    .catch(() => null)
+}
+
+export function buscarRivalDuelo(usuarioActual = null) {
   return solicitarApi('/api/duelos/online', { metodo: 'POST', datos: {} })
     .then((respuesta) => {
-      const duelo = normalizarDueloOnline(respuesta)
+      const duelo = normalizarDueloOnline(respuesta, usuarioActual)
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
       }
-      return duelo.rival
+      return duelo
     })
     .catch(() => {
-      const rivalFallback = {
-        id: 'rival-demo',
-        nombre: 'Rival',
-        alias: 'Oponente',
-        avatar: 'RV',
-        nivel: 'Pro',
-        puntuacion: 1400,
+      const fallback = {
+        id: Date.now(),
+        estado: 'PENDIENTE_RIVAL',
+        modalidad: 'online',
+        categoriaId: null,
+        preguntas: preguntasDueloBase.map((pregunta) => ({ ...pregunta, id: String(pregunta.id) })),
+        rival: null,
       }
 
       if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem('dueloActual', JSON.stringify({
-          id: Date.now(),
-          estado: 'BUSCANDO',
-          modalidad: 'online',
-          categoriaId: null,
-          preguntas: preguntasDueloBase.map((pregunta) => ({ ...pregunta, id: String(pregunta.id) })),
-        }))
+        window.sessionStorage.setItem('dueloActual', JSON.stringify(fallback))
       }
 
-      return rivalFallback
+      return fallback
     })
 }
 
 export function cancelarBusquedaDuelo() {
+  if (typeof window !== 'undefined') {
+    window.sessionStorage.removeItem('dueloActual')
+  }
   return true
 }
 
@@ -270,6 +401,7 @@ export function simularRespuestaRival(idPregunta) {
 
 export default {
   buscarRivalDuelo,
+  consultarEstadoDuelo,
   cancelarBusquedaDuelo,
   obtenerResultadoDuelo,
   solicitarRevanchaDuelo,
