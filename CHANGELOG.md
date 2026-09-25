@@ -2,9 +2,18 @@
 
 Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, la rama actual, el código y las decisiones de esta conversación. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 25/09/2026.
 
+## 25/9 [5.2.1–5.2.6, 6.1] Integración administrativa con el backend
+
+Cambios de trabajo en `feature/admin-usuarios-listado`, todavía sin commit de esta integración.
+
+- **Preguntas:** `servicioPreguntasAdmin.js` consulta las páginas de `GET /api/admin/preguntas` y adapta los campos del backend al formulario. Altas, edición y eliminación usan `POST`, `GET/PATCH` y `DELETE` reales con JWT para una sesión administradora.
+- **Categorías:** `servicioCategoriasAdmin.js` consulta el listado y el detalle, y usa `POST/PATCH` para guardar. La cantidad de preguntas proviene de `preguntas_count`. El formulario real muestra solo nombre y estado porque Swagger no acepta descripción.
+- **Acceso al panel:** las barras laterales de Home y del juego muestran Administración cuando `GET /api/usuarios/me` devuelve `ADMINISTRADOR`; el panel conserva su navegación propia.
+- **Desarrollo y pruebas:** `vistaPrevia=1` y la cuenta admin local conservan datos temporales. `pruebas/integracionAdmin.spec.js` verifica rutas, JWT, payload y regreso al panel con peticiones interceptadas.
+
 ## 25/9 [5.2.6] Listado y búsqueda de usuarios (Módulo 5 - Administración)
 
-Implementación en `feature/admin-usuarios-listado`, pendiente de commit y PR.
+Commits `67bcb3e` y `31f80c7` en `feature/admin-usuarios-listado`, presentes también en `origin/feature/admin-usuarios-listado`; no forman parte todavía del `develop` local.
 
 - **Capa de presentación:** `PaginaUsuariosAdmin.jsx` agrega `/admin/usuarios` al panel con búsqueda por nombre o correo, filtros de rol y estado, paginación visual, estados de carga/error/vacío y adaptación a celular. La barra lateral y las pestañas de administración incluyen el acceso a Usuarios.
 - **Capa de servicios:** `servicioUsuariosAdmin.js` consulta `GET /api/admin/usuarios` con los parámetros `buscar`, `rol` y `esta_habilitado`, usando el JWT Bearer del cliente común. La respuesta es un array de usuarios, tal como publica el OpenAPI del backend desplegado.
@@ -180,8 +189,8 @@ Commits `1566055`, `353fe02` y `556bb5a`.
 ## Estado del alcance y pendientes al 25/9
 
 - **Referencia funcional:** el documento de alcance del ZIP exige cuatro opciones y una respuesta correcta por pregunta, edición y eliminación del banco, creación y edición de categorías, y administración de usuarios sin perder su historial. Figma se usa como referencia visual. Sus nombres, participantes, puntajes y estados de muestra no se tratan como información real.
-- **Contratos del backend:** el changelog del backend en `TP/CHANGELOG.md` documenta el 25/9 rutas bajo `/api/admin` para preguntas, categorías y usuarios, con autenticación y autorización. **Este frontend todavía usa datos temporales en el panel admin**; integrar y probar esos contratos en el cliente es trabajo pendiente. El changelog del backend no prueba por sí solo que la versión desplegada en Render ya los incluya.
+- **Contratos del backend:** el OpenAPI desplegado en Render incluye rutas bajo `/api/admin` para preguntas, categorías y usuarios. El frontend ya las usa hasta 5.2.6 con una sesión admin real. La vista previa y la cuenta local siguen usando ejemplos para desarrollo.
 - **Módulo 5 pendiente:** `5.2.7` habilitación/deshabilitación con confirmación y `5.2.8` completar la protección y navegación administrativa. La cuenta administrativa simulada funciona solo en desarrollo.
 - **Torneos y juego:** el progreso de partidas y los resultados del cuadro requieren completar la integración con el módulo 2. Los puntajes, premios y resúmenes que no devuelve el contrato de torneo no deben inventarse en la interfaz.
-- **Planificación:** se propuso ampliar las pruebas de torneos en EDT/Gantt con pruebas de endpoints e integración responsive; no se encontró una modificación confirmada de esos archivos en este repositorio. `docs/figma.md` es una referencia local, pero `docs/` está en `.gitignore` y no se incluye automáticamente en un commit.
+- **Planificación:** se propuso ampliar las pruebas de torneos en EDT/Gantt con pruebas de endpoints e integración responsive; no se encontró una modificación confirmada de esos archivos en este repositorio. `docs/figma.md` sigue como referencia local ignorada por Git; `docs/swagger.md` es la excepción versionada.
 - **Historial Git:** un PR de torneos se abrió inicialmente contra `main` por error y luego se continuó el trabajo contra `develop`. El commit de merge de `5.2.2` conserva el texto literal `#N`; no se debe reutilizar ese marcador al nombrar merges futuros.

@@ -36,4 +36,4 @@ La respuesta `200` es un **array**, sin envoltorio de paginación. Cada usuario 
 | Administración de categorías | `POST/GET /api/admin/categorias`, `GET/PATCH/DELETE /api/admin/categorias/{categoria_id}`, `PATCH /api/admin/categorias/{categoria_id}/estado` |
 | Datos iniciales | `POST /api/admin/sistema/sembrar` |
 
-Las pantallas de preguntas y categorías del panel todavía usan datos temporales; que la ruta figure en Swagger no significa que el frontend ya la consuma. Consultar el estado de integración en el README y el changelog del frontend.
+Preguntas y categorías usan estas rutas para cuentas administradoras reales. La vista previa y la cuenta admin local de desarrollo conservan datos de ejemplo. El listado de preguntas llega paginado en `{ items, total, page, total_paginas }` (seis por página); el frontend reúne las páginas y aplica sus filtros visuales. La categoría recibe `nombre` y `estado`, sin descripción. La respuesta de preguntas usa `categoria_id`, `opcion_a` a `opcion_d` y `respuesta_correcta` como letra de A a D.

@@ -36,21 +36,23 @@ Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. 
 
 Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y estado, paginación de cinco elementos y diseños de escritorio y móvil. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
 
-El listado usa datos temporales, identificados en pantalla como ejemplos. El changelog del backend del 25/9 documenta endpoints bajo `/api/admin/preguntas`; el frontend todavía no los consume y falta verificar su disponibilidad en el despliegue utilizado. `servicioPreguntasAdmin.js` marca el punto de integración. Crear y editar preguntas corresponden a 5.2.2; eliminar corresponde a 5.2.3.
+Con una cuenta administradora real, el listado consulta `GET /api/admin/preguntas` con JWT, reuniendo las páginas que entrega el backend. La búsqueda, los filtros y la paginación visible se aplican sobre ese listado.
 
-Desde el listado se puede abrir **Nueva pregunta** o elegir **Editar** en el menú de tres puntos. El formulario 5.2.2 permite escribir el enunciado, elegir categoría, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. Las altas y ediciones se guardan solo en memoria del navegador: se ven al volver al listado, pero se pierden al recargar la página. No se envían al backend hasta que estén disponibles sus endpoints administrativos.
+Desde el listado se puede abrir **Nueva pregunta** o elegir **Editar** en el menú de tres puntos. El formulario 5.2.2 permite escribir el enunciado, elegir categoría, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. En una sesión real, usa `POST /api/admin/preguntas`, `GET/PATCH /api/admin/preguntas/{id}` y los identificadores de categoría del backend.
 
-La actividad 5.2.3 agrega **Eliminar** al menú de cada fila. Muestra la pregunta en una confirmación; cancelar no cambia el listado y confirmar la elimina solo de los datos temporales. El borrado real queda pendiente del endpoint administrativo del backend.
+La actividad 5.2.3 agrega **Eliminar** al menú de cada fila. Muestra una confirmación y, al aceptar con sesión real, llama a `DELETE /api/admin/preguntas/{id}`.
 
-La actividad 5.2.4 agrega `/admin/categorias`: listado y búsqueda de categorías, con acceso por rol y navegación desde Preguntas. Las categorías, estados y cantidades de preguntas usan datos temporales; falta conectarlas al endpoint administrativo correspondiente. El listado toma como referencia las pantallas de categorías desktop y mobile de Figma. Crear y editar categorías corresponden a 5.2.5, y la navegación completa del panel a 5.2.8.
+La actividad 5.2.4 agrega `/admin/categorias`: listado y búsqueda de categorías, con acceso por rol y navegación desde Preguntas. En una sesión real usa `GET /api/admin/categorias`, incluidos estado y cantidad de preguntas. El listado toma como referencia las pantallas de categorías desktop y mobile de Figma.
 
-La actividad 5.2.5 agrega `/admin/categorias/nueva` y `/admin/categorias/:idCategoria/editar`. El formulario permite escribir nombre, descripción opcional y estado. No admite nombres vacíos o repetidos. Al renombrar una categoría temporal, las preguntas asociadas conservan la relación y el nuevo nombre puede elegirse en el formulario de preguntas. Estos cambios se pierden al recargar hasta integrar los endpoints administrativos documentados por el backend.
+La actividad 5.2.5 agrega `/admin/categorias/nueva` y `/admin/categorias/:idCategoria/editar`. En una sesión real usa `POST /api/admin/categorias` y `GET/PATCH /api/admin/categorias/{id}`. El backend no acepta descripción de categoría, por lo que ese campo se muestra solo en la vista previa local.
 
 La actividad 5.2.6 agrega `/admin/usuarios`: listado y búsqueda de usuarios por nombre o correo, con filtros de rol y estado. Una sesión administradora real consulta `GET /api/admin/usuarios` con JWT Bearer; la cuenta admin local y `vistaPrevia=1` usan datos de ejemplo solo en desarrollo. El listado tiene paginación visual y estados de carga, error y vacío. Habilitar o deshabilitar cuentas corresponde a 5.2.7 y todavía no está en esta pantalla.
 
 Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
 
 También se puede iniciar sesión en desarrollo con `admin@futbolquiz.local` y contraseña `Admin1234!`. Es una cuenta simulada exclusiva de `npm run dev`: abre `/admin` sin contactar al backend y no sirve para operaciones reales. El listado y el formulario siguen usando datos temporales.
+
+La barra lateral del juego muestra **Administración** solo cuando `GET /api/usuarios/me` devuelve el rol `ADMINISTRADOR`. El panel mantiene su navegación separada y permite volver al juego. Esto permite regresar al panel después de salir sin escribir la URL.
 
 ## Perfil
 
@@ -108,7 +110,7 @@ Por defecto, el token se guarda en `sessionStorage`: permanece al recargar y se 
 
 Se descartan JWT malformados o vencidos al restaurar la sesión. Si el JWT contiene `exp`, también se cierra la sesión cuando vence mientras la app está abierta. Si no contiene `exp`, se mantiene hasta cerrar sesión o eliminarlo del almacenamiento. No hay renovación automática de tokens porque no se dispone de contrato de refresh. Decodificar el JWT en el navegador no verifica su firma: el backend debe validar el token y autorizar cada operación real.
 
-`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, todas las rutas de `/torneos`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` consulta el rol en `GET /api/usuarios/me` y muestra el listado temporal solo a `ADMINISTRADOR`; el backend debe imponer la autorización sobre sus futuros endpoints administrativos.
+`RutaProtegida` requiere sesión en `/home`, `/perfil`, `/partida-individual`, `/duelo`, todas las rutas de `/torneos`, `/ranking` y `/admin`. Sin sesión, redirige a `/login`. `RutaPublica` redirige a `/home` cuando alguien autenticado abre `/`, `/login` o `/registro`. `/admin` consulta el rol en `GET /api/usuarios/me`; las rutas administrativas del backend también exigen JWT y rol `ADMINISTRADOR`.
 
 El usuario, perfil, sala, detalle y cuadro consultan endpoints reales. Ranking y estadísticas de juego no disponibles en `GET /api/usuarios/me` siguen pendientes. El cierre de sesión es local, sin revocación de JWT.
 
@@ -167,4 +169,4 @@ Las pruebas de navegador usan un dominio ficticio e interceptan las peticiones p
 
 Para verificar manualmente el backend real, usar `/login` con una cuenta registrada, el servidor local y la configuración de `.env`. También se puede usar `/registro`; cada envío válido crea una cuenta real. El backend debe permitir por CORS el origen desde el que se sirva este frontend.
 
-Los ajustes visuales de administración usan las referencias desktop/mobile de Figma: navegación del panel, estados, formulario A–D y confirmación de borrado. Los estados ACTIVA/BORRADOR son datos de ejemplo; no implementan un flujo de publicación. Los requisitos del ZIP de cuatro opciones, una correcta y acceso por rol se mantienen.
+Los ajustes visuales de administración usan las referencias desktop/mobile de Figma: navegación del panel, estados, formulario A–D y confirmación de borrado. Con un administrador real, ACTIVA/BORRADOR proviene del backend; en la vista previa son datos de ejemplo. La pantalla no ofrece todavía una acción rápida de publicación. Se mantienen cuatro opciones, una correcta y acceso por rol.

@@ -16,10 +16,9 @@ prueba('una cuenta normal puede revisar la vista previa solo en desarrollo', asy
   await esperar(pagina.getByRole('listitem')).toHaveCount(5)
 })
 
-prueba('el administrador busca, filtra y pagina las preguntas de ejemplo', async ({ page: pagina }) => {
+prueba('la vista previa busca, filtra y pagina las preguntas de ejemplo', async ({ page: pagina }) => {
   await prepararSesion(pagina)
-  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 2, nombre: 'Admin', email: 'admin@futbolquiz.com', rol: 'ADMINISTRADOR', puntaje_total: 0 }) }))
-  await pagina.goto('/admin')
+  await pagina.goto('/admin?vistaPrevia=1')
 
   await esperar(pagina.getByRole('heading', { name: 'Preguntas', exact: true })).toBeVisible()
   await esperar(pagina.getByRole('listitem')).toHaveCount(5)
