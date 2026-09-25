@@ -43,7 +43,7 @@ export default function PaginaLogin() {
     try {
       const respuesta = await iniciarSesion(datos.correo.trim(), datos.contrasena)
       abrirSesion(respuesta, mantenerSesion)
-      navegar('/home', { replace: true })
+      navegar(respuesta.vistaPreviaAdmin ? '/admin' : '/home', { replace: true })
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos iniciar sesión. Intentá de nuevo.')
     } finally {

@@ -65,3 +65,10 @@ export async function actualizarPreguntaAdmin(idPregunta, datosPregunta) {
   preguntasTemporales = preguntasTemporales.map((elemento, posicion) => posicion === indice ? pregunta : elemento)
   return copiarPregunta(pregunta)
 }
+
+// TODO (5.1.1): reemplazar por el endpoint administrativo de eliminación.
+export async function eliminarPreguntaAdmin(idPregunta) {
+  const indice = preguntasTemporales.findIndex((pregunta) => pregunta.id === Number(idPregunta))
+  if (indice < 0) throw new Error('No encontramos esa pregunta.')
+  preguntasTemporales = preguntasTemporales.filter((pregunta) => pregunta.id !== Number(idPregunta))
+}
