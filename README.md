@@ -30,13 +30,13 @@ Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. 
 
 ## Administración: preguntas — actividad 5.2.1
 
-Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y dificultad, paginación de cinco elementos y diseños de escritorio y móvil. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
+Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y estado, paginación de cinco elementos y diseños de escritorio y móvil. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
 
 El listado usa datos temporales, identificados en pantalla como ejemplos. El Swagger publicado aún no incluye un endpoint administrativo de preguntas. `servicioPreguntasAdmin.js` marca el punto de integración cuando se acuerde la ruta y el contrato de respuesta. Crear y editar preguntas corresponden a 5.2.2; eliminar corresponde a 5.2.3.
 
-Desde el listado se puede abrir **Nueva pregunta** o **Editar**. El formulario 5.2.2 permite escribir el enunciado, elegir categoría y dificultad, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. Las altas y ediciones se guardan solo en memoria del navegador: se ven al volver al listado, pero se pierden al recargar la página. No se envían al backend hasta que estén disponibles sus endpoints administrativos.
+Desde el listado se puede abrir **Nueva pregunta** o elegir **Editar** en el menú de tres puntos. El formulario 5.2.2 permite escribir el enunciado, elegir categoría, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. Las altas y ediciones se guardan solo en memoria del navegador: se ven al volver al listado, pero se pierden al recargar la página. No se envían al backend hasta que estén disponibles sus endpoints administrativos.
 
-La actividad 5.2.3 agrega **Eliminar** a cada fila. Muestra la pregunta en una confirmación; cancelar no cambia el listado y confirmar la elimina solo de los datos temporales. El borrado real queda pendiente del endpoint administrativo del backend.
+La actividad 5.2.3 agrega **Eliminar** al menú de cada fila. Muestra la pregunta en una confirmación; cancelar no cambia el listado y confirmar la elimina solo de los datos temporales. El borrado real queda pendiente del endpoint administrativo del backend.
 
 La actividad 5.2.4 agrega `/admin/categorias`: listado y búsqueda de categorías, con acceso por rol y navegación desde Preguntas. Las categorías, estados y cantidades de preguntas usan datos temporales; falta conectarlas al endpoint administrativo correspondiente. El listado toma como referencia las pantallas de categorías desktop y mobile de Figma. Crear y editar categorías corresponden a 5.2.5, y la navegación completa del panel a 5.2.8.
 
@@ -158,3 +158,5 @@ También se puede usar Chrome instalado: en PowerShell, ejecutar `$env:CANAL_NAV
 Las pruebas de navegador usan un dominio ficticio e interceptan las peticiones para no crear usuarios en producción. Cubren validaciones, contrato JSON, alta sin redirección, mensajes 409/401, conexión fallida y reintento, respuesta no JSON, envíos duplicados, navegación, vista móvil, login con redirección, persistencia, rutas privadas/públicas, tokens inválidos/vencidos y cierre de sesión. Los JWT de prueba son ficticios. Guardan capturas de escritorio y celular en `test-results/` (ignorado por Git).
 
 Para verificar manualmente el backend real, usar `/login` con una cuenta registrada, el servidor local y la configuración de `.env`. También se puede usar `/registro`; cada envío válido crea una cuenta real. El backend debe permitir por CORS el origen desde el que se sirva este frontend.
+
+Los ajustes visuales de administración usan las referencias desktop/mobile de Figma: navegación del panel, estados, formulario A–D y confirmación de borrado. Los estados ACTIVA/BORRADOR son datos de ejemplo; no implementan un flujo de publicación. Los requisitos del ZIP de cuatro opciones, una correcta y acceso por rol se mantienen.

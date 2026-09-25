@@ -8,7 +8,7 @@ prueba('la cuenta admin de prueba abre el panel sin consultar el backend', async
   await pagina.getByLabel('Contraseña').fill('Admin1234!')
   await pagina.getByRole('button', { name: 'Ingresar' }).click()
   await esperar(pagina).toHaveURL(/\/admin$/)
-  await esperar(pagina.getByRole('heading', { name: 'Preguntas' })).toBeVisible()
+  await esperar(pagina.getByRole('heading', { name: 'Preguntas', exact: true })).toBeVisible()
   await pagina.getByRole('link', { name: 'Nueva pregunta' }).click()
   await esperar(pagina.getByRole('heading', { name: 'Nueva pregunta' })).toBeVisible()
 })

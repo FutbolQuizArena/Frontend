@@ -1,0 +1,86 @@
+.marco-admin { padding-left: 260px; }
+.marco-admin__juego-movil { display: none; }
+.marco-admin .marco-torneo__navegacion { margin-top: 44px; }
+.marco-admin .admin-listado__nuevo { min-width: 190px; margin-top: 8px; background: var(--color-principal); color: #07100c; text-align: center; }
+.admin-listado .admin-preguntas__titulo h2 { font-size: 14px; margin-bottom: 2px; }
+.admin-listado .admin-preguntas__titulo p { font-size: 11px; }
+.marco-admin .admin-preguntas__tabla span[data-etiqueta='Categoría'] { width: fit-content; padding: 6px 10px; border: 1px solid var(--color-principal); border-radius: 999px; color: var(--color-principal); font-size: 11px; }
+.admin-preguntas__confirmacion::backdrop { background: #000b; }
+.admin-formulario__temporal { margin: 0; color: var(--color-secundario); font-size: 11px; }
+.marco-admin .admin-categorias .admin-preguntas__panel { padding: 20px; border: 1px solid var(--color-borde); border-radius: 20px; background: var(--color-superficie); }
+.marco-admin .admin-categorias__tabla { border: 0; }
+.marco-admin .admin-categorias__tabla li { min-height: 76px; border: 0; border-radius: 12px; }
+.marco-admin .admin-categorias__busqueda { margin-top: 20px; }
+.marco-admin .admin-formulario__panel > label, .marco-admin .admin-formulario__fila label { color: var(--color-secundario); font-weight: 400; }
+.marco-admin .admin-formulario__panel textarea { min-height: 92px; }
+.marco-admin .admin-formulario__panel fieldset legend, .marco-admin .admin-formulario__panel fieldset > p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.marco-admin .admin-formulario__radio { display: none; }
+.marco-admin .marco-torneo__lateral { width: 260px; }
+.marco-admin .marca__arena { color: var(--color-dorado); }
+.marco-admin__gestion { color: var(--color-tenue); font-size: 11px; }
+.marco-admin .marco-torneo__contenido { max-width: 1240px; padding: 30px 28px 64px; }
+.marco-admin .marco-torneo__enlace:last-child { margin-top: 32px; border-top: 1px solid var(--color-borde); border-radius: 0; padding-top: 28px; }
+.marco-admin .admin-preguntas__encabezado { margin: 8px 0 40px; }
+.marco-admin .admin-preguntas__encabezado h1 { font-size: 36px; }
+.marco-admin .admin-preguntas__panel { padding: 0; border: 0; background: transparent; }
+.marco-admin .admin-preguntas__navegacion { display: none; }
+.marco-admin .admin-preguntas__aviso { padding: 8px 12px; font-size: 11px; }
+.marco-admin .admin-preguntas__filtros { padding: 12px 16px; border: 1px solid var(--color-borde); border-radius: 16px; background: var(--color-superficie); }
+.marco-admin .admin-preguntas__tabla { padding: 12px; border-radius: 20px; overflow: visible; }
+.marco-admin .admin-preguntas__cabecera, .marco-admin .admin-preguntas__tabla li { grid-template-columns: minmax(0, 3fr) minmax(100px, 1fr) 80px 100px 44px; }
+.marco-admin .admin-preguntas__tabla li { min-height: 80px; border: 0; border-radius: 10px; }
+.marco-admin .admin-preguntas__tabla li:nth-child(even) { background: var(--color-campo); }
+.admin-preguntas__menu { position: relative; }
+.admin-preguntas__menu summary { cursor: pointer; list-style: none; padding: 12px 4px; color: var(--color-secundario); }
+.admin-preguntas__menu summary::-webkit-details-marker { display: none; }
+.admin-preguntas__menu[open] .admin-preguntas__fila-acciones { position: absolute; right: 0; top: 38px; z-index: 5; display: grid; gap: 4px; min-width: 140px; padding: 8px; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-campo); box-shadow: 0 8px 24px #0008; }
+.admin-preguntas__menu .admin-preguntas__fila-acciones > * { display: block; width: 100%; min-height: 40px; padding: 12px 8px; border: 0; border-radius: 6px; font: inherit; font-weight: 700; line-height: 16px; text-align: left; text-decoration: none; }
+.admin-preguntas__menu .admin-preguntas__fila-acciones > *:hover, .admin-preguntas__menu .admin-preguntas__fila-acciones > *:focus-visible { background: var(--color-elevado); }
+.marco-admin .admin-formulario__panel { max-width: none; background: var(--color-superficie); }
+.marco-admin .admin-formulario__panel fieldset { grid-template-columns: 1fr 1fr; gap: 28px 40px; }
+.marco-admin .admin-formulario__panel fieldset > p { grid-column: 1 / -1; }
+.marco-admin .admin-formulario__opcion { grid-template-columns: 1fr; position: relative; }
+.marco-admin .admin-formulario__opcion > input { min-height: 56px; }
+.marco-admin .admin-formulario__opcion--correcta > input { border-color: var(--color-principal); }
+.marco-admin .admin-formulario__radio { font-size: 12px; color: var(--color-secundario); }
+.admin-formulario__nota { padding: 18px; border-radius: 12px; color: var(--color-secundario); background: var(--color-campo); font-size: 13px; }
+.marco-admin .admin-formulario__acciones > * { min-width: 180px; padding: 15px 24px; border-radius: 12px; text-align: center; text-decoration: none; }
+.marco-admin .admin-formulario__acciones a { border: 1px solid var(--color-borde); background: var(--color-campo); }
+.marco-admin .admin-preguntas__confirmacion { width: min(100%, 520px); border-color: var(--color-principal); }
+.marco-admin .admin-preguntas__confirmacion button:last-child { background: #c93c3c; border-color: #c93c3c; color: white; }
+@media (max-width: 1100px) and (min-width: 901px) {
+  .marco-admin { padding-left: 190px; }
+  .marco-admin .marco-torneo__lateral { width: 190px; }
+  .marco-admin .admin-preguntas__cabecera, .marco-admin .admin-preguntas__tabla li { grid-template-columns: minmax(0, 2fr) 90px 65px 90px 28px; gap: 8px; }
+}
+@media (max-width: 900px) {
+  .marco-admin .marco-torneo__navegacion { display: none; }
+  .marco-admin__juego-movil { position: fixed; inset: auto 0 0; z-index: 4; display: grid; grid-template-columns: repeat(5, 1fr); padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); background: #0c1f16; }
+  .marco-admin__juego-movil a { display: grid; gap: 6px; text-align: center; color: var(--color-secundario); text-decoration: none; font-size: 10px; }
+  .marco-admin__juego-movil span { font-size: 18px; }
+  .marco-admin .admin-categorias .admin-preguntas__panel { padding: 0; border: 0; background: transparent; }
+  .marco-admin .admin-formulario .admin-preguntas__encabezado h1, .marco-admin .admin-formulario .admin-preguntas__encabezado p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .marco-admin .admin-formulario .admin-preguntas__encabezado > a { margin-top: 0; padding: 8px; }
+  .marco-admin .admin-formulario__radio { display: flex; }
+  .marco-admin { padding-left: 0; }
+  .marco-admin .marco-torneo__lateral { width: auto; }
+  .marco-admin__gestion { display: none; }
+  .marco-admin .marco-torneo__enlace:last-child { margin: 0; border: 0; padding: 8px; }
+  .marco-admin .marco-torneo__contenido { padding: 20px 16px 100px; }
+  .marco-admin .admin-preguntas__navegacion { display: flex; }
+  .marco-admin .admin-preguntas__encabezado { margin: 0 0 24px; }
+  .marco-admin .admin-preguntas__encabezado h1 { font-size: 26px; }
+  .marco-admin .admin-preguntas__cabecera { display: none; }
+  .marco-admin .admin-preguntas__tabla { padding: 0; border: 0; background: transparent; }
+  .marco-admin .admin-preguntas__tabla ul { display: grid; gap: 12px; }
+  .marco-admin .admin-preguntas__tabla li { position: relative; grid-template-columns: 1fr auto; padding: 16px; background: var(--color-superficie); border: 1px solid var(--color-borde); }
+  .marco-admin .admin-preguntas__tabla li strong { grid-column: 1 / -1; padding-right: 30px; }
+  .marco-admin .admin-preguntas__tabla li span::before { display: none; }
+  .marco-admin .admin-preguntas__tabla li span[data-etiqueta='Dificultad'] { display: none; }
+  .marco-admin .admin-preguntas__tabla .admin-categorias__estado { display: block; }
+  .admin-preguntas__menu { position: absolute; right: 12px; top: 8px; }
+  .marco-admin .admin-formulario__panel { padding: 16px; }
+  .marco-admin .admin-formulario__panel fieldset, .marco-admin .admin-formulario__fila { grid-template-columns: 1fr; }
+  .marco-admin .admin-formulario__acciones { flex-direction: column-reverse; }
+  .marco-admin .admin-formulario__acciones > * { width: 100%; }
+}

@@ -32,12 +32,13 @@ const respuestasTemporales = {
 
 preguntasTemporales = preguntasTemporales.map((pregunta) => ({
   ...pregunta,
+  estado: pregunta.id % 3 === 0 ? 'BORRADOR' : 'ACTIVA',
   opciones: respuestasTemporales[pregunta.id],
   respuestaCorrecta: 0,
 }))
 
 function copiarPregunta(pregunta) {
-  return { ...pregunta, opciones: [...pregunta.opciones] }
+  return { ...pregunta, estado: pregunta.estado || 'ACTIVA', opciones: [...pregunta.opciones] }
 }
 
 export async function obtenerPreguntasAdmin() {
@@ -61,7 +62,7 @@ export async function crearPreguntaAdmin(datosPregunta) {
 export async function actualizarPreguntaAdmin(idPregunta, datosPregunta) {
   const indice = preguntasTemporales.findIndex((pregunta) => pregunta.id === Number(idPregunta))
   if (indice < 0) throw new Error('No encontramos esa pregunta.')
-  const pregunta = copiarPregunta({ id: Number(idPregunta), ...datosPregunta })
+  const pregunta = copiarPregunta({ ...preguntasTemporales[indice], ...datosPregunta, id: Number(idPregunta) })
   preguntasTemporales = preguntasTemporales.map((elemento, posicion) => posicion === indice ? pregunta : elemento)
   return copiarPregunta(pregunta)
 }
