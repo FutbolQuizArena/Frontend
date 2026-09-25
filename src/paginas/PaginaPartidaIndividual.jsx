@@ -6,8 +6,9 @@ import ComponenteTemporizador from '../componentes/ComponenteTemporizador.jsx'
 import TarjetaPregunta from '../componentes/TarjetaPregunta.jsx'
 import {
   finalizarPartidaIndividual,
-  obtenerPreguntasPorCategoria,
+  iniciarPartidaIndividual,
   registrarRespuestaPartida,
+  obtenerResultadoPartida,
 } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosPartidaIndividual.css'
 
@@ -55,18 +56,54 @@ export default function PaginaPartidaIndividual() {
   const totalPreguntas = preguntas.length || parametros.totalPreguntas || 10
 
   useEffect(() => {
-    const categoria = obtenerCategoriaGuardada()
-    const preguntasCargadas = obtenerPreguntasPorCategoria(categoria, parametros.totalPreguntas || 10)
-    setCategoriaActual(categoria)
-    setPreguntas(preguntasCargadas)
-    setIndicePreguntaActual(0)
-    setTiempoRestante(parametros.segundosPorPregunta || 15)
-    setRespuestaSeleccionada(null)
-    setMostrarFeedback(false)
-    setBloqueado(false)
-    setPuntaje(0)
-    setRespuestas([])
-    setRespuestaCorrecta(null)
+    let cancelado = false
+
+    const cargarPartida = async () => {
+      try {
+        const categoria = obtenerCategoriaGuardada()
+        const partida = await iniciarPartidaIndividual()
+
+        if (cancelado) {
+          return
+        }
+
+        setCategoriaActual(categoria || 'Aleatoria')
+        setPreguntas(partida.preguntas)
+        setPartidaId(partida.id)
+        setIndicePreguntaActual(0)
+        setTiempoRestante(parametros.segundosPorPregunta || 15)
+        setRespuestaSeleccionada(null)
+        setMostrarFeedback(false)
+        setBloqueado(false)
+        setPuntaje(0)
+        setRespuestas([])
+        setRespuestaCorrecta(null)
+      } catch (error) {
+        if (cancelado) {
+          return
+        }
+
+        const categoria = obtenerCategoriaGuardada()
+        const preguntasTemporales = []
+        setCategoriaActual(categoria || 'Aleatoria')
+        setPreguntas(preguntasTemporales)
+        setPartidaId(`partida-fallback-${Date.now()}`)
+        setIndicePreguntaActual(0)
+        setTiempoRestante(parametros.segundosPorPregunta || 15)
+        setRespuestaSeleccionada(null)
+        setMostrarFeedback(false)
+        setBloqueado(false)
+        setPuntaje(0)
+        setRespuestas([])
+        setRespuestaCorrecta(null)
+      }
+    }
+
+    cargarPartida()
+
+    return () => {
+      cancelado = true
+    }
   }, [parametros.segundosPorPregunta, parametros.totalPreguntas])
 
   useEffect(() => {
@@ -111,45 +148,65 @@ export default function PaginaPartidaIndividual() {
     setRespuestaCorrecta(null)
   }
 
-  const manejarRespuesta = (opcionSeleccionada, esCorrecta, tiempoAgotado = false) => {
+  const manejarRespuesta = async (opcionSeleccionada, esCorrecta, tiempoAgotado = false) => {
     if (!preguntaActual || bloqueado) {
       return
     }
 
     const tiempoUsado = tiempoAgotado ? parametros.segundosPorPregunta || 15 : Math.max(1, (parametros.segundosPorPregunta || 15) - tiempoRestante)
-    const respuestaRegistrada = {
-      idPartida: partidaId,
-      idPregunta: preguntaActual.id,
-      opcionSeleccionada: opcionSeleccionada ?? null,
-      tiempoEmpleado: tiempoUsado,
-      esCorrecta: Boolean(opcionSeleccionada) && esCorrecta,
-      tiempoAgotado,
-    }
-
-    registrarRespuestaPartida(
+    const respuestaApi = await registrarRespuestaPartida(
       partidaId,
       preguntaActual.id,
       opcionSeleccionada,
       tiempoUsado,
     )
 
+    const respuestaRegistrada = {
+      idPartida: partidaId,
+      idPregunta: preguntaActual.id,
+      opcionSeleccionada: respuestaApi.opcionSeleccionada ?? null,
+      tiempoEmpleado: respuestaApi.tiempoEmpleado,
+      esCorrecta: Boolean(respuestaApi.esCorrecta),
+      puntajeObtenido: Number(respuestaApi.puntajeObtenido ?? 0),
+      tiempoAgotado,
+    }
+
     const nuevasRespuestas = [...respuestas, respuestaRegistrada]
     setRespuestas(nuevasRespuestas)
     setRespuestaSeleccionada(opcionSeleccionada)
     setMostrarFeedback(true)
     setBloqueado(true)
-    setRespuestaCorrecta(esCorrecta)
+    setRespuestaCorrecta(Boolean(respuestaApi.esCorrecta))
 
-    if (esCorrecta) {
-      const puntosGanados = 100 + (tiempoRestante * 5)
-      setPuntaje((valorActual) => valorActual + puntosGanados)
+    if (respuestaApi.puntajeObtenido) {
+      setPuntaje((valorActual) => valorActual + Number(respuestaApi.puntajeObtenido))
     }
 
-    window.setTimeout(() => {
+    window.setTimeout(async () => {
       const siguienteIndice = indicePreguntaActual + 1
       if (siguienteIndice >= preguntas.length) {
-        const resultado = finalizarPartidaIndividual(partidaId, nuevasRespuestas)
-        sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
+        try {
+          const resultadoApi = await obtenerResultadoPartida(partidaId)
+          const resultado = {
+            partidaId: resultadoApi.partidaId,
+            puntaje: Number(resultadoApi.puntajeFinal ?? puntaje + Number(respuestaApi.puntajeObtenido ?? 0)),
+            puntaje_final: Number(resultadoApi.puntajeFinal ?? puntaje + Number(respuestaApi.puntajeObtenido ?? 0)),
+            totalRespuestas: nuevasRespuestas.length,
+            respuestasCorrectas: nuevasRespuestas.filter((respuesta) => respuesta.esCorrecta).length,
+            finalizada: true,
+            fecha_fin: resultadoApi.fechaFin,
+          }
+
+          sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
+        } catch (error) {
+          const resultado = finalizarPartidaIndividual(partidaId, nuevasRespuestas)
+          sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify({
+            ...resultado,
+            puntaje_final: resultado.puntaje,
+            partidaId: partidaId,
+          }))
+        }
+
         navegar('/partida/resultado')
         return
       }
