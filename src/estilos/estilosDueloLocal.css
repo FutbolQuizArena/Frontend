@@ -93,6 +93,17 @@
   font-size: 1rem;
 }
 
+.duelo-local__error {
+  color: var(--duelo-local-rojo);
+  font-weight: 700;
+}
+
+.duelo-local__boton-primary:disabled,
+.duelo-local__opcion:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .duelo-local__panel--turno,
 .duelo-local__panel--resultado,
 .duelo-local__panel--juego {

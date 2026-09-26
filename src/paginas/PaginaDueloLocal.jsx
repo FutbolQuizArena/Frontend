@@ -4,7 +4,7 @@ import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import PantallaPreparacionDuelo from '../componentes/PantallaPreparacionDuelo.jsx'
 import PantallaCambioTurno from '../componentes/PantallaCambioTurno.jsx'
 import PantallaResultadoDueloLocal from '../componentes/PantallaResultadoDueloLocal.jsx'
-import { guardarResultadoDueloLocal, iniciarDueloLocal, obtenerPreguntasDueloLocal, obtenerResultadoDueloLocal, registrarRespuestaTurnoLocal } from '../servicios/servicioDuelosLocales.js'
+import { guardarResultadoDueloLocal, iniciarDueloLocal, obtenerResultadoDueloLocal, registrarRespuestaTurnoLocal } from '../servicios/servicioDuelosLocales.js'
 import '../estilos/estilosDueloLocal.css'
 
 const enlaces = [
@@ -17,7 +17,7 @@ const enlaces = [
 
 export default function PaginaDueloLocal() {
   const navegar = usarNavegacion()
-  const [preguntas, setPreguntas] = usarEstado(obtenerPreguntasDueloLocal())
+  const [preguntas, setPreguntas] = usarEstado([])
   const [fase, setFase] = usarEstado('preparacion')
   const [nombres, setNombres] = usarEstado({ jugador1: 'Lucas', jugador2: 'Mati' })
   const [turnoActual, setTurnoActual] = usarEstado('jugador1')
@@ -29,6 +29,9 @@ export default function PaginaDueloLocal() {
   const [aciertosJugador1, setAciertosJugador1] = usarEstado(0)
   const [aciertosJugador2, setAciertosJugador2] = usarEstado(0)
   const [ultimoResultado, setUltimoResultado] = usarEstado(null)
+  const [cargandoDuelo, setCargandoDuelo] = usarEstado(false)
+  const [registrandoRespuesta, setRegistrandoRespuesta] = usarEstado(false)
+  const [error, setError] = usarEstado('')
 
   const preguntaActual = preguntas[indicePregunta] ?? preguntas[0] ?? null
   const jugadorActualNombre = turnoActual === 'jugador1' ? (nombres.jugador1 || 'Jugador 1') : (nombres.jugador2 || 'Jugador 2')
@@ -42,21 +45,25 @@ export default function PaginaDueloLocal() {
     const nombreJugador1 = (nombres.jugador1 || 'Jugador 1').trim() || 'Jugador 1'
     const nombreJugador2 = (nombres.jugador2 || 'Jugador 2').trim() || 'Jugador 2'
 
-    const duelo = await iniciarDueloLocal(nombreJugador1, nombreJugador2, 'general')
-    const preguntasDelDuelo = Array.isArray(duelo?.preguntas) && duelo.preguntas.length > 0
-      ? duelo.preguntas
-      : obtenerPreguntasDueloLocal()
-
-    setIdDueloLocal(duelo.idDueloLocal)
-    setPreguntas(preguntasDelDuelo)
-    setFase('turno')
-    setTurnoActual('jugador1')
-    setIndicePregunta(0)
-    setPuntajeJugador1(0)
-    setPuntajeJugador2(0)
-    setAciertosJugador1(0)
-    setAciertosJugador2(0)
-    setUltimoResultado(null)
+    setCargandoDuelo(true)
+    setError('')
+    try {
+      const duelo = await iniciarDueloLocal(nombreJugador1, nombreJugador2)
+      setIdDueloLocal(duelo.idDueloLocal)
+      setPreguntas(duelo.preguntas)
+      setFase('turno')
+      setTurnoActual('jugador1')
+      setIndicePregunta(0)
+      setPuntajeJugador1(0)
+      setPuntajeJugador2(0)
+      setAciertosJugador1(0)
+      setAciertosJugador2(0)
+      setUltimoResultado(null)
+    } catch (fallo) {
+      setError(fallo.message || 'No pudimos cargar preguntas del servidor. Intentá de nuevo.')
+    } finally {
+      setCargandoDuelo(false)
+    }
   }
 
   const manejarRespuesta = async (opcionSeleccionada) => {
@@ -64,13 +71,23 @@ export default function PaginaDueloLocal() {
       return
     }
 
-    const respuesta = await registrarRespuestaTurnoLocal(
-      idDueloLocal,
-      turnoActual,
-      preguntaActual.id,
-      opcionSeleccionada,
-      10,
-    )
+    setRegistrandoRespuesta(true)
+    setError('')
+    let respuesta
+    try {
+      respuesta = await registrarRespuestaTurnoLocal(
+        idDueloLocal,
+        turnoActual,
+        preguntaActual.id,
+        opcionSeleccionada,
+        10,
+      )
+    } catch (fallo) {
+      setError(fallo.message || 'No pudimos registrar la respuesta. Intentá de nuevo.')
+      setRegistrandoRespuesta(false)
+      return
+    }
+    setRegistrandoRespuesta(false)
 
     const correcta = Boolean(respuesta?.esCorrecta)
     const puntos = Number(respuesta?.puntajeObtenido ?? (correcta ? 100 : 0))
@@ -124,6 +141,9 @@ export default function PaginaDueloLocal() {
 
   const reiniciarDuelo = () => {
     setFase('preparacion')
+    setPreguntas([])
+    setIdDueloLocal(null)
+    setError('')
     setTurnoActual('jugador1')
     setIndicePregunta(0)
     setProximoJugador('jugador2')
@@ -172,7 +192,7 @@ export default function PaginaDueloLocal() {
 
       <main className="duelo-local__contenido">
         {fase === 'preparacion' && (
-          <PantallaPreparacionDuelo nombres={nombres} onChange={manejarCambioNombre} onIniciar={manejarInicioDuelo} />
+          <PantallaPreparacionDuelo nombres={nombres} onChange={manejarCambioNombre} onIniciar={manejarInicioDuelo} cargando={cargandoDuelo} error={error} />
         )}
 
         {fase === 'turno' && (
@@ -184,6 +204,8 @@ export default function PaginaDueloLocal() {
 
             <h2 className="duelo-local__pregunta">{preguntaActual.enunciado}</h2>
 
+            {error && <p className="duelo-local__error" role="alert">{error}</p>}
+
             <div className="duelo-local__opciones">
               {preguntaActual.opciones.map((opcion) => (
                 <button
@@ -191,6 +213,7 @@ export default function PaginaDueloLocal() {
                   type="button"
                   className="duelo-local__opcion"
                   onClick={() => manejarRespuesta(opcion.id)}
+                  disabled={registrandoRespuesta}
                   aria-label={`Opción ${opcion.texto}`}
                 >
                   {opcion.texto}
