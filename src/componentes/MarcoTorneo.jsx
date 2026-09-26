@@ -1,5 +1,5 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import { Link as Enlace, NavLink as EnlaceNavegacion, useLocation } from 'react-router-dom'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 
 const enlaces = [
@@ -12,6 +12,19 @@ const enlaces = [
 
 export default function MarcoTorneo({ children: contenido, tituloMovil, subtituloMovil, administrador = false, sufijoAdmin = '' }) {
   const [usuario, establecerUsuario] = usarEstado(null)
+  const ubicacion = useLocation()
+  const enlacesAdmin = [
+    { destino: `/admin${sufijoAdmin}`, titulo: 'Preguntas', simbolo: '?' },
+    { destino: `/admin/categorias${sufijoAdmin}`, titulo: 'Categorías', simbolo: '▦' },
+    { destino: `/admin/usuarios${sufijoAdmin}`, titulo: 'Usuarios', simbolo: '●' },
+    { destino: '/home', titulo: 'Volver al juego', simbolo: '←' },
+  ]
+  function esFormularioDeSeccion(destino) {
+    const ruta = destino.split('?')[0]
+    return ruta === '/admin'
+      ? ubicacion.pathname.startsWith('/admin/preguntas/')
+      : ruta.startsWith('/admin/') && ubicacion.pathname.startsWith(`${ruta}/`)
+  }
 
   usarEfecto(() => {
     let vigente = true
@@ -26,8 +39,8 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
         <Enlace className="marca marco-torneo__marca" to="/home" aria-label="FutbolQuiz Arena">FUTBOLQUIZ<span className="marca__arena">{administrador ? 'ADMIN' : 'ARENA'}</span></Enlace>
         <nav className="marco-torneo__navegacion" aria-label="Navegación principal">
           {administrador && <p className="marco-admin__gestion">GESTIÓN</p>}
-          {(administrador ? [{ destino: `/admin${sufijoAdmin}`, titulo: 'Preguntas', simbolo: '?' }, { destino: `/admin/categorias${sufijoAdmin}`, titulo: 'Categorías', simbolo: '▦' }, { destino: `/admin/usuarios${sufijoAdmin}`, titulo: 'Usuarios', simbolo: '●' }, { destino: '/home', titulo: 'Volver al juego', simbolo: '←' }] : [...enlaces, ...(usuario?.rol === 'ADMINISTRADOR' ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])]).map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin') && !destino.includes('categorias')} className={({ isActive: activo }) => `marco-torneo__enlace${activo ? ' marco-torneo__enlace--activo' : ''}`}>
+          {(administrador ? enlacesAdmin : [...enlaces, ...(usuario?.rol === 'ADMINISTRADOR' ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])]).map(({ destino, titulo, simbolo }) => (
+            <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin')} aria-current={esFormularioDeSeccion(destino) ? 'page' : undefined} className={({ isActive: activo }) => `marco-torneo__enlace${(activo || esFormularioDeSeccion(destino)) ? ' marco-torneo__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
@@ -42,7 +55,7 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
       </header>
 
       <main id="contenido-torneo" className="marco-torneo__contenido">{contenido}</main>
-      {administrador && <nav className="marco-admin__juego-movil" aria-label="Navegación del juego">{enlaces.map(({ destino, titulo, simbolo }) => <Enlace key={destino} to={destino}><span aria-hidden="true">{simbolo}</span>{titulo}</Enlace>)}</nav>}
+      {administrador && <nav className="marco-admin__juego-movil" aria-label="Secciones de administración">{enlacesAdmin.map(({ destino, titulo, simbolo }) => <Enlace key={destino} to={destino}><span aria-hidden="true">{simbolo}</span>{titulo}</Enlace>)}</nav>}
     </div>
   )
 }

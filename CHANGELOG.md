@@ -2,6 +2,14 @@
 
 Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, la rama actual, el código y las decisiones de esta conversación. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 25/09/2026.
 
+## 25/9 [5.2.7, 5.2.8, 6.1] Estado de usuarios y acceso al panel
+
+Cambios locales en `feature/admin-usuarios-listado`, pendientes de commit y PR.
+
+- **Usuarios:** habilitar y deshabilitar desde el listado exige confirmación. La sesión real usa `PATCH /api/admin/usuarios/{id}/estado` con JWT; el modo de desarrollo usa ejemplos. Los filtros por estado se actualizan al cambiar una cuenta y el panel muestra los errores que devuelve el backend.
+- **Acceso:** una ruta común consulta el rol antes de montar cualquiera de las pantallas `/admin`. Una cuenta de jugador no alcanza los servicios administrativos. La vista previa sigue disponible solo en desarrollo.
+- **Navegación:** el panel muestra enlaces a Preguntas, Categorías y Usuarios también en celular, conserva `vistaPrevia=1` y permite volver al juego. Las pruebas verifican confirmación, cancelación, rechazo del backend, protección de rutas y navegación.
+
 ## 25/9 [5.2.1–5.2.6, 6.1] Integración administrativa con el backend
 
 Cambios de trabajo en `feature/admin-usuarios-listado`, todavía sin commit de esta integración.
@@ -189,8 +197,8 @@ Commits `1566055`, `353fe02` y `556bb5a`.
 ## Estado del alcance y pendientes al 25/9
 
 - **Referencia funcional:** el documento de alcance del ZIP exige cuatro opciones y una respuesta correcta por pregunta, edición y eliminación del banco, creación y edición de categorías, y administración de usuarios sin perder su historial. Figma se usa como referencia visual. Sus nombres, participantes, puntajes y estados de muestra no se tratan como información real.
-- **Contratos del backend:** el OpenAPI desplegado en Render incluye rutas bajo `/api/admin` para preguntas, categorías y usuarios. El frontend ya las usa hasta 5.2.6 con una sesión admin real. La vista previa y la cuenta local siguen usando ejemplos para desarrollo.
-- **Módulo 5 pendiente:** `5.2.7` habilitación/deshabilitación con confirmación y `5.2.8` completar la protección y navegación administrativa. La cuenta administrativa simulada funciona solo en desarrollo.
+- **Contratos del backend:** el OpenAPI desplegado en Render incluye rutas bajo `/api/admin` para preguntas, categorías y usuarios. El frontend ya las usa hasta 5.2.7 con una sesión admin real. La vista previa y la cuenta local siguen usando ejemplos para desarrollo.
+- **Módulo 5:** las actividades de frontend 5.2.1 a 5.2.8 están implementadas localmente. La cuenta administrativa simulada funciona solo en desarrollo; los cambios 5.2.7 y 5.2.8 están pendientes de commit y PR.
 - **Torneos y juego:** el progreso de partidas y los resultados del cuadro requieren completar la integración con el módulo 2. Los puntajes, premios y resúmenes que no devuelve el contrato de torneo no deben inventarse en la interfaz.
 - **Planificación:** se propuso ampliar las pruebas de torneos en EDT/Gantt con pruebas de endpoints e integración responsive; no se encontró una modificación confirmada de esos archivos en este repositorio. `docs/figma.md` sigue como referencia local ignorada por Git; `docs/swagger.md` es la excepción versionada.
 - **Historial Git:** un PR de torneos se abrió inicialmente contra `main` por error y luego se continuó el trabajo contra `develop`. El commit de merge de `5.2.2` conserva el texto literal `#N`; no se debe reutilizar ese marcador al nombrar merges futuros.

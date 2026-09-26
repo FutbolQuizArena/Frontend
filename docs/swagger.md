@@ -12,7 +12,7 @@ Contrato consultado en el despliegue el **25/09/2026**. Swagger puede cambiar de
 | --- | --- | --- |
 | `GET /api/admin/usuarios` | Listar usuarios | Conectado en 5.2.6 para sesiones admin reales |
 | `GET /api/admin/usuarios/{usuario_id}` | Consultar un usuario | Pendiente de una pantalla que lo necesite |
-| `PATCH /api/admin/usuarios/{usuario_id}/estado` | Habilitar/deshabilitar | Pendiente de 5.2.7 |
+| `PATCH /api/admin/usuarios/{usuario_id}/estado` | Habilitar/deshabilitar | Conectado en 5.2.7 para sesiones admin reales |
 
 `GET /api/admin/usuarios` admite filtros opcionales en la query:
 

@@ -46,7 +46,11 @@ La actividad 5.2.4 agrega `/admin/categorias`: listado y búsqueda de categoría
 
 La actividad 5.2.5 agrega `/admin/categorias/nueva` y `/admin/categorias/:idCategoria/editar`. En una sesión real usa `POST /api/admin/categorias` y `GET/PATCH /api/admin/categorias/{id}`. El backend no acepta descripción de categoría, por lo que ese campo se muestra solo en la vista previa local.
 
-La actividad 5.2.6 agrega `/admin/usuarios`: listado y búsqueda de usuarios por nombre o correo, con filtros de rol y estado. Una sesión administradora real consulta `GET /api/admin/usuarios` con JWT Bearer; la cuenta admin local y `vistaPrevia=1` usan datos de ejemplo solo en desarrollo. El listado tiene paginación visual y estados de carga, error y vacío. Habilitar o deshabilitar cuentas corresponde a 5.2.7 y todavía no está en esta pantalla.
+La actividad 5.2.6 agrega `/admin/usuarios`: listado y búsqueda de usuarios por nombre o correo, con filtros de rol y estado. Una sesión administradora real consulta `GET /api/admin/usuarios` con JWT Bearer; la cuenta admin local y `vistaPrevia=1` usan datos de ejemplo solo en desarrollo. El listado tiene paginación visual y estados de carga, error y vacío.
+
+La actividad 5.2.7 agrega la acción de habilitar y deshabilitar usuarios con diálogo de confirmación accesible (`alertdialog`). En una sesión real conecta con `PATCH /api/admin/usuarios/{usuario_id}/estado` enviando `{ esta_habilitado: boolean }`. La interfaz contempla respuestas de error del backend (como evitar la deshabilitación de la propia cuenta de administrador) y en desarrollo actualiza el estado sobre los datos de ejemplo locales.
+
+La actividad 5.2.8 protege todas las rutas `/admin` con una comprobación común del rol obtenido de `GET /api/usuarios/me`. Un jugador recibe un mensaje de acceso restringido antes de que se monte cualquier pantalla administrativa; el backend conserva la autorización definitiva. En desarrollo, `vistaPrevia=1` permite recorrer el panel con datos de ejemplo. La barra lateral y la navegación móvil permiten pasar entre preguntas, categorías y usuarios y volver al juego.
 
 Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
 
