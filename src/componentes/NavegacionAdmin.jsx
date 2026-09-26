@@ -5,5 +5,6 @@ export default function NavegacionAdmin({ vistaPrevia = false }) {
   return <nav className="admin-preguntas__navegacion" aria-label="Secciones de administración">
     <NavLink to={`/admin${sufijo}`} end className={({ isActive }) => isActive ? 'activo' : ''}>Preguntas</NavLink>
     <NavLink to={`/admin/categorias${sufijo}`} className={({ isActive }) => isActive ? 'activo' : ''}>Categorías</NavLink>
+    <NavLink to={`/admin/usuarios${sufijo}`} className={({ isActive }) => isActive ? 'activo' : ''}>Usuarios</NavLink>
   </nav>
 }

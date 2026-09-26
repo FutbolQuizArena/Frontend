@@ -60,7 +60,7 @@
 }
 @media (max-width: 900px) {
   .marco-admin .marco-torneo__navegacion { display: none; }
-  .marco-admin__juego-movil { position: fixed; inset: auto 0 0; z-index: 4; display: grid; grid-template-columns: repeat(5, 1fr); padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); background: #0c1f16; }
+  .marco-admin__juego-movil { position: fixed; inset: auto 0 0; z-index: 4; display: grid; grid-template-columns: repeat(4, 1fr); padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); background: #0c1f16; }
   .marco-admin__juego-movil a { display: grid; gap: 6px; text-align: center; color: var(--color-secundario); text-decoration: none; font-size: 10px; }
   .marco-admin__juego-movil span { font-size: 18px; }
   .marco-admin .admin-categorias .admin-preguntas__panel { padding: 0; border: 0; background: transparent; }

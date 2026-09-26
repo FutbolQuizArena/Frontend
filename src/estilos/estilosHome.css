@@ -34,6 +34,7 @@
 .inicio__fondo-pelota { display: none; }
 .inicio__ranking { grid-area: ranking; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: 18px; padding: 24px; }
 .inicio__ranking h2, .inicio__torneo h2, .tarjeta-modo h2 { font-size: 20px; margin: 0; }
+.inicio__ranking > p { margin: 24px 0; color: var(--color-secundario); font-size: 14px; }
 .inicio__ranking ol { list-style: none; padding: 0; margin: 12px 0 24px; }
 .inicio__ranking li { display: grid; grid-template-columns: 20px 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 72px; border-bottom: 1px solid var(--color-borde); font-size: 13px; color: var(--color-secundario); }
 .inicio__ranking li:last-child { border-bottom: 0; }

@@ -30,7 +30,7 @@ const obtenerEstadoResultado = (resultado) => {
     return { texto: 'EMPATE', clase: 'resultado-duelo__banner--empate' }
   }
 
-  return { texto: 'Sin datos del duelo', clase: 'resultado-duelo__banner--pendiente' }
+  return { texto: 'Esperando al rival...', clase: 'resultado-duelo__banner--pendiente' }
 }
 
 export default function PaginaResultadoDuelo() {
@@ -38,52 +38,83 @@ export default function PaginaResultadoDuelo() {
   const { idDuelo } = usarParametros()
   const [resultado, setResultado] = usarEstado(null)
   const [cargando, setCargando] = usarEstado(true)
-  const [perfilLocal, setPerfilLocal] = usarEstado({ nombre: 'Jugador', alias: 'Jugador', avatar: 'J' })
+  const [perfilUsuario, setPerfilUsuario] = usarEstado(null)
 
   usarEfecto(() => {
     let activo = true
-
-    obtenerPerfil()
-      .then((perfil) => {
-        if (!activo) return
-        const nombre = perfil?.nombre ?? 'Jugador'
-        setPerfilLocal({
-          nombre,
-          alias: perfil?.nombre ? nombre.split(' ')[0] : 'Jugador',
-          avatar: perfil?.iniciales ?? (nombre ? nombre.slice(0, 2).toUpperCase() : 'J'),
-        })
-      })
-      .catch(() => {})
+    let intervaloPolling = null
 
     const cargarResultado = async () => {
       try {
+        const perfil = await obtenerPerfil().catch(() => null)
+        if (activo) setPerfilUsuario(perfil)
+
         const resultadoGuardado = sessionStorage.getItem('resultadoDuelo')
+        let datosLocales = null
 
         if (resultadoGuardado) {
-          const datos = JSON.parse(resultadoGuardado)
-          if (activo) {
-            setResultado(datos)
-            setCargando(false)
+          try {
+            datosLocales = JSON.parse(resultadoGuardado)
+            if (activo) {
+              setResultado(datosLocales)
+              setCargando(false)
+            }
+          } catch {
+            datosLocales = null
           }
-          return
         }
 
-        if (!idDuelo) {
-          if (activo) {
+        const dueloId = idDuelo || datosLocales?.idPartida
+        if (!dueloId) {
+          if (activo && !datosLocales) {
             setResultado(null)
             setCargando(false)
           }
           return
         }
 
-        const datos = await obtenerResultadoDuelo(idDuelo)
+        // Consultar resultado en backend para verificar si el rival ya terminó
+        const datosBackend = await obtenerResultadoDuelo(dueloId, perfil)
+        if (!activo) return
 
-        if (activo) {
-          setResultado(datos)
+        if (datosBackend) {
+          if (datosBackend.estado === 'FINALIZADA' || datosBackend.estado === 'FINALIZADO') {
+            setResultado(datosBackend)
+            setCargando(false)
+            return
+          }
+
+          // Si el duelo sigue EN_CURSO (rival aún jugando), mostramos puntaje local y esperamos
+          if (datosLocales) {
+            setResultado({
+              ...datosLocales,
+              estado: datosBackend.estado,
+              oponente: datosBackend.oponente || datosLocales.oponente,
+            })
+          } else {
+            setResultado(datosBackend)
+          }
           setCargando(false)
+
+          // Polling cada 2 segundos hasta que el rival termine
+          intervaloPolling = window.setInterval(async () => {
+            try {
+              const resActualizado = await obtenerResultadoDuelo(dueloId, perfil)
+              if (!activo) return
+              if (resActualizado && (resActualizado.estado === 'FINALIZADA' || resActualizado.estado === 'FINALIZADO')) {
+                setResultado(resActualizado)
+                if (intervaloPolling) {
+                  window.clearInterval(intervaloPolling)
+                  intervaloPolling = null
+                }
+              }
+            } catch {
+              // reintentar
+            }
+          }, 2000)
         }
       } catch (error) {
-        if (activo) {
+        if (activo && !resultado) {
           setResultado(null)
           setCargando(false)
         }
@@ -94,6 +125,9 @@ export default function PaginaResultadoDuelo() {
 
     return () => {
       activo = false
+      if (intervaloPolling) {
+        window.clearInterval(intervaloPolling)
+      }
     }
   }, [idDuelo])
 
@@ -178,9 +212,9 @@ export default function PaginaResultadoDuelo() {
   }
 
   const jugadorLocal = resultado.jugadorLocal ?? {
-    nombre: 'Lucas',
-    alias: 'Luki',
-    avatar: 'LM',
+    nombre: perfilUsuario?.nombre ?? 'Tú',
+    alias: perfilUsuario?.nombre?.split(' ')[0] ?? 'Tú',
+    avatar: perfilUsuario?.iniciales ?? 'JQ',
     puntaje: 0,
     aciertos: 0,
     totalPreguntas: 10,
@@ -200,6 +234,7 @@ export default function PaginaResultadoDuelo() {
   const localEsGanador = resultado.ganador === 'local'
   const rivalEsGanador = resultado.ganador === 'rival'
   const empate = resultado.ganador === 'empate'
+  const enEspera = resultado.ganador === 'pendiente'
 
   return (
     <div className="inicio resultado-duelo__pagina">
@@ -223,17 +258,17 @@ export default function PaginaResultadoDuelo() {
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · {jugadorLocal.puntaje} pts</span>
+          <span>{jugadorLocal.alias} · {jugadorLocal.puntaje} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera resultado-duelo__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, {perfilLocal.alias}</strong>
+          <strong>Hola, {jugadorLocal.alias}</strong>
           <span>Cuenta de jugador</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfilLocal.avatar}</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{jugadorLocal.avatar}</Enlace>
         <BotonCerrarSesion />
       </header>
 
@@ -249,7 +284,13 @@ export default function PaginaResultadoDuelo() {
               <h1>Comparativa final</h1>
             </div>
             <strong className="resultado-duelo__subtitulo">
-              {localEsGanador ? 'Has ganado el enfrentamiento' : rivalEsGanador ? 'Has perdido el enfrentamiento' : 'Empate perfecto'}
+              {enEspera
+                ? 'El rival aún está respondiendo. La pantalla se actualizará automáticamente.'
+                : localEsGanador
+                ? 'Has ganado el enfrentamiento'
+                : rivalEsGanador
+                ? 'Has perdido el enfrentamiento'
+                : 'Empate perfecto'}
             </strong>
           </header>
 
