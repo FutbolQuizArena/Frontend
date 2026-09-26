@@ -28,3 +28,20 @@ export async function obtenerUsuariosAdmin({ buscar = '', rol = '', estaHabilita
   if (!Array.isArray(respuesta)) throw new Error('El servidor devolvió un listado de usuarios inesperado.')
   return respuesta
 }
+
+export async function cambiarEstadoUsuarioAdmin(idUsuario, estaHabilitado, { vistaPrevia = false } = {}) {
+  if (import.meta.env.DEV && (vistaPrevia || esSesionAdminPrueba(obtenerToken()))) {
+    const usuario = usuariosEjemplo.find((u) => u.id === Number(idUsuario) || u.id === idUsuario)
+    if (!usuario) throw new Error('Usuario no encontrado.')
+    if (!estaHabilitado && usuario.id === 1) {
+      throw new Error('No podés deshabilitar tu propia cuenta de administrador.')
+    }
+    usuario.esta_habilitado = Boolean(estaHabilitado)
+    return { ...usuario }
+  }
+
+  return await solicitarApi(`/api/admin/usuarios/${idUsuario}/estado`, {
+    metodo: 'PATCH',
+    datos: { esta_habilitado: Boolean(estaHabilitado) },
+  })
+}
