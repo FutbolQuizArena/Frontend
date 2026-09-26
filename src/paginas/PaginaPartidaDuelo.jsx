@@ -84,7 +84,7 @@ export default function PaginaPartidaDuelo() {
       })
       .catch(() => {})
 
-    const preguntasCargadas = obtenerPreguntasDuelo('duelo-demo')
+    const preguntasCargadas = obtenerPreguntasDuelo(partidaId)
     setPreguntas(preguntasCargadas)
 
     return () => {
