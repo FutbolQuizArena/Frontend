@@ -30,7 +30,7 @@ Rutas: `/registro`, `/login` e inicio `/` (login). El alojamiento debe resolver 
 
 Después de iniciar sesión, se abre `/home`. Usa los frames de escritorio y móvil enlazados en `docs/figma.md`, con un único componente y CSS responsive. Reutiliza `Boton` y agrega `TarjetaModo` para Duelo y Administración.
 
-Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. El acceso a Administración aparece solo cuando la respuesta indica `ADMINISTRADOR`. Ranking, posición y estadísticas de partidas todavía carecen de endpoint y siguen siendo datos de demostración o se muestran como no disponibles.
+Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales, y `GET /api/torneos?filtro=disponibles` para destacar un torneo disponible. El acceso a Administración aparece solo cuando la respuesta indica `ADMINISTRADOR`. Ranking, posición y estadísticas de partidas todavía carecen de endpoint y se muestran como no disponibles, sin nombres ni puntajes de ejemplo.
 
 ## Administración: preguntas — actividad 5.2.1
 
@@ -105,6 +105,8 @@ La ruta protegida `/torneos/:idTorneo/cuadro` muestra las rondas, participantes,
 Cuando el torneo está finalizado, la misma ruta muestra el campeón, permite consultar el cuadro completo, compartir el resultado mediante la API nativa del navegador y volver al listado. El backend todavía no devuelve puntajes por partida, premio ni resumen personal; se muestran como pendientes o se omiten.
 
 `obtenerCuadroTorneo(idTorneo)` adapta el campo `cuadro` del detalle real. Las pruebas simulan respuestas del backend para los estados en curso, finalizado y de error.
+
+El backend ya publica el inicio y la resolución de cruces, pero el inicio solo devuelve `duelo_id` y no las preguntas necesarias para jugar. El frontend todavía no inicia duelos de torneo ni resuelve cruces; `docs/swagger.md` detalla el dato que falta en el contrato. El listado de torneos no ofrece el filtro «Hoy» porque el backend entrega fecha de creación, no fecha de inicio programada.
 
 ## Sesión JWT — actividad 1.2.5
 

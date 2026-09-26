@@ -4,16 +4,12 @@ import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import TarjetaModo from '../componentes/TarjetaModo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerTorneosDisponibles } from '../servicios/servicioTorneos.js'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
 // TODO: reemplazar las estadísticas que GET /api/usuarios/me aún no publica.
 const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: 0, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
-const rankingTemporal = [
-  { nombre: 'Mati10', posicion: 1, puntajeTotal: 8920 },
-  { nombre: 'SofiGol', posicion: 2, puntajeTotal: 8460 },
-  { nombre: 'Fede_9', posicion: 3, puntajeTotal: 7980 },
-]
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
   { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
@@ -27,6 +23,9 @@ export default function PaginaHome() {
   const navegar = usarNavegacion()
   const [usuario, establecerUsuario] = usarEstado(usuarioInicial)
   const [mensajeError, establecerMensajeError] = usarEstado('')
+  const [torneoDestacado, establecerTorneoDestacado] = usarEstado(null)
+  const [cargandoTorneo, establecerCargandoTorneo] = usarEstado(true)
+  const [errorTorneo, establecerErrorTorneo] = usarEstado(false)
 
   usarEfecto(() => {
     let vigente = true
@@ -35,6 +34,15 @@ export default function PaginaHome() {
     }).catch((error) => {
       if (vigente) establecerMensajeError(error.message || 'No pudimos cargar tus datos.')
     })
+    return () => { vigente = false }
+  }, [])
+
+  usarEfecto(() => {
+    let vigente = true
+    obtenerTorneosDisponibles()
+      .then((torneos) => { if (vigente) establecerTorneoDestacado(torneos[0] || null) })
+      .catch(() => { if (vigente) establecerErrorTorneo(true) })
+      .finally(() => { if (vigente) establecerCargandoTorneo(false) })
     return () => { vigente = false }
   }, [])
   const esAdministrador = usuario.rol === 'ADMINISTRADOR'
@@ -85,24 +93,19 @@ export default function PaginaHome() {
         </section>
         <section className="inicio__ranking" aria-labelledby="titulo-ranking">
           <h2 id="titulo-ranking">Ranking general</h2>
-          <ol>
-            {[...rankingTemporal, usuario].map((jugador, indice) => (
-              <li key={indice} className={indice === 3 ? 'inicio__jugador-actual' : ''} value={typeof jugador.posicion === 'number' ? jugador.posicion : undefined}>
-                <span>{jugador.posicion}</span><span className="inicio__avatar-ranking" aria-hidden="true" /><strong>{jugador.nombre}</strong><span>{formatearPuntaje(jugador.puntajeTotal)}</span>
-              </li>
-            ))}
-          </ol>
-          <Enlace to="/ranking">Ver ranking completo</Enlace>
+          <p>El ranking todavía no está disponible.</p>
+          <Enlace to="/ranking">Estado del ranking</Enlace>
         </section>
         <section className="inicio__torneo" aria-labelledby="titulo-torneos">
-          <h2 id="titulo-torneos"><span className="inicio__solo-escritorio">Próximos torneos</span><span className="inicio__solo-movil">TORNEO DESTACADO</span></h2>
+          <h2 id="titulo-torneos"><span className="inicio__solo-escritorio">Torneos disponibles</span><span className="inicio__solo-movil">TORNEOS DISPONIBLES</span></h2>
           <div className="inicio__tarjeta-torneo">
             <div>
-              <p className="inicio__etiqueta-torneo"><span className="inicio__solo-escritorio">COPA LEYENDAS</span><span className="inicio__solo-movil">DISPONIBLE</span></p>
-              <h3><span className="inicio__solo-escritorio">Sábado · 21:00</span><span className="inicio__solo-movil">Copa Libertadores</span></h3>
-              <p><span className="inicio__solo-escritorio">16 jugadores · Eliminación directa</span><span className="inicio__solo-movil">Octavos · 12/16 jugadores</span></p>
+              {cargandoTorneo && <p role="status">Cargando torneos…</p>}
+              {!cargandoTorneo && errorTorneo && <p>No pudimos cargar los torneos disponibles.</p>}
+              {!cargandoTorneo && !errorTorneo && !torneoDestacado && <p>No hay torneos disponibles por ahora.</p>}
+              {torneoDestacado && <><p className="inicio__etiqueta-torneo">DISPONIBLE</p><h3>{torneoDestacado.nombre}</h3><p>Eliminación directa · {torneoDestacado.participantes}/{torneoDestacado.capacidad} jugadores</p></>}
             </div>
-            <progress className="inicio__solo-movil" value="12" max="16" aria-label="Cupos ocupados en el torneo">12 de 16</progress>
+            {torneoDestacado && <progress className="inicio__solo-movil" value={torneoDestacado.participantes} max={torneoDestacado.capacidad} aria-label="Cupos ocupados en el torneo">{torneoDestacado.participantes} de {torneoDestacado.capacidad}</progress>}
             <Enlace to="/torneos">Ver torneo</Enlace>
           </div>
         </section>

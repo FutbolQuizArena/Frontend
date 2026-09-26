@@ -15,12 +15,19 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
     if (ruta.request().url().endsWith('/api/torneos?filtro=mios')) {
       return ruta.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
     }
+    if (ruta.request().url().endsWith('/api/torneos?filtro=disponibles')) {
+      return ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([
+        { id: 12, nombre: 'Copa real', cantidad_participantes: 8, cantidad_participantes_actual: 3, tiene_contrasena: false, estado: 'ESPERANDO_JUGADORES', fecha_creacion: '2026-09-25T12:00:00Z', creador_id: 2, codigo_acceso: null },
+      ]) })
+    }
     return ruta.abort()
   })
   await pagina.setViewportSize({ width: 1440, height: 1024 })
   await pagina.goto('/home')
   await esperar(pagina.getByRole('heading', { level: 1 })).toHaveText('Buenas, Lucas 👋¿Listo para jugar?')
   await esperar(pagina.getByRole('link', { name: 'Ir al panel de Admin' })).toHaveCount(0)
+  await esperar(pagina.getByRole('heading', { name: 'Copa real' })).toBeVisible()
+  await esperar(pagina.getByText('Mati10')).toHaveCount(0)
   await pagina.getByRole('button', { name: 'Empezar partida' }).click()
   await esperar(pagina).toHaveURL(/\/partida-individual$/)
   await esperar(pagina.getByRole('heading', { name: 'Partida Individual' })).toBeVisible()
@@ -28,7 +35,7 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
   for (const [nombre, destino, titulo] of [
     ['Ir a Duelo', 'duelo', 'Duelo'],
     ['Ver torneo', 'torneos', 'Torneos'],
-    ['Ver ranking completo', 'ranking', 'Ranking'],
+    ['Estado del ranking', 'ranking', 'Ranking'],
     ['Ver mi perfil', 'perfil', 'Editar perfil'],
   ]) {
     await pagina.getByRole('link', { name: nombre, exact: true }).click()
@@ -44,7 +51,7 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
     }
   }
   esperar(solicitudes.length).toBeGreaterThan(0)
-  esperar([...new Set(solicitudes)].sort()).toEqual(['https://api.futbolquiz.test/api/torneos?filtro=mios', 'https://api.futbolquiz.test/api/usuarios/me'].sort())
+  esperar([...new Set(solicitudes)].sort()).toEqual(['https://api.futbolquiz.test/api/torneos?filtro=disponibles', 'https://api.futbolquiz.test/api/torneos?filtro=mios', 'https://api.futbolquiz.test/api/usuarios/me'].sort())
   await pagina.screenshot({ path: 'test-results/inicio-escritorio.png', fullPage: true })
 })
 

@@ -2,9 +2,17 @@
 
 Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, la rama actual, el código y las decisiones de esta conversación. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 25/09/2026.
 
+## 25/9 [3.3.1, 3.3.5, 6.1] Auditoría de Home y torneos
+
+Cambios en `fix/auditoria-home-torneos`, pendientes de commit y PR.
+
+- **Home:** el ranking ya no presenta jugadores ni puntajes inventados. El torneo destacado consulta el listado real de disponibles y muestra estados de carga, vacío y error.
+- **Torneos:** el filtro «4–16» incluye los cupos de 4, 8 y 16. Se retira «Hoy» porque el backend no publica fecha de inicio; la barra lateral usa el perfil real en lugar de puntaje y avatar fijos.
+- **Cruces:** se documentan los dos endpoints nuevos. El inicio del duelo no devuelve preguntas y la consulta por ID tampoco; la partida del cruce sigue pendiente de ese dato para evitar enviar respuestas de ejemplo como si fueran reales.
+
 ## 25/9 [5.2.7, 5.2.8, 6.1] Estado de usuarios y acceso al panel
 
-Cambios locales en `feature/admin-usuarios-listado`, pendientes de commit y PR.
+Integrado en `develop` mediante PR #25, junto con los commits `598161e` y `7b9d0b1`.
 
 - **Usuarios:** habilitar y deshabilitar desde el listado exige confirmación. La sesión real usa `PATCH /api/admin/usuarios/{id}/estado` con JWT; el modo de desarrollo usa ejemplos. Los filtros por estado se actualizan al cambiar una cuenta y el panel muestra los errores que devuelve el backend.
 - **Acceso:** una ruta común consulta el rol antes de montar cualquiera de las pantallas `/admin`. Una cuenta de jugador no alcanza los servicios administrativos. La vista previa sigue disponible solo en desarrollo.
@@ -12,7 +20,7 @@ Cambios locales en `feature/admin-usuarios-listado`, pendientes de commit y PR.
 
 ## 25/9 [5.2.1–5.2.6, 6.1] Integración administrativa con el backend
 
-Cambios de trabajo en `feature/admin-usuarios-listado`, todavía sin commit de esta integración.
+Integrado en `develop` mediante PR #24; la corrección posterior de paginación de preguntas (`12e574f`) llegó con PR #25.
 
 - **Preguntas:** `servicioPreguntasAdmin.js` consulta las páginas de `GET /api/admin/preguntas` y adapta los campos del backend al formulario. Altas, edición y eliminación usan `POST`, `GET/PATCH` y `DELETE` reales con JWT para una sesión administradora.
 - **Categorías:** `servicioCategoriasAdmin.js` consulta el listado y el detalle, y usa `POST/PATCH` para guardar. La cantidad de preguntas proviene de `preguntas_count`. El formulario real muestra solo nombre y estado porque Swagger no acepta descripción.
@@ -21,7 +29,7 @@ Cambios de trabajo en `feature/admin-usuarios-listado`, todavía sin commit de e
 
 ## 25/9 [5.2.6] Listado y búsqueda de usuarios (Módulo 5 - Administración)
 
-Commits `67bcb3e` y `31f80c7` en `feature/admin-usuarios-listado`, presentes también en `origin/feature/admin-usuarios-listado`; no forman parte todavía del `develop` local.
+Commits `67bcb3e` y `31f80c7`, integrados en `develop` mediante PR #24.
 
 - **Capa de presentación:** `PaginaUsuariosAdmin.jsx` agrega `/admin/usuarios` al panel con búsqueda por nombre o correo, filtros de rol y estado, paginación visual, estados de carga/error/vacío y adaptación a celular. La barra lateral y las pestañas de administración incluyen el acceso a Usuarios.
 - **Capa de servicios:** `servicioUsuariosAdmin.js` consulta `GET /api/admin/usuarios` con los parámetros `buscar`, `rol` y `esta_habilitado`, usando el JWT Bearer del cliente común. La respuesta es un array de usuarios, tal como publica el OpenAPI del backend desplegado.
@@ -198,7 +206,7 @@ Commits `1566055`, `353fe02` y `556bb5a`.
 
 - **Referencia funcional:** el documento de alcance del ZIP exige cuatro opciones y una respuesta correcta por pregunta, edición y eliminación del banco, creación y edición de categorías, y administración de usuarios sin perder su historial. Figma se usa como referencia visual. Sus nombres, participantes, puntajes y estados de muestra no se tratan como información real.
 - **Contratos del backend:** el OpenAPI desplegado en Render incluye rutas bajo `/api/admin` para preguntas, categorías y usuarios. El frontend ya las usa hasta 5.2.7 con una sesión admin real. La vista previa y la cuenta local siguen usando ejemplos para desarrollo.
-- **Módulo 5:** las actividades de frontend 5.2.1 a 5.2.8 están implementadas localmente. La cuenta administrativa simulada funciona solo en desarrollo; los cambios 5.2.7 y 5.2.8 están pendientes de commit y PR.
+- **Módulo 5:** las actividades de frontend 5.2.1 a 5.2.8 están integradas en `develop` mediante PR #25. La cuenta administrativa simulada funciona solo en desarrollo.
 - **Torneos y juego:** el progreso de partidas y los resultados del cuadro requieren completar la integración con el módulo 2. Los puntajes, premios y resúmenes que no devuelve el contrato de torneo no deben inventarse en la interfaz.
 - **Planificación:** se propuso ampliar las pruebas de torneos en EDT/Gantt con pruebas de endpoints e integración responsive; no se encontró una modificación confirmada de esos archivos en este repositorio. `docs/figma.md` sigue como referencia local ignorada por Git; `docs/swagger.md` es la excepción versionada.
 - **Historial Git:** un PR de torneos se abrió inicialmente contra `main` por error y luego se continuó el trabajo contra `develop`. El commit de merge de `5.2.2` conserva el texto literal `#N`; no se debe reutilizar ese marcador al nombrar merges futuros.
