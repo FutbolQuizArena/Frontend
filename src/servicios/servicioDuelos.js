@@ -108,6 +108,7 @@ function normalizarDueloOnline(respuesta, usuarioActual = null) {
     preguntas,
   }
 }
+ 
 
 export function obtenerResultadoDuelo(idDuelo, usuarioActual = null) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
