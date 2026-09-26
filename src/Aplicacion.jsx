@@ -60,7 +60,7 @@ export default function Aplicacion() {
         <Ruta path="/torneos/:idTorneo/sala" element={<PaginaSalaTorneo />} />
         <Ruta path="/torneos/:idTorneo/cuadro" element={<PaginaCuadroTorneo />} />
         <Ruta path="/torneos/:idTorneo" element={<PaginaDetalleTorneo />} />
-        <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking" />} />
+        <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking próximamente" />} />
         <Ruta path="/perfil" element={<PaginaPerfil />} />
         <Ruta element={<RutaAdministrador />}>
           <Ruta path="/admin" element={<PaginaPreguntasAdmin />} />
