@@ -88,12 +88,12 @@ export default function PaginaHome() {
           <p className="inicio__etiqueta"><span className="inicio__solo-escritorio">DESAFÍO RÁPIDO</span><span className="inicio__solo-movil">PARTIDA RÁPIDA</span></p>
           <h2 id="titulo-desafio"><span className="inicio__solo-escritorio">¿Cuánto sabés<br />de fútbol?</span><span className="inicio__solo-movil">Demostrá lo que sabés</span></h2>
           <p className="inicio__descripcion"><span className="inicio__solo-escritorio">10 preguntas · 15 segundos cada una</span><span className="inicio__solo-movil">Girás la ruleta, respondés y<br />sumás puntos al instante.</span></p>
-          <Boton alHacerClic={() => navegar('/partida-individual')}><span className="inicio__solo-escritorio">Empezar partida</span><span className="inicio__solo-movil">Jugar ahora →</span></Boton>
+          <Boton alHacerClic={() => navegar('/partida/ruleta')}><span className="inicio__solo-escritorio">Empezar partida</span><span className="inicio__solo-movil">Jugar ahora →</span></Boton>
           <div className="inicio__pelota" aria-hidden="true"><img className="inicio__fondo-pelota" src={fondoPelota} alt="" /><span className="inicio__imagen-pelota">⚽</span></div>
         </section>
         <section className="inicio__ranking" aria-labelledby="titulo-ranking">
           <h2 id="titulo-ranking">Ranking general</h2>
-          <p>El ranking todavía no está disponible.</p>
+          <p>Ranking próximamente.</p>
           <Enlace to="/ranking">Estado del ranking</Enlace>
         </section>
         <section className="inicio__torneo" aria-labelledby="titulo-torneos">
@@ -111,7 +111,7 @@ export default function PaginaHome() {
         </section>
         <p className="inicio__nota inicio__solo-movil">10 preguntas por partida · 4 opciones</p>
         <div className="inicio__otros-modos">
-          <TarjetaModo titulo="Duelo" descripcion="Desafiá a otro jugador y poné a prueba tus conocimientos." destino="/duelo" textoEnlace="Ir a Duelo" />
+          <TarjetaModo titulo="Duelo" descripcion="Desafiá a otro jugador y poné a prueba tus conocimientos." destino="/duelo/esperando" textoEnlace="Ir a Duelo" />
           {esAdministrador && <TarjetaModo titulo="Administración" descripcion="Accedé al panel de administración." destino="/admin" textoEnlace="Ir al panel de Admin" />}
         </div>
       </main>

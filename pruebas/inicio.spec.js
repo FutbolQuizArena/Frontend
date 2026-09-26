@@ -29,13 +29,20 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
   await esperar(pagina.getByRole('heading', { name: 'Copa real' })).toBeVisible()
   await esperar(pagina.getByText('Mati10')).toHaveCount(0)
   await pagina.getByRole('button', { name: 'Empezar partida' }).click()
-  await esperar(pagina).toHaveURL(/\/partida-individual$/)
-  await esperar(pagina.getByRole('heading', { name: 'Partida Individual' })).toBeVisible()
-  await pagina.getByRole('link', { name: 'Volver al inicio' }).click()
+  await esperar(pagina).toHaveURL(/\/partida\/ruleta$/)
+  await esperar(pagina.getByRole('heading', { name: 'Ruleta de categorías' })).toBeVisible()
+  await esperar(pagina.getByRole('button', { name: 'Girar Ruleta' })).toBeEnabled()
+  await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
+
+  await pagina.getByRole('link', { name: 'Ir a Duelo' }).click()
+  await esperar(pagina).toHaveURL(/\/duelo\/esperando$/)
+  await esperar(pagina.getByRole('heading', { name: 'Buscando rival...' })).toBeVisible()
+  await esperar(pagina.getByRole('button', { name: 'Cancelar Búsqueda' })).toBeVisible()
+  await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
+  await esperar(pagina.getByText('Ranking próximamente.')).toBeVisible()
   for (const [nombre, destino, titulo] of [
-    ['Ir a Duelo', 'duelo', 'Duelo'],
     ['Ver torneo', 'torneos', 'Torneos'],
-    ['Estado del ranking', 'ranking', 'Ranking'],
+    ['Estado del ranking', 'ranking', 'Ranking próximamente'],
     ['Ver mi perfil', 'perfil', 'Editar perfil'],
   ]) {
     await pagina.getByRole('link', { name: nombre, exact: true }).click()
@@ -51,7 +58,9 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
     }
   }
   esperar(solicitudes.length).toBeGreaterThan(0)
-  esperar([...new Set(solicitudes)].sort()).toEqual(['https://api.futbolquiz.test/api/torneos?filtro=disponibles', 'https://api.futbolquiz.test/api/torneos?filtro=mios', 'https://api.futbolquiz.test/api/usuarios/me'].sort())
+  for (const ruta of ['/api/torneos?filtro=disponibles', '/api/torneos?filtro=mios', '/api/usuarios/me']) {
+    esperar(solicitudes).toContain(`https://api.futbolquiz.test${ruta}`)
+  }
   await pagina.screenshot({ path: 'test-results/inicio-escritorio.png', fullPage: true })
 })
 
@@ -65,12 +74,29 @@ prueba('la Home se adapta al celular y mantiene accesibles los enlaces', async (
   await pagina.setViewportSize({ width: 390, height: 844 })
   await esperar(pagina.getByRole('heading', { name: '¿Listo para jugar?' })).toBeVisible()
   await pagina.getByRole('button', { name: 'Jugar ahora' }).click()
-  await esperar(pagina).toHaveURL(/\/partida-individual$/)
-  await pagina.getByRole('link', { name: 'Volver al inicio' }).click()
+  await esperar(pagina).toHaveURL(/\/partida\/ruleta$/)
+  await esperar(pagina.getByRole('button', { name: 'Girar Ruleta' })).toBeEnabled()
+  await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
   await pagina.getByRole('navigation').getByRole('link', { name: 'Ranking' }).click()
   await esperar(pagina).toHaveURL(/\/ranking$/)
+  await esperar(pagina.getByRole('heading', { name: 'Ranking próximamente' })).toBeVisible()
   await pagina.goto('/home')
   await pagina.screenshot({ path: 'test-results/inicio-movil.png', fullPage: true })
+})
+
+prueba('los enlaces principales y cerrar sesión siguen funcionando', async ({ page: pagina }) => {
+  await pagina.goto('/home')
+  const navegacion = pagina.getByRole('navigation', { name: 'Navegación principal' })
+  await navegacion.getByRole('link', { name: 'Jugar' }).click()
+  await esperar(pagina).toHaveURL(/\/jugar$/)
+  await esperar(pagina.getByRole('heading', { name: 'Selecciona un Modo de Juego' })).toBeVisible()
+  await navegacion.getByRole('link', { name: 'Torneos' }).click()
+  await esperar(pagina).toHaveURL(/\/torneos$/)
+  await esperar(pagina.getByRole('heading', { name: 'Torneos', exact: true })).toBeVisible()
+  await navegacion.getByRole('link', { name: 'Inicio' }).click()
+  await pagina.getByRole('button', { name: 'Cerrar sesión' }).click()
+  await esperar(pagina).toHaveURL(/\/login$/)
+  await esperar(pagina.getByRole('button', { name: 'Ingresar' })).toBeVisible()
 })
 
 prueba('el acceso al panel aparece para un administrador', async ({ page: pagina }) => {
