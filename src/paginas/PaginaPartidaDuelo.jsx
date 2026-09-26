@@ -41,7 +41,8 @@ export default function PaginaPartidaDuelo() {
   const [puntajeRival, setPuntajeRival] = usarEstado(0)
   const [aciertosLocal, setAciertosLocal] = usarEstado(0)
   const [aciertosRival, setAciertosRival] = usarEstado(0)
-  const [estadoRival, setEstadoRival] = usarEstado('Esperando respuesta')
+  const [estadoRival, setEstadoRival] = usarEstado('Respondiendo...')
+  const [categoriaDuelo, setCategoriaDuelo] = usarEstado('Fútbol')
 
   const puntajeLocalRef = usarReferencia(0)
   const aciertosLocalRef = usarReferencia(0)
@@ -50,7 +51,9 @@ export default function PaginaPartidaDuelo() {
 
   const preguntaActual = preguntas[indicePregunta] ?? null
   const totalPreguntas = preguntas.length || 1
-  const categoriaActual = preguntaActual?.categoria ?? 'Historia'
+  const categoriaActual = (preguntaActual?.categoria && preguntaActual.categoria !== 'Aleatoria')
+    ? preguntaActual.categoria
+    : categoriaDuelo
 
   usarEfecto(() => {
     let activo = true
@@ -64,6 +67,9 @@ export default function PaginaPartidaDuelo() {
           if (duelo.id) setPartidaId(duelo.id)
           if (duelo.jugadorLocal) setJugadorLocal(duelo.jugadorLocal)
           if (duelo.rival) setRival(duelo.rival)
+          if (duelo.categoriaNombre || duelo.categoria_nombre) {
+            setCategoriaDuelo(duelo.categoriaNombre || duelo.categoria_nombre)
+          }
         } catch {
           // fallback
         }
@@ -122,16 +128,13 @@ export default function PaginaPartidaDuelo() {
     if (siguienteIndice >= preguntas.length) {
       const totalPuntajeLocal = puntajeLocalRef.current
       const totalAciertosLocal = aciertosLocalRef.current
-      const totalPuntajeRival = puntajeRivalRef.current
-      const totalAciertosRival = aciertosRivalRef.current
-      const empate = totalPuntajeLocal === totalPuntajeRival
-      const ganoLocal = totalPuntajeLocal > totalPuntajeRival
-      const ganador = empate ? 'empate' : (ganoLocal ? 'local' : 'rival')
 
+      // Al terminar las preguntas propias, el resultado final queda pendiente hasta que el rival también termine
       const resultado = {
         idPartida: partidaId,
-        ganador,
-        resultadoTexto: empate ? 'EMPATE' : (ganoLocal ? '¡VICTORIA!' : 'DERROTA'),
+        estado: 'EN_CURSO',
+        ganador: 'pendiente',
+        resultadoTexto: 'Esperando al rival...',
         jugadorLocal: {
           nombre: jugadorLocal.nombre,
           alias: jugadorLocal.alias,
@@ -145,17 +148,17 @@ export default function PaginaPartidaDuelo() {
           nombre: rival.nombre,
           alias: rival.alias,
           avatar: rival.avatar,
-          puntaje: totalPuntajeRival,
-          aciertos: totalAciertosRival,
+          puntaje: 0,
+          aciertos: 0,
           totalPreguntas: preguntas.length || 10,
           tiempoPromedio: 0,
         },
         resumen: {
-          diferencia: Math.abs(totalPuntajeLocal - totalPuntajeRival),
+          diferencia: 0,
           porcentajeLocal: Math.round((totalAciertosLocal / (preguntas.length || 10)) * 100),
-          porcentajeOponente: Math.round((totalAciertosRival / (preguntas.length || 10)) * 100),
+          porcentajeOponente: 0,
         },
-        finalizada: true,
+        finalizada: false,
       }
       sessionStorage.setItem('resultadoDuelo', JSON.stringify(resultado))
       navegar(`/duelo/${partidaId}/resultado`)
@@ -194,17 +197,7 @@ export default function PaginaPartidaDuelo() {
       setAciertosLocal(aciertosLocalRef.current)
     }
 
-    const respuestaRival = simularRespuestaRival(preguntaActual.id)
-    const rivalAcerto = Boolean(respuestaRival?.correcta)
-    setEstadoRival(rivalAcerto ? 'Respondió correctamente' : 'Respondió incorrectamente')
-
-    if (rivalAcerto) {
-      const puntosRival = 100 + Math.max(0, (obtenerTiempoBase() - 1) * 4)
-      puntajeRivalRef.current += puntosRival
-      aciertosRivalRef.current += 1
-      setPuntajeRival(puntajeRivalRef.current)
-      setAciertosRival(aciertosRivalRef.current)
-    }
+    setEstadoRival('Respondiendo...')
 
     window.setTimeout(() => {
       avanzarPregunta()

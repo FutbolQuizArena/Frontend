@@ -16,6 +16,11 @@ const enlaces = [
 ]
 
 const obtenerEstadoResultado = (resultado) => {
+  const estaFinalizado = resultado?.estado === 'FINALIZADA' || resultado?.estado === 'FINALIZADO'
+  if (!estaFinalizado) {
+    return { texto: 'Esperando al rival...', clase: 'resultado-duelo__banner--pendiente' }
+  }
+
   const ganador = resultado?.ganador ?? 'pendiente'
 
   if (ganador === 'local') {
@@ -84,16 +89,18 @@ export default function PaginaResultadoDuelo() {
             return
           }
 
-          // Si el duelo sigue EN_CURSO (rival aún jugando), mostramos puntaje local y esperamos
-          if (datosLocales) {
-            setResultado({
-              ...datosLocales,
-              estado: datosBackend.estado,
-              oponente: datosBackend.oponente || datosLocales.oponente,
-            })
-          } else {
-            setResultado(datosBackend)
-          }
+          // Si el duelo sigue EN_CURSO (rival aún jugando), el ganador debe ser 'pendiente'
+          setResultado({
+            ...datosBackend,
+            ganador: 'pendiente',
+            resultadoTexto: 'Esperando al rival...',
+            jugadorLocal: datosLocales?.jugadorLocal || datosBackend.jugadorLocal,
+            oponente: {
+              ...(datosBackend.oponente || datosLocales?.oponente),
+              puntaje: 0,
+              aciertos: 0,
+            },
+          })
           setCargando(false)
 
           // Polling cada 2 segundos hasta que el rival termine
@@ -231,10 +238,11 @@ export default function PaginaResultadoDuelo() {
     tiempoPromedio: 0,
   }
 
-  const localEsGanador = resultado.ganador === 'local'
-  const rivalEsGanador = resultado.ganador === 'rival'
-  const empate = resultado.ganador === 'empate'
-  const enEspera = resultado.ganador === 'pendiente'
+  const estaFinalizado = resultado?.estado === 'FINALIZADA' || resultado?.estado === 'FINALIZADO'
+  const localEsGanador = estaFinalizado && resultado.ganador === 'local'
+  const rivalEsGanador = estaFinalizado && resultado.ganador === 'rival'
+  const empate = estaFinalizado && resultado.ganador === 'empate'
+  const enEspera = !estaFinalizado || resultado.ganador === 'pendiente'
 
   return (
     <div className="inicio resultado-duelo__pagina">
@@ -300,6 +308,7 @@ export default function PaginaResultadoDuelo() {
               esLocal
               esGanador={localEsGanador}
               esEmpate={empate}
+              enEspera={enEspera}
             />
 
             <div className="resultado-duelo__versus" aria-label="Enfrentamiento entre jugadores">VS</div>
@@ -308,11 +317,12 @@ export default function PaginaResultadoDuelo() {
               jugador={oponente}
               esGanador={rivalEsGanador}
               esEmpate={empate}
+              enEspera={enEspera}
             />
           </div>
 
           <div className="resultado-duelo__acciones">
-            <Boton alHacerClic={manejarRevancha}>Pedir Revancha</Boton>
+            <Boton alHacerClic={manejarRevancha} deshabilitado={enEspera}>Pedir Revancha</Boton>
             <button type="button" className="boton boton--secundario" onClick={manejarInicio}>Volver al inicio</button>
           </div>
         </section>

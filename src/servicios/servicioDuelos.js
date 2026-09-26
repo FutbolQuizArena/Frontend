@@ -21,7 +21,7 @@ function obtenerOpcionCorrectaDemo(idPregunta) {
   return pregunta?.opcionCorrectaId ?? 'A'
 }
 
-function mapearPreguntaDuelo(pregunta) {
+function mapearPreguntaDuelo(pregunta, categoriaPorDefecto = 'Fútbol') {
   const idPregunta = Number(pregunta?.id ?? 0)
   const opciones = [
     { id: 'A', texto: pregunta?.opcion_a ?? 'Opción A' },
@@ -32,7 +32,7 @@ function mapearPreguntaDuelo(pregunta) {
 
   return {
     id: String(idPregunta || pregunta?.orden || 'pregunta-duelo'),
-    categoria: 'Aleatoria',
+    categoria: pregunta?.categoria || categoriaPorDefecto || 'Fútbol',
     enunciado: pregunta?.enunciado ?? 'Pregunta del duelo',
     opciones,
     opcionCorrectaId: obtenerOpcionCorrectaDemo(idPregunta || pregunta?.orden || 1),
@@ -53,11 +53,14 @@ export function generarAlias(nombre) {
 }
 
 function normalizarDueloOnline(respuesta, usuarioActual = null) {
+  const categoriaNombre = respuesta?.categoria_nombre || respuesta?.categoriaNombre || 'Fútbol'
+
   const preguntas = Array.isArray(respuesta?.preguntas)
-    ? respuesta.preguntas.map(mapearPreguntaDuelo)
+    ? respuesta.preguntas.map((pregunta) => mapearPreguntaDuelo(pregunta, categoriaNombre))
     : preguntasDueloBase.map((pregunta, indice) => ({
         ...pregunta,
         id: `${pregunta.id}-${indice}`,
+        categoria: categoriaNombre,
       }))
 
   const estado = String(respuesta?.estado ?? 'PENDIENTE_RIVAL').toUpperCase()
@@ -99,6 +102,7 @@ function normalizarDueloOnline(respuesta, usuarioActual = null) {
     estado,
     modalidad: respuesta?.modalidad ?? 'online',
     categoriaId: respuesta?.categoria_id ?? null,
+    categoriaNombre,
     jugadorLocal,
     rival,
     preguntas,
@@ -280,6 +284,7 @@ export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
       return {
         id: Number(respuesta?.id ?? idDuelo),
         estado,
+        categoriaNombre: respuesta?.categoria_nombre || respuesta?.categoriaNombre || 'Fútbol',
         jugadorLocal,
         rival,
         dueloCompleto: respuesta,
@@ -303,7 +308,8 @@ export function buscarRivalDuelo(usuarioActual = null) {
         estado: 'PENDIENTE_RIVAL',
         modalidad: 'online',
         categoriaId: null,
-        preguntas: preguntasDueloBase.map((pregunta) => ({ ...pregunta, id: String(pregunta.id) })),
+        categoriaNombre: 'Fútbol',
+        preguntas: preguntasDueloBase.map((pregunta) => ({ ...pregunta, id: String(pregunta.id), categoria: 'Fútbol' })),
         rival: null,
       }
 
@@ -328,11 +334,12 @@ export function obtenerPreguntasDuelo(idDuelo) {
     if (dueloGuardado) {
       try {
         const duelo = JSON.parse(dueloGuardado)
+        const categoriaPredeterminada = duelo?.categoriaNombre || duelo?.categoria_nombre || 'Fútbol'
         if (Array.isArray(duelo?.preguntas) && duelo.preguntas.length > 0) {
           return duelo.preguntas.map((pregunta, indice) => ({
             ...pregunta,
             id: String(pregunta.id ?? `${idDuelo ?? 'duelo-demo'}-${indice + 1}`),
-            categoria: pregunta.categoria ?? 'Aleatoria',
+            categoria: (pregunta.categoria && pregunta.categoria !== 'Aleatoria') ? pregunta.categoria : categoriaPredeterminada,
           }))
         }
       } catch {
@@ -344,6 +351,7 @@ export function obtenerPreguntasDuelo(idDuelo) {
   return preguntasDueloBase.map((pregunta, indice) => ({
     ...pregunta,
     id: `${pregunta.id}-${idDuelo ?? 'duelo-demo'}-${indice}`,
+    categoria: 'Fútbol',
   }))
 }
 

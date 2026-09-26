@@ -16,13 +16,15 @@ export default function TarjetaJugadorDuelo({
       <div className="partida-duelo__datos-jugador">
         <span className="partida-duelo__tipo-jugador">{local ? 'Tú' : 'Oponente'}</span>
         <h2>{nombre}</h2>
-        <p>{alias}</p>
+        {alias && alias !== nombre && <p>{alias}</p>}
       </div>
 
-      <div className="partida-duelo__estadisticas-jugador">
-        <strong>{puntaje}</strong>
-        <span>{aciertos} aciertos</span>
-      </div>
+      {local && (
+        <div className="partida-duelo__estadisticas-jugador">
+          <strong className="partida-duelo__puntos-valor">{puntaje} pts</strong>
+          <span className="partida-duelo__aciertos-valor">· {aciertos} {aciertos === 1 ? 'acierto' : 'aciertos'}</span>
+        </div>
+      )}
 
       <div className="partida-duelo__estado-jugador">
         {estado}

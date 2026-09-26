@@ -1,5 +1,13 @@
-export default function TarjetaComparativaDuelo({ jugador, esLocal = false, esGanador = false, esEmpate = false }) {
-  const resultadoEtiqueta = esGanador ? 'Ganador' : esEmpate ? 'Empate' : 'Rival'
+export default function TarjetaComparativaDuelo({
+  jugador,
+  esLocal = false,
+  esGanador = false,
+  esEmpate = false,
+  enEspera = false,
+}) {
+  const resultadoEtiqueta = enEspera
+    ? (esLocal ? 'Completado' : 'Respondiendo...')
+    : (esGanador ? 'Ganador' : esEmpate ? 'Empate' : 'Rival')
 
   return (
     <article className={`tarjeta-comparativa-duelo${esLocal ? ' tarjeta-comparativa-duelo--local' : ''}`}>
@@ -19,15 +27,15 @@ export default function TarjetaComparativaDuelo({ jugador, esLocal = false, esGa
       <div className="tarjeta-comparativa-duelo__datos">
         <div className="tarjeta-comparativa-duelo__dato">
           <span>Puntaje</span>
-          <strong>{jugador?.puntaje ?? 0}</strong>
+          <strong>{enEspera && !esLocal ? '—' : (jugador?.puntaje ?? 0)}</strong>
         </div>
         <div className="tarjeta-comparativa-duelo__dato">
           <span>Aciertos</span>
-          <strong>{`${jugador?.aciertos ?? 0}/${jugador?.totalPreguntas ?? 10}`}</strong>
+          <strong>{enEspera && !esLocal ? '—' : `${jugador?.aciertos ?? 0}/${jugador?.totalPreguntas ?? 10}`}</strong>
         </div>
         <div className="tarjeta-comparativa-duelo__dato">
           <span>Tiempo</span>
-          <strong>{`${jugador?.tiempoPromedio ?? 0}s`}</strong>
+          <strong>{enEspera && !esLocal ? '—' : `${jugador?.tiempoPromedio ?? 0}s`}</strong>
         </div>
       </div>
     </article>
