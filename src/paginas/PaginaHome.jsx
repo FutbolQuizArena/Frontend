@@ -9,7 +9,7 @@ import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
 // TODO: reemplazar las estadísticas que GET /api/usuarios/me aún no publica.
-const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: 0, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
+const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: null, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
   { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
@@ -17,7 +17,7 @@ const enlaces = [
   { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
-const formatearPuntaje = (puntaje) => puntaje.toLocaleString('es-AR')
+const formatearPuntaje = (puntaje) => puntaje == null ? '—' : puntaje.toLocaleString('es-AR')
 
 export default function PaginaHome() {
   const navegar = usarNavegacion()
@@ -80,9 +80,10 @@ export default function PaginaHome() {
           <h2 className="inicio__solo-movil">TU RENDIMIENTO</h2>
           <dl className="inicio__metricas">
             <div><dt>PUNTOS</dt><dd>{formatearPuntaje(usuario.puntajeTotal)}</dd></div>
-            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">#{usuario.posicion}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
+            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">{usuario.posicion === '—' ? '—' : `#${usuario.posicion}`}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
             <div><dt><span className="inicio__solo-escritorio">PARTIDAS</span><span className="inicio__solo-movil">TORNEOS</span></dt><dd><span className="inicio__solo-escritorio">{usuario.partidas}</span><span className="inicio__solo-movil">{usuario.torneos}</span></dd></div>
           </dl>
+          <p>— indica que el dato todavía no está disponible.</p>
         </section>
         <section className="inicio__desafio" aria-labelledby="titulo-desafio">
           <p className="inicio__etiqueta"><span className="inicio__solo-escritorio">DESAFÍO RÁPIDO</span><span className="inicio__solo-movil">PARTIDA RÁPIDA</span></p>
