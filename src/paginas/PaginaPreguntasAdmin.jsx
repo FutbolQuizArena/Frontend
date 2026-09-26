@@ -5,6 +5,7 @@ import NavegacionAdmin from '../componentes/NavegacionAdmin.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { esSesionAdminPrueba, obtenerToken } from '../servicios/servicioSesion.js'
 import { eliminarPreguntaAdmin, obtenerPreguntasAdmin } from '../servicios/servicioPreguntasAdmin.js'
+import { obtenerCategoriasAdmin } from '../servicios/servicioCategoriasAdmin.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 import '../estilos/estilosPreguntasAdmin.css'
 import '../estilos/estilosMarcoAdmin.css'
@@ -22,9 +23,13 @@ export default function PaginaPreguntasAdmin() {
   const [cargando, establecerCargando] = useState(true)
   const [errorCarga, establecerErrorCarga] = useState('')
   const [busqueda, establecerBusqueda] = useState('')
+  const [busquedaAplicada, establecerBusquedaAplicada] = useState('')
   const [categoria, establecerCategoria] = useState('todas')
   const [estado, establecerEstado] = useState('todas')
   const [pagina, establecerPagina] = useState(1)
+  const [total, establecerTotal] = useState(0)
+  const [paginasServidor, establecerPaginasServidor] = useState(1)
+  const [categoriasServidor, establecerCategoriasServidor] = useState([])
   const [intento, establecerIntento] = useState(0)
   const [preguntaAEliminar, establecerPreguntaAEliminar] = useState(null)
   const [eliminando, establecerEliminando] = useState(false)
@@ -38,27 +43,53 @@ export default function PaginaPreguntasAdmin() {
   }, [preguntaAEliminar])
 
   useEffect(() => {
+    const temporizador = setTimeout(() => establecerBusquedaAplicada(busqueda), 300)
+    return () => clearTimeout(temporizador)
+  }, [busqueda])
+
+  useEffect(() => {
     let vigente = true
     establecerCargando(true)
     establecerErrorCarga('')
     async function cargar() {
       const rolUsuario = vistaPrevia ? 'VISTA_PREVIA' : (await obtenerPerfil()).rol
-      const lista = rolUsuario === 'ADMINISTRADOR' || vistaPrevia ? await obtenerPreguntasAdmin({ vistaPrevia }) : []
-      if (vigente) { establecerRol(rolUsuario); establecerPreguntas(lista) }
+      if (rolUsuario !== 'ADMINISTRADOR' && !vistaPrevia) {
+        if (vigente) { establecerRol(rolUsuario); establecerPreguntas([]) }
+        return
+      }
+      if (datosEjemplo) {
+        const lista = await obtenerPreguntasAdmin({ vistaPrevia })
+        if (vigente) { establecerRol(rolUsuario); establecerPreguntas(lista) }
+      } else {
+        const [lista, categorias] = await Promise.all([
+          obtenerPreguntasAdmin({ pagina, buscar: busquedaAplicada, categoriaId: categoria, estado }),
+          obtenerCategoriasAdmin(),
+        ])
+        if (vigente) {
+          establecerRol(rolUsuario)
+          establecerPreguntas(lista.preguntas)
+          establecerTotal(lista.total)
+          establecerPaginasServidor(lista.totalPaginas)
+          establecerCategoriasServidor(categorias)
+        }
+      }
     }
     cargar().catch((error) => { if (vigente) establecerErrorCarga(error.message || 'No pudimos cargar las preguntas.') })
       .finally(() => { if (vigente) establecerCargando(false) })
     return () => { vigente = false }
-  }, [intento, vistaPrevia])
+  }, [intento, vistaPrevia, datosEjemplo, pagina, busquedaAplicada, categoria, estado])
 
-  const categorias = [...new Set(preguntas.map((pregunta) => pregunta.categoria))].sort((a, b) => a.localeCompare(b, 'es-AR'))
+  const categorias = datosEjemplo
+    ? [...new Set(preguntas.map((pregunta) => pregunta.categoria))].sort((a, b) => a.localeCompare(b, 'es-AR')).map((nombre) => ({ id: nombre, nombre }))
+    : categoriasServidor
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
   const filtradas = preguntas.filter((pregunta) =>
     (!consulta || pregunta.enunciado.toLocaleLowerCase('es-AR').includes(consulta)) &&
     (categoria === 'todas' || pregunta.categoria === categoria) &&
     (estado === 'todas' || pregunta.estado === estado))
-  const totalPaginas = Math.max(1, Math.ceil(filtradas.length / tamanioPagina))
-  const visibles = filtradas.slice((pagina - 1) * tamanioPagina, pagina * tamanioPagina)
+  const cantidad = datosEjemplo ? filtradas.length : total
+  const totalPaginas = datosEjemplo ? Math.max(1, Math.ceil(filtradas.length / tamanioPagina)) : paginasServidor
+  const visibles = datosEjemplo ? filtradas.slice((pagina - 1) * tamanioPagina, pagina * tamanioPagina) : preguntas
 
   function cambiarBusqueda(valor) { establecerBusqueda(valor); establecerPagina(1) }
   function cambiarCategoria(valor) { establecerCategoria(valor); establecerPagina(1) }
@@ -70,8 +101,8 @@ export default function PaginaPreguntasAdmin() {
     establecerErrorEliminar('')
     try {
       await eliminarPreguntaAdmin(preguntaAEliminar.id, { vistaPrevia })
-      establecerPreguntas(await obtenerPreguntasAdmin({ vistaPrevia }))
-      establecerPagina((actual) => Math.min(actual, Math.max(1, Math.ceil((filtradas.length - 1) / tamanioPagina))))
+      if (visibles.length === 1 && pagina > 1) establecerPagina((actual) => actual - 1)
+      establecerIntento((actual) => actual + 1)
       establecerPreguntaAEliminar(null)
       establecerAviso(datosEjemplo ? 'Pregunta eliminada temporalmente. El cambio se pierde al recargar la página.' : 'Pregunta eliminada.')
     } catch (error) {
@@ -92,9 +123,9 @@ export default function PaginaPreguntasAdmin() {
         {aviso && <p className="admin-preguntas__aviso" role="status">{aviso}</p>}
         {vistaPrevia && <p className="admin-preguntas__aviso" role="status">Vista previa local: rol de administrador simulado y preguntas de ejemplo.</p>}
         <NavegacionAdmin vistaPrevia={vistaPrevia} />
-        <div className="admin-preguntas__titulo"><div><h2 id="titulo-preguntas-admin">Preguntas</h2><p>{preguntas.length} {datosEjemplo ? 'preguntas de ejemplo' : 'preguntas'}</p></div></div>
-        <div className="admin-preguntas__filtros"><label>Buscar pregunta<input type="search" value={busqueda} onChange={(evento) => cambiarBusqueda(evento.target.value)} placeholder="Escribí parte del enunciado" /></label><label>Categoría<select value={categoria} onChange={(evento) => cambiarCategoria(evento.target.value)}><option value="todas">Todas las categorías</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Estado<select value={estado} onChange={(evento) => cambiarEstado(evento.target.value)}><option value="todas">Todos los estados</option><option>ACTIVA</option><option>BORRADOR</option></select></label></div>
-        <p className="admin-preguntas__cantidad" role="status">{filtradas.length} {filtradas.length === 1 ? 'resultado' : 'resultados'}</p>
+        <div className="admin-preguntas__titulo"><div><h2 id="titulo-preguntas-admin">Preguntas</h2><p>{datosEjemplo ? preguntas.length : total} {datosEjemplo ? 'preguntas de ejemplo' : 'preguntas'}</p></div></div>
+        <div className="admin-preguntas__filtros"><label>Buscar pregunta<input type="search" value={busqueda} onChange={(evento) => cambiarBusqueda(evento.target.value)} placeholder="Escribí parte del enunciado" /></label><label>Categoría<select value={categoria} onChange={(evento) => cambiarCategoria(evento.target.value)}><option value="todas">Todas las categorías</option>{categorias.map(({ id, nombre }) => <option key={id} value={id}>{nombre}</option>)}</select></label><label>Estado<select value={estado} onChange={(evento) => cambiarEstado(evento.target.value)}><option value="todas">Todos los estados</option><option>ACTIVA</option><option>BORRADOR</option></select></label></div>
+        <p className="admin-preguntas__cantidad" role="status">{cantidad} {cantidad === 1 ? 'resultado' : 'resultados'}</p>
         {visibles.length ? <div className="admin-preguntas__tabla"><div className="admin-preguntas__cabecera" aria-hidden="true"><span>Pregunta</span><span>Categoría</span><span>Dificultad</span><span>Estado</span><span>Acciones</span></div><ul>{visibles.map((pregunta) => <li key={pregunta.id}><strong>{pregunta.enunciado}</strong><span data-etiqueta="Categoría">{pregunta.categoria}</span><span data-etiqueta="Dificultad">{pregunta.dificultad}</span><span className={`admin-categorias__estado${pregunta.estado === 'BORRADOR' ? ' admin-categorias__estado--borrador' : ''}`}>{pregunta.estado}</span><details className="admin-preguntas__menu"><summary aria-label={`Acciones de pregunta: ${pregunta.enunciado}`}>•••</summary><div className="admin-preguntas__fila-acciones"><Link className="admin-preguntas__editar" aria-label={`Editar pregunta: ${pregunta.enunciado}`} to={`/admin/preguntas/${pregunta.id}/editar${sufijo}`}>Editar</Link><button type="button" aria-label={`Eliminar pregunta: ${pregunta.enunciado}`} onClick={(evento) => { evento.currentTarget.closest('details').open = false; establecerPreguntaAEliminar(pregunta); establecerErrorEliminar('') }}>Eliminar</button></div></details></li>)}</ul></div> : <p className="admin-preguntas__vacio">No hay preguntas que coincidan con los filtros.</p>}
         <nav className="admin-preguntas__paginacion" aria-label="Páginas de preguntas"><span>Página {pagina} de {totalPaginas}</span><div><button type="button" disabled={pagina === 1} onClick={() => establecerPagina((actual) => actual - 1)}>Anterior</button><button type="button" disabled={pagina === totalPaginas} onClick={() => establecerPagina((actual) => actual + 1)}>Siguiente</button></div></nav>
       </section>}
@@ -107,7 +138,7 @@ export default function PaginaPreguntasAdmin() {
           if (evento.shiftKey && document.activeElement === primero) { evento.preventDefault(); ultimo?.focus() }
           else if (!evento.shiftKey && document.activeElement === ultimo) { evento.preventDefault(); primero?.focus() }
         }
-      }}><h2 id="titulo-eliminar-pregunta">¿Eliminar pregunta?</h2><p id="detalle-eliminar-pregunta">{preguntaAEliminar.enunciado}</p><p>Esta acción quitará la pregunta del listado temporal.</p>{errorEliminar && <p role="alert">{errorEliminar}</p>}<div><button ref={botonCancelar} type="button" disabled={eliminando} onClick={() => establecerPreguntaAEliminar(null)}>Cancelar</button><button type="button" disabled={eliminando} onClick={confirmarEliminacion}>{eliminando ? 'Eliminando…' : 'Sí, eliminar'}</button></div></dialog>}
+      }}><h2 id="titulo-eliminar-pregunta">¿Eliminar pregunta?</h2><p id="detalle-eliminar-pregunta">{preguntaAEliminar.enunciado}</p><p>{datosEjemplo ? 'Esta acción quitará la pregunta del listado temporal.' : 'Esta acción eliminará la pregunta del banco de contenido.'}</p>{errorEliminar && <p role="alert">{errorEliminar}</p>}<div><button ref={botonCancelar} type="button" disabled={eliminando} onClick={() => establecerPreguntaAEliminar(null)}>Cancelar</button><button type="button" disabled={eliminando} onClick={confirmarEliminacion}>{eliminando ? 'Eliminando…' : 'Sí, eliminar'}</button></div></dialog>}
     </div>
   </MarcoTorneo>
 }

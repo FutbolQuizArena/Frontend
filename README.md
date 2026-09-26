@@ -34,9 +34,9 @@ Home consulta `GET /api/usuarios/me` para mostrar nombre, rol y puntaje reales. 
 
 ## Administración: preguntas — actividad 5.2.1
 
-Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y estado, paginación de cinco elementos y diseños de escritorio y móvil. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
+Abrir `/admin` con una sesión de administrador para consultar el listado de preguntas. Incluye búsqueda por enunciado, filtros por categoría y estado, y diseños de escritorio y móvil. La vista previa pagina de a cinco; la sesión real usa las páginas de seis elementos del backend. La pantalla consulta `GET /api/usuarios/me` para comprobar el rol antes de mostrar el contenido; el backend debe hacer la autorización definitiva.
 
-Con una cuenta administradora real, el listado consulta `GET /api/admin/preguntas` con JWT, reuniendo las páginas que entrega el backend. La búsqueda, los filtros y la paginación visible se aplican sobre ese listado.
+Con una cuenta administradora real, el listado consulta una página por vez de `GET /api/admin/preguntas` con JWT. La búsqueda y los filtros se envían al backend; el frontend usa `total` y `total_paginas` para mostrar la paginación.
 
 Desde el listado se puede abrir **Nueva pregunta** o elegir **Editar** en el menú de tres puntos. El formulario 5.2.2 permite escribir el enunciado, elegir categoría, cargar cuatro opciones distintas y marcar la correcta. Valida los campos antes de guardar. En una sesión real, usa `POST /api/admin/preguntas`, `GET/PATCH /api/admin/preguntas/{id}` y los identificadores de categoría del backend.
 
@@ -46,7 +46,11 @@ La actividad 5.2.4 agrega `/admin/categorias`: listado y búsqueda de categoría
 
 La actividad 5.2.5 agrega `/admin/categorias/nueva` y `/admin/categorias/:idCategoria/editar`. En una sesión real usa `POST /api/admin/categorias` y `GET/PATCH /api/admin/categorias/{id}`. El backend no acepta descripción de categoría, por lo que ese campo se muestra solo en la vista previa local.
 
-La actividad 5.2.6 agrega `/admin/usuarios`: listado y búsqueda de usuarios por nombre o correo, con filtros de rol y estado. Una sesión administradora real consulta `GET /api/admin/usuarios` con JWT Bearer; la cuenta admin local y `vistaPrevia=1` usan datos de ejemplo solo en desarrollo. El listado tiene paginación visual y estados de carga, error y vacío. Habilitar o deshabilitar cuentas corresponde a 5.2.7 y todavía no está en esta pantalla.
+La actividad 5.2.6 agrega `/admin/usuarios`: listado y búsqueda de usuarios por nombre o correo, con filtros de rol y estado. Una sesión administradora real consulta `GET /api/admin/usuarios` con JWT Bearer; la cuenta admin local y `vistaPrevia=1` usan datos de ejemplo solo en desarrollo. El listado tiene paginación visual y estados de carga, error y vacío.
+
+La actividad 5.2.7 agrega la acción de habilitar y deshabilitar usuarios con diálogo de confirmación accesible (`alertdialog`). En una sesión real conecta con `PATCH /api/admin/usuarios/{usuario_id}/estado` enviando `{ esta_habilitado: boolean }`. La interfaz contempla respuestas de error del backend (como evitar la deshabilitación de la propia cuenta de administrador) y en desarrollo actualiza el estado sobre los datos de ejemplo locales.
+
+La actividad 5.2.8 protege todas las rutas `/admin` con una comprobación común del rol obtenido de `GET /api/usuarios/me`. Un jugador recibe un mensaje de acceso restringido antes de que se monte cualquier pantalla administrativa; el backend conserva la autorización definitiva. En desarrollo, `vistaPrevia=1` permite recorrer el panel con datos de ejemplo. La barra lateral y la navegación móvil permiten pasar entre preguntas, categorías y usuarios y volver al juego.
 
 Para revisar el panel localmente sin una cuenta de administrador, iniciá sesión con cualquier cuenta y abrí `/admin?vistaPrevia=1` con `npm run dev`. Esta vista previa simula el rol solo en desarrollo y muestra un aviso; la compilación de producción conserva la comprobación del rol real.
 
