@@ -155,12 +155,12 @@ export default function PaginaCuadroTorneo() {
           </header>
           <dl className="cuadro-torneo__resumen">
             <div><dt>Ronda actual</dt><dd>{torneo.rondaActual}</dd></div>
-            <div><dt>Próxima partida</dt><dd>Por definir</dd></div>
+            <div><dt>Próxima partida</dt><dd>No disponible</dd></div>
             <div><dt>Premio</dt><dd>Pendiente</dd></div>
           </dl>
           <h2 className="cuadro-torneo__camino">Tu camino a la final</h2>
           <CuadroLlaves torneo={torneo} />
-          <aside className="cuadro-torneo__proximo"><div><small>PRÓXIMO PARTIDO</small><strong>Pendiente de programación</strong></div></aside>
+          <aside className="cuadro-torneo__proximo"><div><small>PRÓXIMO PARTIDO</small><strong>Las partidas del torneo estarán disponibles próximamente</strong></div></aside>
         </div>
       )}
     </MarcoTorneo>

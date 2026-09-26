@@ -78,6 +78,9 @@ prueba('la vista móvil usa tarjetas, acciones rápidas y navegación inferior',
 
   await pagina.getByRole('button', { name: 'Disponibles' }).click()
   await esperar(pagina.getByRole('region', { name: 'Disponibles' }).getByText('Liga de Campeones')).toBeVisible()
+  await esperar(pagina.getByRole('button', { name: 'Hoy' })).toHaveCount(0)
+  await pagina.getByRole('button', { name: '4–16' }).click()
+  await esperar(pagina.getByRole('region', { name: 'Disponibles' }).getByText('Liga de Campeones')).toBeVisible()
   await pagina.getByPlaceholder('Buscar por nombre o código').fill('Copa Nacional')
   await esperar(pagina.getByText('Copa Nacional')).toBeVisible()
   await esperar(pagina.getByText('Liga de Campeones')).toBeHidden()

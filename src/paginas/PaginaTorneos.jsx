@@ -2,6 +2,7 @@ import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
 import TarjetaTorneo from '../componentes/TarjetaTorneo.jsx'
 import { obtenerMisTorneos, obtenerTorneosDisponibles, obtenerTorneosFinalizados } from '../servicios/servicioTorneos.js'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosTorneos.css'
 
 const enlaces = [
@@ -43,15 +44,24 @@ export default function PaginaTorneos() {
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [busqueda, establecerBusqueda] = usarEstado('')
   const [filtro, establecerFiltro] = usarEstado('todos')
+  const [perfil, establecerPerfil] = usarEstado(null)
+  const [perfilCargado, establecerPerfilCargado] = usarEstado(false)
   const seccion = secciones[seccionActiva]
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
   const torneosVisibles = seccionActiva === 'disponibles'
     ? torneos.filter((torneo) => {
         const coincideBusqueda = !consulta || torneo.nombre.toLocaleLowerCase('es-AR').includes(consulta) || (torneo.codigo || '').toLocaleLowerCase('es-AR').includes(consulta)
-        const coincideFiltro = filtro === 'todos' || (filtro === 'gratis' && !torneo.requiereContrasena) || (filtro === 'hoy' && torneo.inicio.startsWith('Hoy')) || (filtro === 'extremos' && [4, 16].includes(torneo.capacidad))
+        const coincideFiltro = filtro === 'todos' || (filtro === 'gratis' && !torneo.requiereContrasena) || (filtro === 'extremos' && [4, 8, 16].includes(torneo.capacidad))
         return coincideBusqueda && coincideFiltro
       })
     : torneos
+
+  usarEfecto(() => {
+    let vigente = true
+    obtenerPerfil().then((usuario) => { if (vigente) establecerPerfil(usuario) }).catch(() => {})
+      .finally(() => { if (vigente) establecerPerfilCargado(true) })
+    return () => { vigente = false }
+  }, [])
 
   usarEfecto(() => {
     let vigente = true
@@ -98,13 +108,13 @@ export default function PaginaTorneos() {
             </EnlaceNavegacion>
           ))}
         </nav>
-        <div className="torneos__acumulado"><p>PUNTAJE ACUMULADO</p><span>Jugador · 2.450 pts</span></div>
+        <div className="torneos__acumulado"><p>PUNTAJE ACUMULADO</p><span>{perfil ? `${perfil.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · ${perfil.puntajeTotal.toLocaleString('es-AR')} pts` : perfilCargado ? 'Puntaje no disponible' : 'Cargando…'}</span></div>
       </aside>
 
       <header className="torneos__cabecera">
         <span className="torneos__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="torneos__titulo-movil"><strong>Torneos</strong><span>{seccion.descripcionMovil}</span></div>
-        <Enlace className="torneos__avatar" to="/perfil" aria-label="Ver mi perfil"><span className="torneos__iniciales">LM</span></Enlace>
+        <Enlace className="torneos__avatar" to="/perfil" aria-label="Ver mi perfil"><span className="torneos__iniciales">{perfil?.iniciales || 'FQ'}</span></Enlace>
       </header>
 
       <main className="torneos__contenido" id="contenido-torneos">
@@ -131,7 +141,7 @@ export default function PaginaTorneos() {
           <div className="torneos__filtros">
             <label><span aria-hidden="true">⌕</span><span className="solo-lectores">Buscar torneo</span><input type="search" placeholder="Buscar por nombre o código" value={busqueda} onChange={(evento) => establecerBusqueda(evento.target.value)} /></label>
             <div aria-label="Filtros de torneos">
-              {[['todos', 'Todos'], ['gratis', 'Gratis'], ['hoy', 'Hoy'], ['extremos', '4–16']].map(([valor, etiqueta]) => (
+              {[['todos', 'Todos'], ['gratis', 'Gratis'], ['extremos', '4–16']].map(([valor, etiqueta]) => (
                 <button key={valor} type="button" className={filtro === valor ? 'activo' : ''} aria-pressed={filtro === valor} onClick={() => establecerFiltro(valor)}>{etiqueta}</button>
               ))}
             </div>
