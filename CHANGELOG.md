@@ -38,13 +38,13 @@ Commits `67bcb3e` y `31f80c7`, integrados en `develop` mediante PR #24.
 
 ## 25/9 [5.2.5] Formularios de creación y edición de categorías (Módulo 5 - Administración)
 
-Commit local `2c77fc7` en `feature/admin-categorias-formulario`; todavía no consta un merge a `develop`.
+El formulario se implementó en `2c77fc7`; la integración con los endpoints reales llegó en `7a4e89c`, incluido en `develop`.
 
 - **Capa de presentación:** creación de `PaginaFormularioCategoriaAdmin.jsx` y de las rutas `/admin/categorias/nueva` y `/admin/categorias/:idCategoria/editar` en `Aplicacion.jsx`. El listado ofrece «Nueva categoría» y un enlace «Editar» por fila, conservando `vistaPrevia=1` durante la navegación local.
 - **Formulario y reglas:** nombre obligatorio, descripción opcional y estado `ACTIVA`/`BORRADOR`. Se rechazan los nombres vacíos y duplicados sin distinguir mayúsculas y minúsculas; se muestran los errores en la pantalla. Guardar vuelve al listado con un aviso; cancelar vuelve sin cambios.
-- **Capa de servicios:** `servicioCategoriasAdmin.js` permite consultar una categoría, crearla y actualizarla en memoria. Al renombrarla, `servicioPreguntasAdmin.js` actualiza la categoría de las preguntas temporales asociadas para conservar su conteo y poder filtrarlas por el nombre nuevo. Las categorías activas nuevas aparecen en el selector del formulario de preguntas; al editar una pregunta se conserva la categoría ya asignada aunque esté en borrador.
-- **Seguridad y alcance:** el formulario comprueba el rol `ADMINISTRADOR` con el mismo mecanismo que las otras pantallas; la vista previa está limitada al desarrollo. El guardado es temporal y se pierde al recargar: el frontend aún no usa los endpoints administrativos de categorías.
-- **Testing automatizado:** `pruebas/formularioCategoriaAdmin.spec.js` cubre creación, disponibilidad en preguntas, rechazo de duplicados, cambio de nombre con preguntas asociadas y bloqueo a jugadores. También se verificaron las pruebas existentes de categorías y preguntas, el build de Vite y el ancho móvil.
+- **Capa de servicios:** las sesiones administrativas reales consultan `GET /api/admin/categorias` y `GET /api/admin/categorias/{id}`, y guardan mediante `POST /api/admin/categorias` y `PATCH /api/admin/categorias/{id}` con nombre y estado. La descripción solo se usa en la vista previa porque el contrato del backend no la admite; `preguntas_count` proporciona el conteo real.
+- **Seguridad y alcance:** el formulario comprueba el rol `ADMINISTRADOR` como las demás pantallas. `vistaPrevia=1` y la cuenta admin local, únicamente en desarrollo, usan datos temporales en memoria.
+- **Testing automatizado:** `pruebas/formularioCategoriaAdmin.spec.js` cubre creación y edición en la vista previa, disponibilidad en preguntas, validaciones y bloqueo a jugadores. `pruebas/integracionAdmin.spec.js` verifica la consulta y actualización real de categorías con el contrato del backend.
 
 ## 25/9 [5.2.1–5.2.4, 6.1] Ajustes visuales de administración
 
