@@ -1,3 +1,5 @@
+import { obtenerToken } from './servicioSesion.js'
+
 async function enviarSolicitudAutenticacion(ruta, datos, mensajeError) {
   const urlApi = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
 
@@ -60,4 +62,20 @@ export function iniciarSesion(correo, contrasena) {
     { email: correo, password: contrasena },
     'No pudimos iniciar sesión. Intentá de nuevo en unos minutos.',
   )
+}
+
+export async function cerrarSesionRemota() {
+  const token = obtenerToken()
+  if (!token) return
+
+  const urlApi = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
+  if (!urlApi) return
+
+  try {
+    await fetch(`${urlApi}/api/auth/logout`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(60000),
+    })
+  } catch {}
 }
