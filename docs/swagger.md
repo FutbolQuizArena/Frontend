@@ -36,6 +36,8 @@ La respuesta `200` es un **array**, sin envoltorio de paginación. Cada usuario 
 | Administración de categorías | `POST/GET /api/admin/categorias`, `GET/PATCH/DELETE /api/admin/categorias/{categoria_id}`, `PATCH /api/admin/categorias/{categoria_id}/estado` |
 | Datos iniciales | `POST /api/admin/sistema/sembrar` |
 
+El cierre de sesión del frontend intenta `POST /api/auth/logout` con el JWT Bearer. La sesión local se elimina siempre, aunque el backend no responda, para evitar dejar al usuario bloqueado en la aplicación.
+
 Preguntas y categorías usan estas rutas para cuentas administradoras reales. La vista previa y la cuenta admin local de desarrollo conservan datos de ejemplo. El listado de preguntas llega paginado en `{ items, total, page, total_paginas }` (seis por página); el frontend solicita solo la página visible y envía `buscar`, `categoria_id` y `estado` como filtros. La categoría recibe `nombre` y `estado`, sin descripción. La respuesta de preguntas usa `categoria_id`, `opcion_a` a `opcion_d` y `respuesta_correcta` como letra de A a D.
 
 ## Cruces de torneo: contrato pendiente para jugar
