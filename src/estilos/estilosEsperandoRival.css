@@ -1,0 +1,246 @@
+.pagina-esperando-rival {
+  min-height: 100svh;
+  padding-left: 240px;
+}
+
+.pagina-esperando-rival__cabecera {
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.pagina-esperando-rival__contenido {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 56px 80px 48px;
+}
+
+.pagina-esperando-rival__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.pagina-esperando-rival__encabezado h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+}
+
+.pagina-esperando-rival__etiqueta {
+  margin: 0 0 10px;
+  color: var(--color-principal);
+  letter-spacing: 0.12em;
+}
+
+.pagina-esperando-rival__volver {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  background: rgba(22, 42, 32, 0.9);
+  color: var(--color-texto);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pagina-esperando-rival__panel {
+  display: grid;
+  gap: 28px;
+  padding: clamp(24px, 4vw, 40px);
+  background: rgba(22, 42, 32, 0.7);
+  border: 1px solid var(--color-borde);
+  border-radius: 28px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.pagina-esperando-rival__estado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.pagina-esperando-rival__texto {
+  min-width: 220px;
+  text-align: center;
+}
+
+.pagina-esperando-rival__subtitulo {
+  margin: 0 0 10px;
+  color: var(--color-secundario);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pagina-esperando-rival__tiempo {
+  display: inline-block;
+  font-size: clamp(2.1rem, 4vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--color-principal);
+}
+
+.pagina-esperando-rival__tarjetas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.pagina-esperando-rival__jugador {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 150px;
+  padding: 22px 24px;
+  border: 1px solid var(--color-borde);
+  border-radius: 22px;
+  background: rgba(11, 25, 19, 0.7);
+}
+
+.pagina-esperando-rival__jugador h2 {
+  margin: 4px 0 6px;
+  font-size: clamp(1.6rem, 2vw, 2.2rem);
+  line-height: 1.1;
+}
+
+.pagina-esperando-rival__jugador p {
+  margin: 0;
+  color: var(--color-secundario);
+  font-size: 14px;
+}
+
+.pagina-esperando-rival__etiqueta {
+  display: inline-block;
+  color: var(--color-principal);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.pagina-esperando-rival__avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(53, 196, 102, 0.2), rgba(52, 122, 81, 0.28));
+  border: 1px solid rgba(53, 196, 102, 0.28);
+  color: var(--color-texto);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.pagina-esperando-rival__avatar--rival {
+  background: linear-gradient(135deg, rgba(233, 185, 73, 0.18), rgba(108, 99, 36, 0.28));
+  border-color: rgba(233, 185, 73, 0.26);
+}
+
+.pagina-esperando-rival__acciones {
+  display: flex;
+  justify-content: center;
+}
+
+.pagina-esperando-rival__acciones .boton {
+  max-width: 260px;
+}
+
+.cargando-duelo {
+  position: relative;
+  width: 146px;
+  height: 146px;
+  display: grid;
+  place-items: center;
+}
+
+.cargando-duelo__anillo {
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(53, 196, 102, 0.25);
+  border-radius: 50%;
+  animation: duelo-spin 2.4s linear infinite;
+}
+
+.cargando-duelo__anillo--dos {
+  inset: 18px;
+  border-color: rgba(233, 185, 73, 0.4);
+  animation-duration: 2.1s;
+  animation-direction: reverse;
+}
+
+.cargando-duelo__centro {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(11, 25, 19, 0.9);
+  border: 1px solid rgba(53, 196, 102, 0.35);
+  color: var(--color-principal);
+  font-weight: 800;
+  font-size: 1.4rem;
+  box-shadow: 0 0 24px rgba(53, 196, 102, 0.18);
+}
+
+@keyframes duelo-spin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.04);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .pagina-esperando-rival {
+    padding: 0 0 calc(90px + env(safe-area-inset-bottom));
+  }
+
+  .pagina-esperando-rival__contenido {
+    padding: 28px 18px 80px;
+  }
+
+  .pagina-esperando-rival__encabezado {
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .pagina-esperando-rival__encabezado h1 {
+    font-size: 2rem;
+  }
+
+  .pagina-esperando-rival__panel {
+    gap: 22px;
+    padding: 20px 16px 18px;
+    border-radius: 22px;
+  }
+
+  .pagina-esperando-rival__tarjetas {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pagina-esperando-rival__jugador {
+    min-height: 120px;
+    padding: 18px 16px;
+  }
+
+  .pagina-esperando-rival__jugador h2 {
+    font-size: 1.35rem;
+  }
+
+  .pagina-esperando-rival__acciones .boton {
+    width: 100%;
+  }
+}

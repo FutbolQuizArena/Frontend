@@ -1,0 +1,207 @@
+.ruleta-categoria__pagina {
+  min-height: 100svh;
+  padding-left: 240px;
+  background: var(--color-fondo);
+}
+
+.ruleta-categoria__contenido-principal {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 30px 56px 80px 48px;
+}
+
+.ruleta-categoria__panel {
+  width: min(1030px, 100%);
+  margin: 0 auto;
+  padding: clamp(24px, 3vw, 42px) clamp(22px, 3vw, 34px) 32px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(10, 24, 18, 0.97), rgba(9, 22, 17, 0.97));
+  box-shadow: 0 20px 50px rgb(0 0 0 / 18%);
+}
+
+.ruleta-categoria__encabezado {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.ruleta-categoria__encabezado h1 {
+  margin: 0;
+  font-size: clamp(2.3rem, 3vw, 4rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.ruleta-categoria__descripcion {
+  max-width: 640px;
+  margin: 12px auto 0;
+  color: rgba(226, 233, 229, 0.8);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.ruleta-categoria__contenido {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3vw, 36px);
+}
+
+.ruleta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 520px;
+  flex: 1;
+}
+
+.ruleta__contenedor {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 500px);
+  aspect-ratio: 1;
+}
+
+.ruleta__puntero {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  z-index: 3;
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 38px solid #f3d26b;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 26%));
+}
+
+.ruleta__rueda {
+  width: min(100%, 420px);
+  height: auto;
+  border-radius: 50%;
+  border: 7px solid rgba(53, 196, 102, 0.95);
+  background: var(--color-elevado);
+  box-shadow: 0 30px 60px rgb(0 0 0 / 22%);
+  transform-origin: center;
+}
+
+.ruleta__rueda--girando {
+  filter: drop-shadow(0 18px 40px rgb(53, 196, 102, 0.28));
+}
+
+.ruleta-categoria__acciones {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: min(260px, 32vw);
+  gap: 18px;
+}
+
+.ruleta-categoria__acciones .boton {
+  width: 100%;
+  max-width: 100%;
+  min-height: 52px;
+  font-size: 15px;
+}
+
+.ruleta-categoria__resultado {
+  padding: 24px 22px 18px;
+  border: 1px solid rgba(53, 196, 102, 0.7);
+  border-radius: 18px;
+  background: rgba(15, 45, 33, 0.75);
+}
+
+.ruleta-categoria__etiqueta {
+  margin: 0;
+  color: rgba(226, 233, 229, 0.7);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ruleta-categoria__resultado h2 {
+  margin: 10px 0 20px;
+  font-size: clamp(1.6rem, 2vw, 2.3rem);
+}
+
+@media (min-width: 901px) and (max-width: 1250px) {
+  .ruleta-categoria__pagina {
+    padding-left: 190px;
+  }
+
+  .ruleta-categoria__contenido-principal {
+    padding: 30px 24px 48px;
+  }
+}
+
+@media (max-width: 900px) {
+  .ruleta-categoria__pagina {
+    padding: 0 0 calc(90px + env(safe-area-inset-bottom));
+  }
+
+  .ruleta-categoria__contenido-principal {
+    padding: 24px 18px 0;
+    max-width: 600px;
+  }
+
+  .ruleta-categoria__panel {
+    padding: 18px 16px 24px;
+    border-radius: 22px;
+  }
+
+  .ruleta-categoria__contenido {
+    flex-direction: column;
+  }
+
+  .ruleta {
+    min-height: 420px;
+    width: 100%;
+    padding: 8px 0 0;
+  }
+
+  .ruleta__contenedor {
+    width: min(100%, 360px);
+  }
+
+  .ruleta__rueda {
+    width: min(100%, 300px);
+    border-width: 6px;
+  }
+
+  .ruleta-categoria__acciones {
+    width: 100%;
+    max-width: 280px;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ruleta-categoria__encabezado h1 {
+    font-size: 2.1rem;
+  }
+
+  .ruleta-categoria__descripcion {
+    font-size: 14px;
+  }
+
+  .ruleta__contenedor {
+    width: min(100%, 300px);
+  }
+
+  .ruleta__puntero {
+    border-left-width: 14px;
+    border-right-width: 14px;
+    border-top-width: 30px;
+  }
+
+  .ruleta__rueda {
+    width: min(100%, 260px);
+  }
+
+  .ruleta-categoria__resultado {
+    padding: 18px 16px 16px;
+  }
+}

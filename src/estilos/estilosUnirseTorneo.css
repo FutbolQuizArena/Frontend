@@ -1,0 +1,76 @@
+.unirse-torneo { min-height: 100svh; padding-left: 240px; background: var(--color-fondo); }
+.unirse-torneo__lateral { position: fixed; inset: 0 auto 0 0; z-index: 3; display: flex; flex-direction: column; width: 240px; padding: 28px 16px 80px; background: #07100c; }
+.unirse-torneo__marca { margin-left: 8px; color: var(--color-texto); text-decoration: none; }
+.unirse-torneo__navegacion { display: grid; gap: 12px; margin-top: 80px; }
+.unirse-torneo__enlace { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 14px 16px; border-radius: 12px; color: var(--color-secundario); font-size: 14px; font-weight: 600; text-decoration: none; }
+.unirse-torneo__enlace > span { font-size: 18px; }
+.unirse-torneo__enlace:hover, .unirse-torneo__enlace--activo { color: var(--color-texto); background: var(--color-elevado); }
+.unirse-torneo__enlace--activo > span { color: var(--color-principal); }
+.unirse-torneo__acumulado { margin: auto 8px 0; padding-top: 40px; color: var(--color-secundario); font-size: 14px; }
+.unirse-torneo__acumulado p { margin: 0 0 18px; color: var(--color-tenue); font-size: 11px; }
+.unirse-torneo__cabecera { display: flex; align-items: center; justify-content: flex-end; height: 80px; padding: 0 56px 0 48px; border-bottom: 1px solid var(--color-borde); }
+.unirse-torneo__escudo, .unirse-torneo__titulo-movil { display: none; }
+.unirse-torneo__avatar { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 50%; color: #07100c; background: var(--color-principal); font-size: 12px; font-weight: 700; text-decoration: none; }
+.unirse-torneo__contenido { max-width: 1200px; margin: 0 auto; padding: 30px 48px 80px; }
+.unirse-torneo__introduccion h1 { margin: 0; font-size: 34px; line-height: 1.3; }
+.unirse-torneo__introduccion p { margin: 5px 0 0; color: var(--color-secundario); font-size: 16px; }
+.unirse-torneo__emblema, .unirse-torneo__presentacion-movil { display: none; }
+.unirse-torneo__tarjeta { width: min(660px, 100%); min-height: 520px; margin: 96px auto 0; padding: 33px 31px 42px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); }
+.unirse-torneo__encabezado-formulario h2 { margin: 0; font-size: 23px; }
+.unirse-torneo__encabezado-formulario p { margin: 8px 0 19px; color: var(--color-secundario); font-size: 14px; }
+.unirse-torneo__tarjeta fieldset { display: grid; gap: 36px; padding: 0; margin: 0; border: 0; }
+.unirse-torneo__codigo .campo__etiqueta { display: none; }
+.unirse-torneo__codigo .campo__entrada { height: 72px; padding: 18px; border-color: var(--color-principal); border-radius: 14px; background: var(--color-sutil); font-size: 28px; font-weight: 800; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+.unirse-torneo__codigo .campo__entrada::placeholder { color: var(--color-texto); opacity: 1; }
+.unirse-torneo__contrasena .campo { gap: 10px; }
+.unirse-torneo__contrasena .campo__etiqueta { color: var(--color-secundario); font-size: 13px; }
+.unirse-torneo__contrasena .campo__entrada { height: 54px; background: var(--color-sutil); font-size: 15px; }
+.unirse-torneo__contrasena .campo__ayuda { display: none; }
+.unirse-torneo__resumen { min-height: 62px; padding: 21px 18px; margin: -10px 0 -4px; border-radius: 12px; color: var(--color-secundario); background: var(--color-sutil); font-size: 13px; }
+.unirse-torneo .mensaje { margin: 18px 0 -18px; }
+.unirse-torneo__tarjeta > .boton { min-height: 48px; margin-top: 32px; }
+
+@media (min-width: 901px) and (max-width: 1150px) {
+  .unirse-torneo { padding-left: 190px; }
+  .unirse-torneo__lateral { width: 190px; }
+  .unirse-torneo__contenido { padding-right: 24px; padding-left: 24px; }
+}
+
+@media (max-width: 900px) {
+  .unirse-torneo { width: min(100%, 480px); min-height: 100svh; padding: 0 0 calc(90px + env(safe-area-inset-bottom)); margin: 0 auto; background: #07110c; }
+  .unirse-torneo__lateral { position: static; width: auto; padding: 0; }
+  .unirse-torneo__marca, .unirse-torneo__acumulado { display: none; }
+  .unirse-torneo__navegacion { position: fixed; right: 0; bottom: 0; left: 0; z-index: 4; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 0; padding: 7px 10px calc(15px + env(safe-area-inset-bottom)); background: #0c1f16; }
+  .unirse-torneo__enlace { flex-direction: column; justify-content: center; gap: 5px; min-height: 50px; padding: 6px 2px; border-radius: 15px; font-size: 9px; }
+  .unirse-torneo__enlace--activo { color: var(--color-principal); background: #193426; }
+  .unirse-torneo__cabecera { justify-content: flex-start; height: 72px; padding: 0 20px; gap: 13px; border-top: 3px solid var(--color-principal); border-bottom: 0; background: var(--color-superficie); }
+  .unirse-torneo__escudo { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 10px; color: #07100c; background: var(--color-principal); font-size: 12px; font-weight: 800; }
+  .unirse-torneo__titulo-movil { display: grid; gap: 5px; margin-right: auto; }
+  .unirse-torneo__titulo-movil strong { font-size: 17px; }
+  .unirse-torneo__titulo-movil span { color: var(--color-secundario); font-size: 11px; }
+  .unirse-torneo__avatar { width: 28px; height: 28px; background: #193426; }
+  .unirse-torneo__avatar span { width: 10px; height: 10px; overflow: hidden; border-radius: 50%; color: transparent; background: var(--color-principal); }
+  .unirse-torneo__contenido { padding: 39px 24px 0; }
+  .unirse-torneo__introduccion { display: none; }
+  .unirse-torneo__emblema { display: grid; width: 168px; height: 168px; place-items: center; align-content: center; gap: 9px; margin: 0 auto; border: 1px solid var(--color-principal); border-radius: 50px; background: #123d25; }
+  .unirse-torneo__emblema span { color: var(--color-principal); font-size: 60px; line-height: .8; }
+  .unirse-torneo__emblema small { color: var(--color-secundario); font-size: 11px; font-weight: 700; }
+  .unirse-torneo__presentacion-movil { display: block; margin-top: 32px; text-align: center; }
+  .unirse-torneo__presentacion-movil h1 { margin: 0; font-size: 26px; line-height: 1.2; }
+  .unirse-torneo__presentacion-movil p { margin: 10px 0 0; color: var(--color-secundario); font-size: 13px; }
+  .unirse-torneo__tarjeta { width: 100%; min-height: 0; padding: 0; margin: 45px 0 0; border: 0; border-radius: 0; background: transparent; }
+  .unirse-torneo__encabezado-formulario { display: none; }
+  .unirse-torneo__tarjeta fieldset { gap: 26px; }
+  .unirse-torneo__codigo .campo__etiqueta { display: block; margin: 0 0 3px; color: var(--color-secundario); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .unirse-torneo__codigo .campo__entrada { height: 70px; padding: 18px; border-radius: 14px; background: var(--color-superficie); font-size: 21px; letter-spacing: .36em; }
+  .unirse-torneo__codigo .campo__entrada::placeholder { letter-spacing: .36em; }
+  .unirse-torneo__codigo .campo__error { margin-top: 2px; }
+  .unirse-torneo__contrasena { min-height: 108px; padding: 14px 18px 13px; border-radius: 16px; background: var(--color-elevado); }
+  .unirse-torneo__contrasena .campo { gap: 0; }
+  .unirse-torneo__contrasena .campo__etiqueta { color: var(--color-texto); font-size: 12px; font-weight: 700; }
+  .unirse-torneo__contrasena .campo__entrada { height: 37px; padding: 7px 0; border: 0; background: transparent; font-size: 13px; }
+  .unirse-torneo__contrasena .campo__ayuda { display: block; color: var(--color-principal); font-size: 11px; font-weight: 700; }
+  .unirse-torneo__resumen { display: none; }
+  .unirse-torneo .mensaje { margin: 14px 0 0; }
+  .unirse-torneo__tarjeta > .boton { min-height: 52px; margin-top: 46px; border-radius: 14px; font-size: 14px; }
+}

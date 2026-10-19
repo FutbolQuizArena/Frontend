@@ -1,0 +1,109 @@
+.cuadro-torneo__encabezado { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.cuadro-torneo__sobrelinea { display: none; }
+.cuadro-torneo__encabezado h1 { margin: 0; font-size: 34px; line-height: 1.25; }
+.cuadro-torneo__encabezado p { margin: 7px 0 0; color: var(--color-secundario); font-size: 15px; }
+.cuadro-torneo__estado { padding: 8px 14px; border: 1px solid var(--color-principal); border-radius: 999px; color: var(--color-principal); background: var(--color-sutil); font-size: 11px; font-weight: 800; }
+.cuadro-torneo__volver-resultado { min-height: 42px; padding: 10px 18px; border: 1px solid var(--color-borde); border-radius: 11px; color: var(--color-texto); background: var(--color-elevado); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+.cuadro-torneo__resumen { display: grid; grid-template-columns: repeat(3, 1fr); min-height: 88px; padding: 0; margin: 36px 0 32px; border: 1px solid var(--color-borde); border-radius: 16px; background: var(--color-sutil); }
+.cuadro-torneo__resumen > div { display: flex; flex-direction: column; justify-content: center; gap: 9px; padding: 16px 24px; }
+.cuadro-torneo__resumen > div + div { border-left: 1px solid var(--color-borde); }
+.cuadro-torneo__resumen dt { color: var(--color-secundario); font-size: 11px; }
+.cuadro-torneo__resumen dd { margin: 0; font-size: 16px; font-weight: 700; }
+.cuadro-torneo__resumen > div:last-child dd { color: var(--color-dorado); }
+.cuadro-torneo__camino { display: none; }
+
+.llaves-torneo { min-height: 570px; padding: 24px 22px; overflow-x: auto; border: 1px solid var(--color-borde); border-radius: 18px; background: #0d1a14; }
+.llaves-torneo__columnas { display: grid; grid-template-columns: repeat(4, minmax(205px, 1fr)); gap: 26px; min-width: 920px; height: 100%; }
+.llaves-torneo__ronda { display: flex; flex-direction: column; min-width: 0; }
+.llaves-torneo__ronda > header { display: flex; align-items: center; gap: 9px; min-height: 28px; margin-bottom: 18px; }
+.llaves-torneo__ronda > header span { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid var(--color-borde); border-radius: 50%; color: var(--color-secundario); font-size: 9px; }
+.llaves-torneo__ronda > header h2 { margin: 0; color: var(--color-secundario); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.llaves-torneo__cruces { display: flex; flex: 1; flex-direction: column; justify-content: space-around; gap: 15px; }
+
+.cruce-torneo { position: relative; overflow: hidden; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-superficie); }
+.cruce-torneo--destacado { border-color: var(--color-principal); box-shadow: 0 0 0 1px rgb(53 196 102 / 15%); }
+.cruce-torneo__estado { position: absolute; top: 0; right: 0; padding: 4px 7px; border-radius: 0 10px 0 8px; color: #07100c; background: var(--color-principal); font-size: 7px; font-weight: 900; letter-spacing: .05em; }
+.cruce-torneo__jugador { display: grid; grid-template-columns: 26px minmax(0, 1fr) 24px; align-items: center; gap: 8px; min-height: 46px; padding: 7px 10px; color: var(--color-secundario); }
+.cruce-torneo__jugador + .cruce-torneo__jugador { border-top: 1px solid var(--color-borde); }
+.cruce-torneo__jugador--ganador { color: var(--color-texto); }
+.cruce-torneo__jugador--ganador .cruce-torneo__puntaje { color: var(--color-principal); }
+.cruce-torneo__avatar { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 50%; color: var(--color-texto); background: var(--color-elevado); font-size: 8px; font-weight: 800; }
+.cruce-torneo__jugador strong { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.cruce-torneo__puntaje { font-size: 13px; font-weight: 800; text-align: right; }
+
+.llaves-torneo__campeon > div { display: grid; min-height: 132px; padding: 20px; margin: auto 0; place-items: center; border: 1px solid var(--color-dorado); border-radius: 16px; background: linear-gradient(145deg, rgb(233 185 73 / 12%), var(--color-superficie)); text-align: center; }
+.llaves-torneo__campeon > div > span { color: var(--color-dorado); font-size: 36px; }
+.llaves-torneo__campeon small { margin-top: 8px; color: var(--color-dorado); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.llaves-torneo__campeon strong { margin-top: 6px; font-size: 14px; }
+.cuadro-torneo__proximo { display: none; }
+
+.torneo-finalizado { text-align: center; }
+.torneo-finalizado > header span { color: var(--color-principal); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.torneo-finalizado > header h1 { margin: 12px 0 8px; font-size: 34px; }
+.torneo-finalizado > header p { margin: 0; color: var(--color-secundario); font-size: 14px; }
+.torneo-finalizado__campeon { display: grid; max-width: 720px; min-height: 300px; padding: 30px; margin: 38px auto 28px; place-items: center; align-content: center; border: 1px solid var(--color-dorado); border-radius: 22px; background: radial-gradient(circle at 50% 25%, rgb(233 185 73 / 18%), transparent 48%), var(--color-superficie); }
+.torneo-finalizado__trofeo { display: grid; width: 74px; height: 74px; place-items: center; border: 1px solid var(--color-dorado); border-radius: 50%; color: var(--color-dorado); background: rgb(233 185 73 / 10%); font-size: 38px; }
+.torneo-finalizado__campeon > span { margin-top: 18px; color: var(--color-dorado); font-size: 11px; font-weight: 900; letter-spacing: .12em; }
+.torneo-finalizado__campeon h2 { margin: 8px 0 0; font-size: 30px; }
+.torneo-finalizado__campeon p { margin: 6px 0 18px; color: var(--color-secundario); font-size: 13px; }
+.torneo-finalizado__campeon strong { color: var(--color-dorado); font-size: 18px; }
+.torneo-finalizado__resumen { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 920px; min-height: 92px; padding: 0; margin: 0 auto; border: 1px solid var(--color-borde); border-radius: 16px; background: var(--color-sutil); }
+.torneo-finalizado__resumen > div { display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 15px; }
+.torneo-finalizado__resumen > div + div { border-left: 1px solid var(--color-borde); }
+.torneo-finalizado__resumen dt { color: var(--color-secundario); font-size: 10px; }
+.torneo-finalizado__resumen dd { margin: 0; font-size: 15px; font-weight: 700; }
+.torneo-finalizado__resumen > div:nth-child(3) dd { color: var(--color-principal); }
+.torneo-finalizado__balance { margin: 18px 0 0; color: var(--color-secundario); font-size: 12px; }
+.torneo-finalizado__acciones { display: flex; justify-content: center; gap: 12px; margin-top: 26px; }
+.torneo-finalizado__acciones button, .torneo-finalizado__acciones a { display: grid; min-height: 48px; padding: 13px 22px; place-items: center; border: 1px solid var(--color-borde); border-radius: 12px; color: var(--color-texto); background: var(--color-elevado); font: inherit; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.torneo-finalizado__acciones button:first-child { border-color: var(--color-principal); color: #07100c; background: var(--color-principal); }
+.torneo-finalizado__mensaje { margin: 16px 0 0; color: var(--color-principal); font-size: 12px; }
+
+@media (max-width: 900px) {
+  .cuadro-torneo { padding-bottom: 112px; }
+  .cuadro-torneo__encabezado { display: block; padding: 10px 4px 0; }
+  .cuadro-torneo__sobrelinea { display: block; margin-bottom: 9px; color: var(--color-principal); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+  .cuadro-torneo__encabezado h1 { font-size: 25px; }
+  .cuadro-torneo__encabezado p { font-size: 12px; }
+  .cuadro-torneo__estado { display: inline-block; margin-top: 16px; }
+  .cuadro-torneo__volver-resultado { width: 100%; margin-top: 18px; }
+  .cuadro-torneo__resumen { grid-template-columns: repeat(2, 1fr); min-height: 74px; margin: 22px 0 28px; }
+  .cuadro-torneo__resumen > div { padding: 12px 14px; }
+  .cuadro-torneo__resumen > div:nth-child(3) { display: none; }
+  .cuadro-torneo__resumen dd { font-size: 13px; }
+  .cuadro-torneo__camino { display: block; margin: 0 0 16px; font-size: 18px; }
+  .llaves-torneo { min-height: 0; padding: 0; overflow: visible; border: 0; background: transparent; }
+  .llaves-torneo__columnas { display: block; min-width: 0; }
+  .llaves-torneo__ronda { display: none; }
+  .llaves-torneo__ronda--camino { display: flex; margin-bottom: 22px; }
+  .llaves-torneo__ronda--cuartos.llaves-torneo__ronda--camino .llaves-torneo__cruces .cruce-torneo:nth-child(n + 3) { display: none; }
+  .llaves-torneo__ronda > header { margin-bottom: 12px; }
+  .llaves-torneo__cruces { gap: 12px; }
+  .cruce-torneo__jugador { min-height: 51px; grid-template-columns: 30px minmax(0, 1fr) 30px; padding: 9px 12px; }
+  .cruce-torneo__avatar { width: 30px; height: 30px; }
+  .cruce-torneo__jugador strong { font-size: 12px; }
+  .llaves-torneo__campeon { display: none; }
+  .cuadro-torneo__proximo { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; margin-top: 6px; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-sutil); }
+  .cuadro-torneo__proximo div { display: grid; gap: 6px; }
+  .cuadro-torneo__proximo small { color: var(--color-secundario); font-size: 8px; font-weight: 800; }
+  .cuadro-torneo__proximo strong { font-size: 12px; }
+  .cuadro-torneo__proximo a { padding: 11px 13px; border-radius: 10px; color: #07100c; background: var(--color-principal); font-size: 11px; font-weight: 800; text-decoration: none; }
+
+  .torneo-finalizado { padding: 8px 0 112px; }
+  .torneo-finalizado > header { display: none; }
+  .torneo-finalizado__campeon { min-height: 320px; padding: 30px 18px; margin: 0; border: 0; background: radial-gradient(circle at 50% 28%, rgb(233 185 73 / 19%), transparent 52%); }
+  .torneo-finalizado__trofeo { width: 94px; height: 94px; font-size: 48px; }
+  .torneo-finalizado__campeon h2 { font-size: 28px; }
+  .torneo-finalizado__campeon p { font-size: 12px; }
+  .torneo-finalizado__campeon strong { padding: 12px 18px; border-radius: 999px; background: rgb(233 185 73 / 10%); }
+  .torneo-finalizado__resumen { grid-template-columns: repeat(2, 1fr); min-height: 0; }
+  .torneo-finalizado__resumen > div { min-height: 76px; }
+  .torneo-finalizado__resumen > div:nth-child(odd) { border-left: 0; }
+  .torneo-finalizado__resumen > div:nth-child(n + 3) { border-top: 1px solid var(--color-borde); }
+  .torneo-finalizado__acciones { display: grid; margin-top: 24px; }
+  .torneo-finalizado__acciones button, .torneo-finalizado__acciones a { width: 100%; }
+  .llaves-torneo--completo .llaves-torneo__ronda { display: flex; }
+  .llaves-torneo--completo .llaves-torneo__campeon { display: flex; }
+  .llaves-torneo--completo .llaves-torneo__campeon > div { width: 100%; }
+}
