@@ -99,7 +99,7 @@ export default function PaginaPartidaIndividual() {
       }
     }
 
-    cargarPartida()
+    void cargarPartida()
 
     return () => {
       cancelado = true
@@ -112,7 +112,7 @@ export default function PaginaPartidaIndividual() {
     }
 
     if (tiempoRestante <= 0) {
-      manejarRespuesta(null, false, true)
+      void manejarRespuesta(null, false, true)
       return undefined
     }
 
@@ -182,7 +182,8 @@ export default function PaginaPartidaIndividual() {
       setPuntaje((valorActual) => valorActual + Number(respuestaApi.puntajeObtenido))
     }
 
-    window.setTimeout(async () => {
+    window.setTimeout(() => {
+      void (async () => {
       const siguienteIndice = indicePreguntaActual + 1
       if (siguienteIndice >= preguntas.length) {
         try {
@@ -217,6 +218,7 @@ export default function PaginaPartidaIndividual() {
       setMostrarFeedback(false)
       setBloqueado(false)
       setRespuestaCorrecta(null)
+      })()
     }, 1200)
   }
 
@@ -289,7 +291,7 @@ export default function PaginaPartidaIndividual() {
             onSeleccionar={(opcionId) => {
               const opcionElegida = preguntaActual.opciones.find((opcion) => opcion.id === opcionId)
               const esCorrecta = opcionElegida?.id === preguntaActual.opcionCorrectaId
-              manejarRespuesta(opcionElegida?.id ?? null, esCorrecta, false)
+              void manejarRespuesta(opcionElegida?.id ?? null, esCorrecta, false)
             }}
           />
 

@@ -26,7 +26,7 @@ const ComponenteRuleta = forwardRef(function ComponenteRuleta({
   const temporizadorGiro = useRef(null)
 
   const categoriasNormalizadas = useMemo(
-    () => categorias.map(normalizarCategoria),
+    () => categorias.map((categoria, indice) => normalizarCategoria(categoria, indice)),
     [categorias],
   )
 

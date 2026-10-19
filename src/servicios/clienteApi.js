@@ -1,7 +1,9 @@
 import { obtenerToken } from './servicioSesion.js'
 
 function obtenerUrlApi() {
-  const urlApi = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
+  const urlConfigurada = import.meta.env.VITE_API_URL?.trim()
+  let urlApi = urlConfigurada
+  while (urlApi?.endsWith('/')) urlApi = urlApi.slice(0, -1)
   if (!urlApi) throw new Error('Falta configurar VITE_API_URL para conectar con el servidor.')
   return urlApi
 }

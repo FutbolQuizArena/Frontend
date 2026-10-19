@@ -121,8 +121,9 @@ export default function PaginaEsperandoRival() {
 
         // Si quedamos en PENDIENTE_RIVAL, consultamos cada 1.5s hasta que se sume el rival
         if (!intervaloPollingRef.current && !emparejadoRef.current) {
-          intervaloPollingRef.current = window.setInterval(async () => {
-            try {
+          intervaloPollingRef.current = window.setInterval(() => {
+            void (async () => {
+              try {
               const estadoActual = await consultarEstadoDuelo(duelo.id, perfilActual)
               if (!montadoRef.current || canceladoRef.current || emparejadoRef.current) return
 
@@ -159,6 +160,7 @@ export default function PaginaEsperandoRival() {
             } catch {
               // Continúa reintentando en la siguiente iteración si falla una petición puntual
             }
+            })()
           }, 1500)
         }
       } catch {
@@ -168,7 +170,7 @@ export default function PaginaEsperandoRival() {
       }
     }
 
-    iniciarBusqueda()
+    void iniciarBusqueda()
 
     return () => {
       montadoRef.current = false

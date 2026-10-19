@@ -45,7 +45,7 @@ export default function PaginaFormularioPreguntaAdmin() {
         if (vigente) establecerCargando(false)
       }
     }
-    cargar()
+    void cargar()
     return () => { vigente = false }
   }, [idPregunta, vistaPrevia])
 
@@ -89,7 +89,7 @@ export default function PaginaFormularioPreguntaAdmin() {
 
         <label>Enunciado de la pregunta<textarea value={datos.enunciado} onChange={(evento) => establecerDatos({ ...datos, enunciado: evento.target.value })} rows="3" maxLength="500" /></label>
         <div className="admin-formulario__fila"><label>Categoría<select value={datos.categoria} onChange={(evento) => establecerDatos({ ...datos, categoria: evento.target.value })}><option value="">Seleccioná una categoría</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Respuesta correcta<select aria-label="Respuesta correcta" value={datos.respuestaCorrecta ?? ''} onChange={(evento) => establecerDatos({ ...datos, respuestaCorrecta: evento.target.value === '' ? null : Number(evento.target.value) })}><option value="">Seleccionar opción</option>{['A', 'B', 'C', 'D'].map((letra, indice) => <option key={letra} value={indice}>Opción {letra}</option>)}</select></label></div>
-        <fieldset><legend>Opciones de respuesta</legend><p>Seleccioná la opción correcta.</p>{datos.opciones.map((opcion, indice) => <div className={`admin-formulario__opcion${datos.respuestaCorrecta === indice ? ' admin-formulario__opcion--correcta' : ''}`} key={indice}><label htmlFor={`opcion-${indice}`}>Opción {String.fromCharCode(65 + indice)}</label><input id={`opcion-${indice}`} value={opcion} onChange={(evento) => cambiarOpcion(indice, evento.target.value)} maxLength="200" /><label className="admin-formulario__radio"><input type="radio" name="correcta" checked={datos.respuestaCorrecta === indice} onChange={() => establecerDatos({ ...datos, respuestaCorrecta: indice })} />Correcta</label></div>)}</fieldset><p className="admin-formulario__nota">Cada pregunta debe tener exactamente cuatro opciones y una única respuesta correcta.</p>
+        <fieldset><legend>Opciones de respuesta</legend><p>Seleccioná la opción correcta.</p>{datos.opciones.map((opcion, indice) => <div className={`admin-formulario__opcion${datos.respuestaCorrecta === indice ? ' admin-formulario__opcion--correcta' : ''}`} key={indice}><label htmlFor={`opcion-${indice}`}>Opción {String.fromCodePoint(65 + indice)}</label><input id={`opcion-${indice}`} value={opcion} onChange={(evento) => cambiarOpcion(indice, evento.target.value)} maxLength="200" /><label className="admin-formulario__radio"><input type="radio" name="correcta" checked={datos.respuestaCorrecta === indice} onChange={() => establecerDatos({ ...datos, respuestaCorrecta: indice })} />Correcta</label></div>)}</fieldset><p className="admin-formulario__nota">Cada pregunta debe tener exactamente cuatro opciones y una única respuesta correcta.</p>
         {error && <p className="admin-formulario__error" role="alert">{error}</p>}
         {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}<div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{guardando ? 'Guardando…' : idPregunta ? 'Guardar cambios' : 'Guardar pregunta'}</button></div>
       </form>}

@@ -10,7 +10,7 @@ export default function MarcoAutenticacion({ variante = 'inicio-sesion', titulo,
       <a className="enlace-salto" href="#contenido">Ir al formulario</a>
       <header className="cabecera">
         <span className="marca" aria-label="FutbolQuiz Arena">
-          FUTBOLQUIZ
+          FUTBOLQUIZ{' '}
           <span className="marca__arena">ARENA</span>
         </span>
         <nav className="navegacion" aria-label="Acceso a la cuenta">

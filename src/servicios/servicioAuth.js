@@ -1,7 +1,13 @@
 import { obtenerToken } from './servicioSesion.js'
 
+function obtenerUrlApi() {
+  let urlApi = import.meta.env.VITE_API_URL?.trim()
+  while (urlApi?.endsWith('/')) urlApi = urlApi.slice(0, -1)
+  return urlApi
+}
+
 async function enviarSolicitudAutenticacion(ruta, datos, mensajeError) {
-  const urlApi = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
+  const urlApi = obtenerUrlApi()
 
   if (!urlApi) {
     throw new Error('Falta configurar VITE_API_URL para conectar con el servidor.')
@@ -54,7 +60,8 @@ export function registrar(nombre, correo, contrasena) {
 
 export function iniciarSesion(correo, contrasena) {
   if (import.meta.env.DEV && correo === 'admin@futbolquiz.local' && contrasena === 'Admin1234!') {
-    const contenido = btoa(JSON.stringify({ adminPrueba: true, exp: Math.floor(Date.now() / 1000) + 86400 })).replace(/=+$/, '')
+    let contenido = btoa(JSON.stringify({ adminPrueba: true, exp: Math.floor(Date.now() / 1000) + 86400 }))
+    while (contenido.endsWith('=')) contenido = contenido.slice(0, -1)
     return Promise.resolve({ token_type: 'bearer', access_token: `eyJhbGciOiJub25lIn0.${contenido}.vista-previa`, vistaPreviaAdmin: true })
   }
   return enviarSolicitudAutenticacion(
@@ -68,7 +75,7 @@ export async function cerrarSesionRemota() {
   const token = obtenerToken()
   if (!token) return
 
-  const urlApi = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
+  const urlApi = obtenerUrlApi()
   if (!urlApi) return
 
   try {
