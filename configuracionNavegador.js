@@ -3,7 +3,7 @@ import { defineConfig as definirConfiguracion } from '@playwright/test'
 export default definirConfiguracion({
   testDir: './pruebas',
   fullyParallel: true,
-  workers: 2,
+  workers: 1,
   reporter: 'list',
   use: {
     baseURL: 'http://127.0.0.1:4173',
@@ -15,6 +15,9 @@ export default definirConfiguracion({
     command: 'npm run dev -- --host 127.0.0.1 --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: false,
-    env: { VITE_API_URL: 'https://api.futbolquiz.test' },
+    env: {
+      VITE_API_URL: 'https://api.futbolquiz.test',
+      VITE_COVERAGE: process.env.VITE_COVERAGE ?? 'true',
+    },
   },
 })

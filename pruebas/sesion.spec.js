@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { crearTokenPrueba, prepararSesion } from './datosSesion.js'
 
 const rutasPrivadas = ['/home', '/perfil', '/partida-individual', '/duelo', '/torneos', '/torneos/crear', '/torneos/unirse', '/torneos/1', '/torneos/1/sala', '/torneos/1/cuadro', '/ranking', '/admin']
@@ -67,7 +67,7 @@ for (const ruta of ['/home', '/perfil']) {
     await completarLogin(pagina, crearTokenPrueba())
     await esperar(pagina).toHaveURL(/\/home$/)
     await pagina.getByRole('button', { name: 'Empezar partida' }).click()
-    await esperar(pagina).toHaveURL(/\/partida-individual$/)
+    await esperar(pagina).toHaveURL(/\/partida\/ruleta$/)
     await pagina.goto(ruta)
     await pagina.evaluate(() => localStorage.setItem('futbolquizToken', sessionStorage.getItem('futbolquizToken')))
     await pagina.getByRole('button', { name: 'Cerrar sesión' }).click()

@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { crearTokenPrueba } from './datosSesion.js'
 
 const urlRegistro = 'https://api.futbolquiz.test/api/auth/registro'
@@ -127,6 +127,10 @@ prueba('el login valida correo y contraseña antes de iniciar sesión', async ({
 prueba('el login muestra el message del 401 del backend y permite reintentar', async ({ page: pagina }) => {
   const solicitudesAuth = []
   const mensajeServidor = 'No se pudo verificar el correo o la contraseña de este jugador.'
+  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({
+    status: 200,
+    json: { id: 1, nombre: 'Jugador de prueba', email: 'jugador@futbolquiz.com', rol: 'JUGADOR' },
+  }))
   await pagina.route(urlLogin, (ruta) => {
     solicitudesAuth.push(ruta.request())
     return ruta.fulfill(solicitudesAuth.length === 1

@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
 prueba('cancelar conserva la pregunta y confirmar la elimina del listado temporal', async ({ page: pagina }) => {

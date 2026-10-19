@@ -8,4 +8,6 @@ test-results/
 *.local
 docs/*
 !docs/swagger.md
+coverage/
+.nyc_output/
 

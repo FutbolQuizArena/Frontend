@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 
 prueba('la cuenta admin de prueba abre el panel sin consultar el backend', async ({ page: pagina }) => {
   await pagina.route('**/api/auth/login', (ruta) => ruta.abort())
