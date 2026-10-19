@@ -192,7 +192,7 @@ export default function PaginaDueloLocal() {
 
       <main className="duelo-local__contenido">
         {fase === 'preparacion' && (
-          <PantallaPreparacionDuelo nombres={nombres} onChange={manejarCambioNombre} onIniciar={manejarInicioDuelo} cargando={cargandoDuelo} error={error} />
+          <PantallaPreparacionDuelo nombres={nombres} onChange={manejarCambioNombre} onIniciar={() => { void manejarInicioDuelo() }} cargando={cargandoDuelo} error={error} />
         )}
 
         {fase === 'turno' && (
@@ -212,7 +212,7 @@ export default function PaginaDueloLocal() {
                   key={opcion.id}
                   type="button"
                   className="duelo-local__opcion"
-                  onClick={() => manejarRespuesta(opcion.id)}
+                  onClick={() => { void manejarRespuesta(opcion.id) }}
                   disabled={registrandoRespuesta}
                   aria-label={`Opción ${opcion.texto}`}
                 >
@@ -224,7 +224,7 @@ export default function PaginaDueloLocal() {
         )}
 
         {fase === 'cambioTurno' && (
-          <PantallaCambioTurno jugador={jugadorCambioNombre} onListo={manejarListo} />
+          <PantallaCambioTurno jugador={jugadorCambioNombre} onListo={() => { void manejarListo() }} />
         )}
 
         {fase === 'resultado' && (

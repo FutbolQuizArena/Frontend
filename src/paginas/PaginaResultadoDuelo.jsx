@@ -104,8 +104,9 @@ export default function PaginaResultadoDuelo() {
           setCargando(false)
 
           // Polling cada 2 segundos hasta que el rival termine
-          intervaloPolling = window.setInterval(async () => {
-            try {
+          intervaloPolling = window.setInterval(() => {
+            void (async () => {
+              try {
               const resActualizado = await obtenerResultadoDuelo(dueloId, perfil)
               if (!activo) return
               if (resActualizado && (resActualizado.estado === 'FINALIZADA' || resActualizado.estado === 'FINALIZADO')) {
@@ -118,6 +119,7 @@ export default function PaginaResultadoDuelo() {
             } catch {
               // reintentar
             }
+            })()
           }, 2000)
         }
       } catch (error) {
@@ -128,7 +130,7 @@ export default function PaginaResultadoDuelo() {
       }
     }
 
-    cargarResultado()
+    void cargarResultado()
 
     return () => {
       activo = false
@@ -322,7 +324,7 @@ export default function PaginaResultadoDuelo() {
           </div>
 
           <div className="resultado-duelo__acciones">
-            <Boton alHacerClic={manejarRevancha} deshabilitado={enEspera}>Pedir Revancha</Boton>
+            <Boton alHacerClic={() => { void manejarRevancha() }} deshabilitado={enEspera}>Pedir Revancha</Boton>
             <button type="button" className="boton boton--secundario" onClick={manejarInicio}>Volver al inicio</button>
           </div>
         </section>

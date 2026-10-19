@@ -1,9 +1,22 @@
+export function esCorreoValido(correo) {
+  const indiceArroba = correo.indexOf('@')
+  if (indiceArroba <= 0 || indiceArroba !== correo.lastIndexOf('@') || indiceArroba === correo.length - 1) return false
+
+  for (const caracter of correo) {
+    if (caracter.trim() === '') return false
+  }
+
+  const dominio = correo.slice(indiceArroba + 1)
+  const indicePunto = dominio.indexOf('.')
+  return indicePunto > 0 && indicePunto < dominio.length - 1
+}
+
 export function validarInicioSesion({ correo, contrasena }) {
   const errores = {}
 
   if (!correo.trim()) {
     errores.correo = 'Ingresá tu correo electrónico.'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
+  } else if (!esCorreoValido(correo.trim())) {
     errores.correo = 'Ingresá un correo electrónico válido.'
   }
 

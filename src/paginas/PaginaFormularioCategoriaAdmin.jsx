@@ -43,7 +43,7 @@ export default function PaginaFormularioCategoriaAdmin() {
         if (vigente) establecerCargando(false)
       }
     }
-    cargar()
+    void cargar()
     return () => { vigente = false }
   }, [idCategoria, vistaPrevia])
 

@@ -4,6 +4,7 @@ import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
 import { actualizarPerfil, obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { esCorreoValido } from '../utilidades/validacionesAutenticacion.js'
 import '../estilos/estilosPerfil.css'
 
 const datosIniciales = {
@@ -22,7 +23,7 @@ function validarPerfil(datos) {
   const errores = {}
 
   if (!datos.nombre.trim()) errores.nombre = 'Ingresá tu nombre.'
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo.trim())) errores.correo = 'Ingresá un correo electrónico válido.'
+  if (!esCorreoValido(datos.correo.trim())) errores.correo = 'Ingresá un correo electrónico válido.'
   if (datos.nuevaContrasena && datos.nuevaContrasena.length < 8) {
     errores.nuevaContrasena = 'La nueva contraseña debe tener al menos 8 caracteres.'
   }

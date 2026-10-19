@@ -38,7 +38,7 @@ export default function PaginaSeleccionModo() {
       }
     }
 
-    cargarModos()
+    void cargarModos()
 
     return () => {
       activo = false

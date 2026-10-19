@@ -8,8 +8,8 @@ export function obtenerDatosToken(token) {
   try {
     const partes = token.split('.')
     if (partes.length !== 3 || partes.some((parte) => !/^[\w-]+$/.test(parte))) return null
-    const contenido = partes[1].replace(/-/g, '+').replace(/_/g, '/')
-    const bytes = Uint8Array.from(atob(contenido), (caracter) => caracter.charCodeAt(0))
+    const contenido = partes[1].replaceAll('-', '+').replaceAll('_', '/')
+    const bytes = Uint8Array.from(atob(contenido), (caracter) => caracter.codePointAt(0))
     const datos = JSON.parse(new TextDecoder().decode(bytes))
     if (!datos || typeof datos !== 'object' || Array.isArray(datos)) return null
     if (datos.exp !== undefined && (typeof datos.exp !== 'number' || !Number.isFinite(datos.exp))) return null
