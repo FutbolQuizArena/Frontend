@@ -80,7 +80,7 @@ function TorneoFinalizado({ torneo }) {
       </section>
       <p className="torneo-finalizado__balance">El resumen personal estará disponible cuando el backend publique los resultados de las partidas.</p>
       <div className="torneo-finalizado__acciones">
-        <button type="button" onClick={compartirResultado}>Compartir resultado</button>
+        <button type="button" onClick={() => { void compartirResultado() }}>Compartir resultado</button>
         <button type="button" onClick={() => establecerMostrarCuadro(true)}>Ver cuadro completo</button>
         <Enlace to="/torneos">Volver a torneos</Enlace>
       </div>

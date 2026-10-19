@@ -138,7 +138,7 @@ export default function PaginaPreguntasAdmin() {
           if (evento.shiftKey && document.activeElement === primero) { evento.preventDefault(); ultimo?.focus() }
           else if (!evento.shiftKey && document.activeElement === ultimo) { evento.preventDefault(); primero?.focus() }
         }
-      }}><h2 id="titulo-eliminar-pregunta">¿Eliminar pregunta?</h2><p id="detalle-eliminar-pregunta">{preguntaAEliminar.enunciado}</p><p>{datosEjemplo ? 'Esta acción quitará la pregunta del listado temporal.' : 'Esta acción eliminará la pregunta del banco de contenido.'}</p>{errorEliminar && <p role="alert">{errorEliminar}</p>}<div><button ref={botonCancelar} type="button" disabled={eliminando} onClick={() => establecerPreguntaAEliminar(null)}>Cancelar</button><button type="button" disabled={eliminando} onClick={confirmarEliminacion}>{eliminando ? 'Eliminando…' : 'Sí, eliminar'}</button></div></dialog>}
+      }}><h2 id="titulo-eliminar-pregunta">¿Eliminar pregunta?</h2><p id="detalle-eliminar-pregunta">{preguntaAEliminar.enunciado}</p><p>{datosEjemplo ? 'Esta acción quitará la pregunta del listado temporal.' : 'Esta acción eliminará la pregunta del banco de contenido.'}</p>{errorEliminar && <p role="alert">{errorEliminar}</p>}<div><button ref={botonCancelar} type="button" disabled={eliminando} onClick={() => establecerPreguntaAEliminar(null)}>Cancelar</button><button type="button" disabled={eliminando} onClick={() => { void confirmarEliminacion() }}>{eliminando ? 'Eliminando…' : 'Sí, eliminar'}</button></div></dialog>}
     </div>
   </MarcoTorneo>
 }

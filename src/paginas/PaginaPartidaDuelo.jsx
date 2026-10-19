@@ -104,7 +104,7 @@ export default function PaginaPartidaDuelo() {
     }
 
     if (tiempoRestante <= 0) {
-      manejarRespuesta(null, true)
+      void manejarRespuesta(null, true)
       return undefined
     }
 
@@ -303,7 +303,7 @@ export default function PaginaPartidaDuelo() {
                   data-testid="opcion-duelo"
                   disabled={bloqueado || Boolean(estadoFeedback)}
                   onClick={() => {
-                    manejarRespuesta(opcion.id, false)
+                    void manejarRespuesta(opcion.id, false)
                   }}
                 >
                   {opcion.texto}

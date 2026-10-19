@@ -23,6 +23,7 @@ export default function PaginaRuletaCategoria() {
   const [categoriaElegida, setCategoriaElegida] = useState(null)
   const [categoriaSiguiente, setCategoriaSiguiente] = useState(null)
   const [giroActivo, setGiroActivo] = useState(false)
+  const [mensajeError, setMensajeError] = useState('')
 
   useEffect(() => {
     let cancelado = false
@@ -61,6 +62,14 @@ export default function PaginaRuletaCategoria() {
     if (categoriaSeleccionada?.nombre) {
       sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaSeleccionada.nombre)
     }
+  }
+
+  const manejarContinuar = () => {
+    setMensajeError('')
+    sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaElegida.nombre)
+    void Promise.resolve(navegar('/partida/juegan')).catch(() => {
+      setMensajeError('No pudimos abrir la partida. Intentá de nuevo.')
+    })
   }
 
   return (
@@ -122,12 +131,10 @@ export default function PaginaRuletaCategoria() {
                 <div className="ruleta-categoria__resultado" role="dialog" aria-modal="true" aria-labelledby="categoria-resultante">
                   <p className="ruleta-categoria__etiqueta">Categoría seleccionada:</p>
                   <h2 id="categoria-resultante">{categoriaElegida.nombre}</h2>
-                  <Boton alHacerClic={() => {
-                    sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaElegida.nombre)
-                    navegar('/partida/juegan')
-                  }}>
+                  <Boton alHacerClic={manejarContinuar}>
                     Continuar a la Partida
                   </Boton>
+                  {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
                 </div>
               )}
             </div>

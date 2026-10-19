@@ -69,7 +69,7 @@ export default function PaginaCrearTorneo() {
         contrasena: datos.contrasena,
       })
       if (!resultado.idTorneo) throw new Error('El servidor no devolvió el ID del torneo creado.')
-      navegar(`/torneos/${resultado.idTorneo}/sala`, { replace: true })
+      await navegar(`/torneos/${resultado.idTorneo}/sala`, { replace: true })
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos crear el torneo. Intentá de nuevo.')
     } finally {

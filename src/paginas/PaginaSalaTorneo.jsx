@@ -102,7 +102,7 @@ export default function PaginaSalaTorneo() {
 
         <section className="sala-torneo__resumen" aria-labelledby="nombre-sala-torneo">
           <div><span className={`sala-torneo__estado${participantesCompletos ? ' sala-torneo__estado--listo' : ''}`}>{sala.estado}</span><h2 id="nombre-sala-torneo">{sala.nombre}</h2><p>Creado por {sala.organizador} · {sala.capacidad} participantes</p></div>
-          <div className="sala-torneo__codigo"><small>CÓDIGO</small><strong>{sala.codigo}</strong><button type="button" onClick={copiarCodigo}>Copiar código</button></div>
+          <div className="sala-torneo__codigo"><small>CÓDIGO</small><strong>{sala.codigo}</strong><button type="button" onClick={() => { void copiarCodigo() }}>Copiar código</button></div>
         </section>
 
         <section className="sala-torneo__progreso-movil" aria-label={`${sala.participantes.length} de ${sala.capacidad} jugadores listos`}>
@@ -117,15 +117,15 @@ export default function PaginaSalaTorneo() {
             <ol><li className="completado">Compartí el código</li><li className="completado">Completá los {sala.capacidad} lugares</li><li className={crucesGenerados ? 'completado' : ''}>Se generan los cruces</li><li className={crucesGenerados ? 'completado' : ''}>Comienza el torneo</li></ol>
             <p className="sala-torneo__aviso-participante">{crucesGenerados ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generarán automáticamente al completar el cupo.'}</p>
             {crucesGenerados && <Enlace className="sala-torneo__ver-cuadro" to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace>}
-            {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={manejarSalida} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}
+            {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={() => { void manejarSalida() }} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}
           </aside>
         </div>
 
-        <section className="sala-torneo__compartir-movil"><small>Compartir código</small><button type="button" onClick={copiarCodigo}><strong>{sala.codigo}</strong><span aria-hidden="true">▣</span></button></section>
+        <section className="sala-torneo__compartir-movil"><small>Compartir código</small><button type="button" onClick={() => { void copiarCodigo() }}><strong>{sala.codigo}</strong><span aria-hidden="true">▣</span></button></section>
         <div className="sala-torneo__accion-movil">
           {crucesGenerados ? <Enlace to={`/torneos/${idTorneo}/cuadro`}>Ver cuadro</Enlace> : <p>{participantesCompletos ? 'Preparando los cruces' : `Esperando ${lugaresFaltantes} jugadores`}</p>}
           <small>{crucesGenerados ? 'Los cruces se generaron automáticamente.' : 'Los cruces se generan al completar el cupo.'}</small>
-          {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={manejarSalida} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}
+          {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={() => { void manejarSalida() }} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}
         </div>
         {mensajeError && <p className="mensaje mensaje--error sala-torneo__mensaje" role="alert">{mensajeError}</p>}
         {mensajeAccion && <p className="mensaje mensaje--exito sala-torneo__mensaje" role="status">{mensajeAccion}</p>}
