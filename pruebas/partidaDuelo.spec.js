@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
 prueba('renderiza la partida de duelo y avanza hasta el resultado', async ({ page: pagina }) => {
@@ -6,7 +6,7 @@ prueba('renderiza la partida de duelo y avanza hasta el resultado', async ({ pag
 
   await pagina.goto('/duelo/partida')
 
-  await esperar(pagina.getByText('Lucas', { exact: false })).toBeVisible()
+  await esperar(pagina.getByText('Lucas', { exact: false }).first()).toBeVisible()
   await esperar(pagina.getByText('Rival', { exact: false })).toBeVisible()
   await esperar(pagina.getByText('Pregunta 1', { exact: false })).toBeVisible()
 
@@ -16,7 +16,7 @@ prueba('renderiza la partida de duelo y avanza hasta el resultado', async ({ pag
 
   await esperar(botones.first()).toBeDisabled()
 
-  await pagina.waitForURL(/\/duelo\/resultado/)
+  await esperar(pagina).toHaveURL(/\/duelo\/(?:[^/]+\/)?resultado$/)
 })
 
 prueba('mantiene el layout responsive en móvil', async ({ page: pagina }) => {

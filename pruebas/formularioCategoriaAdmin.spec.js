@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
 prueba('crea una categoría, permite elegirla en preguntas y valida nombres duplicados', async ({ page: pagina }) => {
