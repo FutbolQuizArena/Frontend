@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
 prueba.beforeEach(async ({ page: pagina }) => {
@@ -8,7 +8,7 @@ prueba.beforeEach(async ({ page: pagina }) => {
 prueba('renderiza el resultado del duelo en estado de victoria', async ({ page: pagina }) => {
   await pagina.evaluate(() => {
     sessionStorage.setItem('resultadoDuelo', JSON.stringify({
-      idPartida: 'duelo-001',
+      estado: 'FINALIZADA',
       ganador: 'local',
       jugadorLocal: {
         nombre: 'Lucas',
@@ -43,7 +43,7 @@ prueba('renderiza el resultado del duelo en estado de victoria', async ({ page: 
 prueba('navega correctamente a revancha e inicio desde el resultado', async ({ page: pagina }) => {
   await pagina.evaluate(() => {
     sessionStorage.setItem('resultadoDuelo', JSON.stringify({
-      idPartida: 'duelo-002',
+      estado: 'FINALIZADA',
       ganador: 'empate',
       jugadorLocal: {
         nombre: 'Lucas',

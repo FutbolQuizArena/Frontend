@@ -6,7 +6,7 @@ export function crearTokenPrueba(datos = {}) {
 }
 
 export async function prepararSesion(pagina, token = crearTokenPrueba()) {
-  await pagina.goto('/login')
+  await pagina.goto('/login', { waitUntil: 'domcontentloaded' })
   await pagina.evaluate((tokenTemporal) => sessionStorage.setItem('futbolquizToken', tokenTemporal), token)
   await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({
     status: 200,

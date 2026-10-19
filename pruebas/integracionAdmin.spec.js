@@ -1,4 +1,4 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
 const categoria = { id: 7, nombre: 'Mundiales', estado: 'ACTIVA', preguntas_count: 1 }

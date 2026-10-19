@@ -1,17 +1,29 @@
-import { test as prueba, expect as esperar } from '@playwright/test'
-import { obtenerPreguntasDueloLocal } from '../src/servicios/servicioDuelosLocales.js'
+import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
 prueba.beforeEach(async ({ page: pagina }) => {
   await prepararSesion(pagina)
-})
-
-prueba('cada jugador responde 4 preguntas en el duelo local', () => {
-  const preguntas = obtenerPreguntasDueloLocal()
-
-  esperar(preguntas.length).toBe(8)
-  esperar(preguntas.filter((_, indice) => indice % 2 === 0).length).toBe(4)
-  esperar(preguntas.filter((_, indice) => indice % 2 !== 0).length).toBe(4)
+  const preguntas = Array.from({ length: 8 }, (_, indice) => ({
+    id: indice + 1,
+    orden: indice + 1,
+    enunciado: `Pregunta local ${indice + 1}`,
+    opcion_a: 'Respuesta A',
+    opcion_b: 'Respuesta B',
+    opcion_c: 'Respuesta C',
+    opcion_d: 'Respuesta D',
+  }))
+  await pagina.route('**/api/duelos/local', (ruta) => ruta.fulfill({
+    status: 201,
+    json: { id: 1, estado: 'EN_CURSO', modalidad: 'local', preguntas },
+  }))
+  await pagina.route('**/api/duelos/preguntas/*/respuesta', (ruta) => ruta.fulfill({
+    status: 200,
+    json: { es_correcta: true, puntaje_obtenido: 100 },
+  }))
+  await pagina.route('**/api/duelos/1', (ruta) => ruta.fulfill({
+    status: 200,
+    json: { id: 1, estado: 'FINALIZADA', puntaje_jugador1: 400, puntaje_jugador2: 400, es_empate: true },
+  }))
 })
 
 prueba('muestra el formulario inicial de preparación del duelo local', async ({ page: pagina }) => {
