@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
@@ -77,7 +78,7 @@ export default function PaginaFormularioPreguntaAdmin() {
       const pregunta = { enunciado, categoria: datos.categoria, dificultad: datos.dificultad, estado: datos.estado, opciones, respuestaCorrecta: datos.respuestaCorrecta }
       if (idPregunta) await actualizarPreguntaAdmin(idPregunta, pregunta, { vistaPrevia })
       else await crearPreguntaAdmin(pregunta, { vistaPrevia })
-      navegar(regreso, { state: { avisoPregunta: datosEjemplo ? 'Pregunta guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Pregunta guardada.' } })
+      navegarConManejo(navegar, regreso, { state: { avisoPregunta: datosEjemplo ? 'Pregunta guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Pregunta guardada.' } })
     } catch (fallo) {
       establecerError(fallo.message || 'No pudimos guardar la pregunta.')
     } finally {

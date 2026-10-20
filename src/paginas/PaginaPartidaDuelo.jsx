@@ -5,6 +5,7 @@ import MarcadorDuelo from '../componentes/MarcadorDuelo.jsx'
 import TarjetaJugadorDuelo from '../componentes/TarjetaJugadorDuelo.jsx'
 import { generarAlias, generarAvatar, obtenerPreguntasDuelo, registrarRespuestaDuelo, simularRespuestaRival } from '../servicios/servicioDuelos.js'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import '../estilos/estilosPartidaDuelo.css'
 
 const enlaces = [
@@ -88,7 +89,9 @@ export default function PaginaPartidaDuelo() {
           avatar: perfil.iniciales || prev.avatar,
         }))
       })
-      .catch(() => {})
+      .catch((error) => {
+        console.error('No se pudo cargar el perfil; se mantienen los datos predeterminados.', error)
+      })
 
     const preguntasCargadas = obtenerPreguntasDuelo(partidaId)
     setPreguntas(preguntasCargadas)
@@ -161,7 +164,7 @@ export default function PaginaPartidaDuelo() {
         finalizada: false,
       }
       sessionStorage.setItem('resultadoDuelo', JSON.stringify(resultado))
-      navegar(`/duelo/${partidaId}/resultado`)
+      navegarConManejo(navegar, `/duelo/${partidaId}/resultado`)
       return
     }
 
