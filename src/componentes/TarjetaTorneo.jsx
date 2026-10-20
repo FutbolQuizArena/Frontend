@@ -4,11 +4,30 @@ function textoParticipantes(torneo) {
   return `${torneo.participantes} / ${torneo.capacidad}`
 }
 
+function obtenerTextoDetalleFinalizado(torneo) {
+  if (torneo.victorias === null) {
+    return 'Abrí el detalle para consultar el resultado'
+  }
+
+  const textoPosicion = torneo.resultado === 'Campeón' ? '1.er puesto' : torneo.resultado
+  return `${textoPosicion} · ${torneo.victorias} victorias`
+}
+
 export default function TarjetaTorneo({ torneo, tipo }) {
   const esFinalizado = tipo === 'finalizados'
   const esDisponible = tipo === 'disponibles'
-  const destino = esFinalizado ? `/torneos/${torneo.id}` : esDisponible ? '/torneos/unirse' : `/torneos/${torneo.id}/sala`
-  const textoAccion = esFinalizado ? 'Ver detalle' : esDisponible ? 'Unirme' : 'Ir a la sala'
+  let destino
+  let textoAccion
+  if (esFinalizado) {
+    destino = `/torneos/${torneo.id}`
+    textoAccion = 'Ver detalle'
+  } else if (esDisponible) {
+    destino = '/torneos/unirse'
+    textoAccion = 'Unirme'
+  } else {
+    destino = `/torneos/${torneo.id}/sala`
+    textoAccion = 'Ir a la sala'
+  }
   const valorProgreso = esFinalizado ? Math.max(torneo.victorias || 0, 1) : torneo.progreso || 0
 
   return (
@@ -21,7 +40,7 @@ export default function TarjetaTorneo({ torneo, tipo }) {
           <p className="tarjeta-torneo__fecha">{torneo.fecha}</p>
           <p className="tarjeta-torneo__campeon">{torneo.campeon}</p>
           <span className="tarjeta-torneo__resultado">{torneo.resultado}</span>
-          <p className="tarjeta-torneo__detalle-movil">{torneo.victorias === null ? 'Abrí el detalle para consultar el resultado' : `${torneo.resultado === 'Campeón' ? '1.er puesto' : torneo.resultado} · ${torneo.victorias} victorias`}</p>
+          <p className="tarjeta-torneo__detalle-movil">{obtenerTextoDetalleFinalizado(torneo)}</p>
         </>
       ) : (
         <>

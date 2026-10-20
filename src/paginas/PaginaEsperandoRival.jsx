@@ -22,6 +22,18 @@ function formatearTiempo(segundos) {
   return `${String(minutos).padStart(2, '0')}:${String(segundosRestantes).padStart(2, '0')}`
 }
 
+function obtenerTituloBusqueda(estadoBusqueda) {
+  if (estadoBusqueda === 'encontrado') return '¡Rival encontrado!'
+  if (estadoBusqueda === 'error') return 'Error al buscar rival'
+  return 'Buscando rival...'
+}
+
+function obtenerSubtituloBusqueda(estadoBusqueda) {
+  if (estadoBusqueda === 'encontrado') return 'Preparando la partida'
+  if (estadoBusqueda === 'error') return 'No se pudo conectar con el servidor de emparejamiento'
+  return 'Emparejando con otro jugador'
+}
+
 export default function PaginaEsperandoRival() {
   const navegar = usarNavegacion()
   const canceladoRef = usarReferencia(false)
@@ -234,7 +246,7 @@ export default function PaginaEsperandoRival() {
         <header className="pagina-esperando-rival__encabezado">
           <div>
             <p className="sobretitulo pagina-esperando-rival__etiqueta">DUELO 1V1</p>
-            <h1>{estadoBusqueda === 'encontrado' ? '¡Rival encontrado!' : (estadoBusqueda === 'error' ? 'Error al buscar rival' : 'Buscando rival...')}</h1>
+            <h1>{obtenerTituloBusqueda(estadoBusqueda)}</h1>
           </div>
           <Enlace className="pagina-esperando-rival__volver" to="/jugar">Volver al menú</Enlace>
         </header>
@@ -245,11 +257,7 @@ export default function PaginaEsperandoRival() {
 
             <div className="pagina-esperando-rival__texto">
               <p className="pagina-esperando-rival__subtitulo">
-                {estadoBusqueda === 'encontrado'
-                  ? 'Preparando la partida'
-                  : estadoBusqueda === 'error'
-                  ? 'No se pudo conectar con el servidor de emparejamiento'
-                  : 'Emparejando con otro jugador'}
+                {obtenerSubtituloBusqueda(estadoBusqueda)}
               </p>
               <strong className="pagina-esperando-rival__tiempo">{formatearTiempo(tiempoEspera)}</strong>
             </div>

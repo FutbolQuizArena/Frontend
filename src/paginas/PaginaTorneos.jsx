@@ -37,6 +37,21 @@ const secciones = {
   },
 }
 
+function obtenerTextoPuntaje(perfil, perfilCargado) {
+  if (perfil) {
+    const etiquetaRol = perfil.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'
+    return `${etiquetaRol} · ${perfil.puntajeTotal.toLocaleString('es-AR')} pts`
+  }
+  if (perfilCargado) return 'Puntaje no disponible'
+  return 'Cargando…'
+}
+
+function obtenerTituloListado(seccionActiva) {
+  if (seccionActiva === 'propios') return 'ACTIVOS'
+  if (seccionActiva === 'finalizados') return 'ÚLTIMOS RESULTADOS'
+  return 'TORNEOS DISPONIBLES'
+}
+
 export default function PaginaTorneos() {
   const [seccionActiva, establecerSeccionActiva] = usarEstado('propios')
   const [torneos, establecerTorneos] = usarEstado([])
@@ -108,7 +123,7 @@ export default function PaginaTorneos() {
             </EnlaceNavegacion>
           ))}
         </nav>
-        <div className="torneos__acumulado"><p>PUNTAJE ACUMULADO</p><span>{perfil ? `${perfil.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · ${perfil.puntajeTotal.toLocaleString('es-AR')} pts` : perfilCargado ? 'Puntaje no disponible' : 'Cargando…'}</span></div>
+        <div className="torneos__acumulado"><p>PUNTAJE ACUMULADO</p><span>{obtenerTextoPuntaje(perfil, perfilCargado)}</span></div>
       </aside>
 
       <header className="torneos__cabecera">
@@ -154,7 +169,7 @@ export default function PaginaTorneos() {
 
         {!cargando && !mensajeError && torneosVisibles.length > 0 && (
           <section className={`torneos__listado torneos__listado--${seccionActiva}`} aria-label={seccion.etiqueta}>
-            <h2 className="torneos__titulo-listado">{seccionActiva === 'propios' ? 'ACTIVOS' : seccionActiva === 'finalizados' ? 'ÚLTIMOS RESULTADOS' : 'TORNEOS DISPONIBLES'}</h2>
+            <h2 className="torneos__titulo-listado">{obtenerTituloListado(seccionActiva)}</h2>
             <div className="torneos__encabezados" aria-hidden="true">
               {seccionActiva === 'propios' && <><span>Nombre</span><span>Formato</span><span>Inicio</span><span>Jugadores</span><span>Estado</span><span /></>}
               {seccionActiva === 'finalizados' && <><span>Torneo</span><span>Fecha</span><span>Campeón</span><span>Tu resultado</span><span /></>}

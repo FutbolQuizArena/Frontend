@@ -10,6 +10,12 @@ import '../estilos/estilosMarcoAdmin.css'
 
 const inicial = { nombre: '', descripcion: '', estado: 'ACTIVA' }
 
+function obtenerTextoBotonCategoria(guardando, idCategoria) {
+  if (guardando) return 'Guardando…'
+  if (idCategoria) return 'Guardar cambios'
+  return 'Crear categoría'
+}
+
 export default function PaginaFormularioCategoriaAdmin() {
   const { idCategoria } = useParams()
   const [parametros] = useSearchParams()
@@ -79,7 +85,7 @@ export default function PaginaFormularioCategoriaAdmin() {
         <label>Estado<select value={datos.estado} onChange={(evento) => establecerDatos({ ...datos, estado: evento.target.value })}><option value="ACTIVA">Activa</option><option value="BORRADOR">Borrador</option></select></label>
         {errorFormulario && <p className="admin-formulario__error" role="alert">{errorFormulario}</p>}
         {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}
-        <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{guardando ? 'Guardando…' : idCategoria ? 'Guardar cambios' : 'Crear categoría'}</button></div>
+        <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{obtenerTextoBotonCategoria(guardando, idCategoria)}</button></div>
       </form>}
     </div>
   </MarcoTorneo>

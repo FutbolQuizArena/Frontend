@@ -10,6 +10,12 @@ import '../estilos/estilosMarcoAdmin.css'
 
 const formularioVacio = { enunciado: '', categoria: '', dificultad: 'Fácil', opciones: ['', '', '', ''], respuestaCorrecta: null }
 
+function obtenerTextoBotonPregunta(guardando, idPregunta) {
+  if (guardando) return 'Guardando…'
+  if (idPregunta) return 'Guardar cambios'
+  return 'Guardar pregunta'
+}
+
 export default function PaginaFormularioPreguntaAdmin() {
   const { idPregunta } = useParams()
   const [parametros] = useSearchParams()
@@ -91,7 +97,7 @@ export default function PaginaFormularioPreguntaAdmin() {
         <div className="admin-formulario__fila"><label>Categoría<select value={datos.categoria} onChange={(evento) => establecerDatos({ ...datos, categoria: evento.target.value })}><option value="">Seleccioná una categoría</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Respuesta correcta<select aria-label="Respuesta correcta" value={datos.respuestaCorrecta ?? ''} onChange={(evento) => establecerDatos({ ...datos, respuestaCorrecta: evento.target.value === '' ? null : Number(evento.target.value) })}><option value="">Seleccionar opción</option>{['A', 'B', 'C', 'D'].map((letra, indice) => <option key={letra} value={indice}>Opción {letra}</option>)}</select></label></div>
         <fieldset><legend>Opciones de respuesta</legend><p>Seleccioná la opción correcta.</p>{datos.opciones.map((opcion, indice) => <div className={`admin-formulario__opcion${datos.respuestaCorrecta === indice ? ' admin-formulario__opcion--correcta' : ''}`} key={indice}><label htmlFor={`opcion-${indice}`}>Opción {String.fromCodePoint(65 + indice)}</label><input id={`opcion-${indice}`} value={opcion} onChange={(evento) => cambiarOpcion(indice, evento.target.value)} maxLength="200" /><label className="admin-formulario__radio"><input type="radio" name="correcta" checked={datos.respuestaCorrecta === indice} onChange={() => establecerDatos({ ...datos, respuestaCorrecta: indice })} />Correcta</label></div>)}</fieldset><p className="admin-formulario__nota">Cada pregunta debe tener exactamente cuatro opciones y una única respuesta correcta.</p>
         {error && <p className="admin-formulario__error" role="alert">{error}</p>}
-        {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}<div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{guardando ? 'Guardando…' : idPregunta ? 'Guardar cambios' : 'Guardar pregunta'}</button></div>
+        {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}<div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{obtenerTextoBotonPregunta(guardando, idPregunta)}</button></div>
       </form>}
     </div>
   </MarcoTorneo>
