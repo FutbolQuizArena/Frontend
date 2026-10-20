@@ -5,6 +5,7 @@ import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteCargandoDuelo from '../componentes/ComponenteCargandoDuelo.jsx'
 import { buscarRivalDuelo, cancelarBusquedaDuelo, consultarEstadoDuelo } from '../servicios/servicioDuelos.js'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import '../estilos/estilosHome.css'
 import '../estilos/estilosEsperandoRival.css'
 
@@ -70,7 +71,9 @@ export default function PaginaEsperandoRival() {
           puntuacion: perfil?.puntajeTotal ?? 0,
         })
       })
-      .catch(() => {})
+      .catch((error) => {
+        console.error('No se pudo cargar el perfil; se mantienen los datos predeterminados.', error)
+      })
 
     return () => {
       activo = false
@@ -125,7 +128,7 @@ export default function PaginaEsperandoRival() {
           setEstadoBusqueda('encontrado')
           window.setTimeout(() => {
             if (montadoRef.current && !canceladoRef.current) {
-              navegar('/duelo/partida')
+              navegarConManejo(navegar, '/duelo/partida')
             }
           }, 1400)
           return
@@ -165,7 +168,7 @@ export default function PaginaEsperandoRival() {
 
                 window.setTimeout(() => {
                   if (montadoRef.current && !canceladoRef.current) {
-                    navegar('/duelo/partida')
+                    navegarConManejo(navegar, '/duelo/partida')
                   }
                 }, 1400)
               }
@@ -201,7 +204,7 @@ export default function PaginaEsperandoRival() {
       intervaloPollingRef.current = null
     }
     cancelarBusquedaDuelo()
-    navegar('/jugar')
+    navegarConManejo(navegar, '/jugar')
   }
 
   return (

@@ -5,6 +5,7 @@ import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { obtenerSalaTorneo, salirDelTorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
+import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 
 export default function PaginaSalaTorneo() {
   const { idTorneo } = usarParametros()
@@ -43,7 +44,9 @@ export default function PaginaSalaTorneo() {
     const intervalo = window.setInterval(() => {
       obtenerSalaTorneo(idTorneo).then((resultado) => {
         if (vigente) establecerSala(resultado)
-      }).catch(() => {})
+      }).catch((error) => {
+        console.error('No se pudo actualizar la sala; se volverá a intentar en el próximo intervalo.', error)
+      })
     }, 15000)
     return () => { vigente = false; window.clearInterval(intervalo) }
   }, [idTorneo, sala?.estado])
@@ -66,7 +69,7 @@ export default function PaginaSalaTorneo() {
       const usuario = await obtenerPerfil()
       if (usuario.id === sala.creadorId && !window.confirm('Sos el creador: salir cancelará el torneo para todos los participantes. ¿Querés continuar?')) return
       await salirDelTorneo(idTorneo)
-      navegar('/torneos', { replace: true })
+      navegarConManejo(navegar, '/torneos', { replace: true })
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos salir del torneo.')
     } finally {
