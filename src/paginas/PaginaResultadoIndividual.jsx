@@ -13,6 +13,18 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
+function obtenerPosicion(puntaje) {
+  if (puntaje >= 1400) return 'Elite'
+  if (puntaje >= 900) return 'Pro'
+  return 'Rookie'
+}
+
+function obtenerNivelLogro(puntaje) {
+  if (puntaje >= 1200) return 'Excelente'
+  if (puntaje >= 700) return 'Muy bien'
+  return 'Buen intento'
+}
+
 export default function PaginaResultadoIndividual() {
   const navegar = usarNavegacion()
   const resultadoGuardado = useMemo(() => {
@@ -68,8 +80,8 @@ export default function PaginaResultadoIndividual() {
   const respuestasCorrectas = Number(resultado?.respuestasCorrectas ?? 0)
   const totalRespuestas = Number(resultado?.totalRespuestas ?? 10)
   const porcentaje = totalRespuestas ? Math.round((respuestasCorrectas / totalRespuestas) * 100) : 0
-  const posicion = puntaje >= 1400 ? 'Elite' : puntaje >= 900 ? 'Pro' : 'Rookie'
-  const nivelLogro = puntaje >= 1200 ? 'Excelente' : puntaje >= 700 ? 'Muy bien' : 'Buen intento'
+  const posicion = obtenerPosicion(puntaje)
+  const nivelLogro = obtenerNivelLogro(puntaje)
 
   return (
     <div className="inicio resultado-individual__pagina">

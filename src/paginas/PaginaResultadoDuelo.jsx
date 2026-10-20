@@ -38,6 +38,13 @@ const obtenerEstadoResultado = (resultado) => {
   return { texto: 'Esperando al rival...', clase: 'resultado-duelo__banner--pendiente' }
 }
 
+function obtenerSubtituloComparativa(enEspera, localEsGanador, rivalEsGanador) {
+  if (enEspera) return 'El rival aún está respondiendo. La pantalla se actualizará automáticamente.'
+  if (localEsGanador) return 'Has ganado el enfrentamiento'
+  if (rivalEsGanador) return 'Has perdido el enfrentamiento'
+  return 'Empate perfecto'
+}
+
 export default function PaginaResultadoDuelo() {
   const navegar = usarNavegacion()
   const { idDuelo } = usarParametros()
@@ -293,15 +300,7 @@ export default function PaginaResultadoDuelo() {
               <p className="sobretitulo">RESULTADO DEL DUELO</p>
               <h1>Comparativa final</h1>
             </div>
-            <strong className="resultado-duelo__subtitulo">
-              {enEspera
-                ? 'El rival aún está respondiendo. La pantalla se actualizará automáticamente.'
-                : localEsGanador
-                ? 'Has ganado el enfrentamiento'
-                : rivalEsGanador
-                ? 'Has perdido el enfrentamiento'
-                : 'Empate perfecto'}
-            </strong>
+            <strong className="resultado-duelo__subtitulo">{obtenerSubtituloComparativa(enEspera, localEsGanador, rivalEsGanador)}</strong>
           </header>
 
           <div className="resultado-duelo__comparativa">
