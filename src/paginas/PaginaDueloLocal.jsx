@@ -116,10 +116,21 @@ export default function PaginaDueloLocal() {
       const estadoDuelo = idDueloLocal ? await obtenerResultadoDueloLocal(idDueloLocal) : null
       const puntajeFinalJugador1 = Number(estadoDuelo?.puntajeJugador1 ?? puntajeJugador1)
       const puntajeFinalJugador2 = Number(estadoDuelo?.puntajeJugador2 ?? puntajeJugador2)
-      const ganador = puntajeFinalJugador1 === puntajeFinalJugador2 ? 'empate' : (puntajeFinalJugador1 > puntajeFinalJugador2 ? 'jugador1' : 'jugador2')
+      let ganador
+      let ganadorNombre
+      if (puntajeFinalJugador1 === puntajeFinalJugador2) {
+        ganador = 'empate'
+        ganadorNombre = 'Empate'
+      } else if (puntajeFinalJugador1 > puntajeFinalJugador2) {
+        ganador = 'jugador1'
+        ganadorNombre = nombres.jugador1
+      } else {
+        ganador = 'jugador2'
+        ganadorNombre = nombres.jugador2
+      }
       const resultado = {
         ganador,
-        ganadorNombre: puntajeFinalJugador1 === puntajeFinalJugador2 ? 'Empate' : (puntajeFinalJugador1 > puntajeFinalJugador2 ? nombres.jugador1 : nombres.jugador2),
+        ganadorNombre,
         puntajeJugador1: puntajeFinalJugador1,
         puntajeJugador2: puntajeFinalJugador2,
         aciertosJugador1,

@@ -5,9 +5,18 @@ export default function TarjetaComparativaDuelo({
   esEmpate = false,
   enEspera = false,
 }) {
-  const resultadoEtiqueta = enEspera
-    ? (esLocal ? 'Completado' : 'Respondiendo...')
-    : (esGanador ? 'Ganador' : esEmpate ? 'Empate' : 'Rival')
+  let resultadoEtiqueta
+  if (enEspera && esLocal) {
+    resultadoEtiqueta = 'Completado'
+  } else if (enEspera) {
+    resultadoEtiqueta = 'Respondiendo...'
+  } else if (esGanador) {
+    resultadoEtiqueta = 'Ganador'
+  } else if (esEmpate) {
+    resultadoEtiqueta = 'Empate'
+  } else {
+    resultadoEtiqueta = 'Rival'
+  }
 
   return (
     <article className={`tarjeta-comparativa-duelo${esLocal ? ' tarjeta-comparativa-duelo--local' : ''}`}>

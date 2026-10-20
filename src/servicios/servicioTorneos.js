@@ -19,7 +19,12 @@ function adaptarTorneo(torneo, filtro, indice) {
   const participantes = torneo.cantidad_participantes_actual
   const capacidad = torneo.cantidad_participantes
   const progreso = capacidad ? Math.round((participantes / capacidad) * 100) : 0
-  const estadoVisible = torneo.estado === 'ESPERANDO_JUGADORES' ? (filtro === 'disponibles' ? 'ABIERTO' : 'ESPERANDO') : torneo.estado.replaceAll('_', ' ')
+  let estadoVisible
+  if (torneo.estado === 'ESPERANDO_JUGADORES') {
+    estadoVisible = filtro === 'disponibles' ? 'ABIERTO' : 'ESPERANDO'
+  } else {
+    estadoVisible = torneo.estado.replaceAll('_', ' ')
+  }
   const codigo = torneo.codigo_acceso || ''
 
   return {
@@ -131,7 +136,12 @@ function adaptarCuadro(torneo) {
   }))
   const final = rondas.at(-1)?.cruces[0]
   const ganador = final?.ganadorId
-  const campeon = ganador && final.jugadorA.id === ganador ? final.jugadorA : ganador && final.jugadorB.id === ganador ? final.jugadorB : null
+  let campeon = null
+  if (ganador && final.jugadorA.id === ganador) {
+    campeon = final.jugadorA
+  } else if (ganador && final.jugadorB.id === ganador) {
+    campeon = final.jugadorB
+  }
   const rondaActual = rondas.find((ronda) => ronda.cruces.some((cruce) => cruce.estado !== 'FINALIZADO'))?.nombre || rondas.at(-1)?.nombre || 'Por definir'
   return {
     id: torneo.id,

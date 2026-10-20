@@ -13,6 +13,10 @@ const enlaces = [
 export default function MarcoTorneo({ children: contenido, tituloMovil, subtituloMovil, administrador = false, sufijoAdmin = '' }) {
   const [usuario, establecerUsuario] = usarEstado(null)
   const ubicacion = useLocation()
+  const etiquetaRolUsuario = usuario?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'
+  const textoPuntajeAcumulado = usuario
+    ? `${etiquetaRolUsuario} · ${usuario.puntajeTotal.toLocaleString('es-AR')} pts`
+    : 'Cargando…'
   const enlacesAdmin = [
     { destino: `/admin${sufijoAdmin}`, titulo: 'Preguntas', simbolo: '?' },
     { destino: `/admin/categorias${sufijoAdmin}`, titulo: 'Categorías', simbolo: '▦' },
@@ -45,7 +49,7 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
             </EnlaceNavegacion>
           ))}
         </nav>
-        <div className="marco-torneo__acumulado"><p>{administrador ? 'Rol: Administrador' : 'PUNTAJE ACUMULADO'}</p><span hidden={administrador}>{usuario ? `${usuario.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · ${usuario.puntajeTotal.toLocaleString('es-AR')} pts` : 'Cargando…'}</span></div>
+        <div className="marco-torneo__acumulado"><p>{administrador ? 'Rol: Administrador' : 'PUNTAJE ACUMULADO'}</p><span hidden={administrador}>{textoPuntajeAcumulado}</span></div>
       </aside>
 
       <header className="marco-torneo__cabecera">

@@ -98,19 +98,20 @@ function normalizarCategoriaBackend(categoria) {
   }
 }
 
+function obtenerCategoriasDeRespuesta(respuesta) {
+  if (Array.isArray(respuesta)) return respuesta
+  if (Array.isArray(respuesta?.items)) return respuesta.items
+  if (Array.isArray(respuesta?.categorias)) return respuesta.categorias
+  return []
+}
+
 export async function obtenerCategoriasDisponibles() {
   const rutasPosibles = ['/api/categorias', '/api/partidas/categorias']
 
   for (const ruta of rutasPosibles) {
     try {
       const respuesta = await solicitarApi(ruta, { metodo: 'GET' })
-      const categorias = Array.isArray(respuesta)
-        ? respuesta
-        : Array.isArray(respuesta?.items)
-          ? respuesta.items
-          : Array.isArray(respuesta?.categorias)
-            ? respuesta.categorias
-            : []
+      const categorias = obtenerCategoriasDeRespuesta(respuesta)
 
       const categoriasNormalizadas = categorias
         .map(normalizarCategoriaBackend)

@@ -56,11 +56,16 @@ const ComponenteRuleta = forwardRef(function ComponenteRuleta({
       return null
     }
 
-    const indiceObjetivo = resultado
-      ? (typeof resultado === 'string'
-        ? categoriasNormalizadas.findIndex((categoria) => categoria.nombre === resultado)
-        : categoriasNormalizadas.findIndex((categoria) => categoria.nombre === resultado.nombre || categoria.id === resultado.id))
-      : obtenerIndiceResultado()
+    let indiceObjetivo
+    if (resultado) {
+      if (typeof resultado === 'string') {
+        indiceObjetivo = categoriasNormalizadas.findIndex((categoria) => categoria.nombre === resultado)
+      } else {
+        indiceObjetivo = categoriasNormalizadas.findIndex((categoria) => categoria.nombre === resultado.nombre || categoria.id === resultado.id)
+      }
+    } else {
+      indiceObjetivo = obtenerIndiceResultado()
+    }
 
     const indiceFinal = indiceObjetivo >= 0 ? indiceObjetivo : obtenerIndiceResultado()
     const centroSegmento = (indiceFinal + 0.5) * anguloSegmento

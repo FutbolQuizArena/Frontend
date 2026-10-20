@@ -12,6 +12,12 @@ import '../estilos/estilosUsuariosAdmin.css'
 
 const tamanioPagina = 6
 
+function obtenerTextoBotonCambioEstado(guardando, usuario) {
+  if (guardando) return 'Guardando…'
+  if (usuario.esta_habilitado) return 'Sí, deshabilitar'
+  return 'Sí, habilitar'
+}
+
 export default function PaginaUsuariosAdmin() {
   const [parametros] = useSearchParams()
   const vistaPrevia = import.meta.env.DEV && parametros.get('vistaPrevia') === '1'
@@ -105,7 +111,7 @@ export default function PaginaUsuariosAdmin() {
           if (evento.shiftKey && document.activeElement === primero) { evento.preventDefault(); ultimo?.focus() }
           else if (!evento.shiftKey && document.activeElement === ultimo) { evento.preventDefault(); primero?.focus() }
         }
-      }}><h2 id="titulo-estado-usuario">¿{usuarioSeleccionado.esta_habilitado ? 'Deshabilitar' : 'Habilitar'} usuario?</h2><p id="detalle-estado-usuario">¿Seguro que querés {usuarioSeleccionado.esta_habilitado ? 'deshabilitar' : 'habilitar'} a <strong>{usuarioSeleccionado.nombre}</strong> ({usuarioSeleccionado.email})?</p><p>{usuarioSeleccionado.esta_habilitado ? 'El usuario no podrá iniciar sesión mientras permanezca deshabilitado.' : 'El usuario volverá a tener acceso a la plataforma con sus datos previos.'}</p>{errorEstado && <p role="alert" className="admin-formulario__error">{errorEstado}</p>}<div><button type="button" disabled={guardandoEstado} onClick={() => establecerUsuarioSeleccionado(null)}>Cancelar</button><button type="button" disabled={guardandoEstado} onClick={() => { void confirmarCambioEstado() }}>{guardandoEstado ? 'Guardando…' : (usuarioSeleccionado.esta_habilitado ? 'Sí, deshabilitar' : 'Sí, habilitar')}</button></div></dialog>}
+      }}><h2 id="titulo-estado-usuario">¿{usuarioSeleccionado.esta_habilitado ? 'Deshabilitar' : 'Habilitar'} usuario?</h2><p id="detalle-estado-usuario">¿Seguro que querés {usuarioSeleccionado.esta_habilitado ? 'deshabilitar' : 'habilitar'} a <strong>{usuarioSeleccionado.nombre}</strong> ({usuarioSeleccionado.email})?</p><p>{usuarioSeleccionado.esta_habilitado ? 'El usuario no podrá iniciar sesión mientras permanezca deshabilitado.' : 'El usuario volverá a tener acceso a la plataforma con sus datos previos.'}</p>{errorEstado && <p role="alert" className="admin-formulario__error">{errorEstado}</p>}<div><button type="button" disabled={guardandoEstado} onClick={() => establecerUsuarioSeleccionado(null)}>Cancelar</button><button type="button" disabled={guardandoEstado} onClick={() => { void confirmarCambioEstado() }}>{obtenerTextoBotonCambioEstado(guardandoEstado, usuarioSeleccionado)}</button></div></dialog>}
     </div>
   </MarcoTorneo>
 }
