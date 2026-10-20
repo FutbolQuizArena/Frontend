@@ -11,6 +11,7 @@ import {
   obtenerResultadoPartida,
 } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosPartidaIndividual.css'
+import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
@@ -136,7 +137,7 @@ export default function PaginaPartidaIndividual() {
       const respuestasFinales = [...respuestas]
       const resultado = finalizarPartidaIndividual(partidaId, respuestasFinales)
       sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
-      navegar('/partida/resultado')
+      navegarConManejo(navegar, '/partida/resultado')
       return
     }
 
@@ -208,7 +209,7 @@ export default function PaginaPartidaIndividual() {
           }))
         }
 
-        navegar('/partida/resultado')
+        navegarConManejo(navegar, '/partida/resultado')
         return
       }
 
@@ -309,7 +310,7 @@ export default function PaginaPartidaIndividual() {
                     tiempoAgotado: false,
                   }])
                   sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
-                  navegar('/partida/resultado')
+                  navegarConManejo(navegar, '/partida/resultado')
                   return
                 }
 

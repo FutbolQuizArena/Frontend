@@ -2,6 +2,7 @@ import { useEffect as usarEfecto, useMemo as usarMemo, useState as usarEstado } 
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion, useParams as usarParametros } from 'react-router-dom'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import Boton from '../componentes/Boton.jsx'
+import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import TarjetaComparativaDuelo from '../componentes/TarjetaComparativaDuelo.jsx'
 import { obtenerResultadoDuelo, solicitarRevanchaDuelo } from '../servicios/servicioDuelos.js'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
@@ -154,9 +155,10 @@ export default function PaginaResultadoDuelo() {
       await solicitarRevanchaDuelo(resultado?.idPartida ?? idDuelo ?? 'demo-duelo')
     } catch (error) {
       // Se permite continuar con la espera del duelo aunque el backend aún no esté conectado.
+      console.error('No se pudo solicitar la revancha; se continuará con la búsqueda.', error)
     }
 
-    navegar('/duelo/esperando')
+    navegarConManejo(navegar, '/duelo/esperando')
   }
 
   const manejarInicio = () => navegar('/home')

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
@@ -64,7 +65,7 @@ export default function PaginaFormularioCategoriaAdmin() {
     try {
       if (idCategoria) await actualizarCategoriaAdmin(idCategoria, datos, { vistaPrevia })
       else await crearCategoriaAdmin(datos, { vistaPrevia })
-      navegar(regreso, { state: { avisoCategoria: datosEjemplo ? 'Categoría guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Categoría guardada.' } })
+      navegarConManejo(navegar, regreso, { state: { avisoCategoria: datosEjemplo ? 'Categoría guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Categoría guardada.' } })
     } catch (fallo) {
       establecerErrorFormulario(fallo.message || 'No pudimos guardar la categoría.')
     } finally {
