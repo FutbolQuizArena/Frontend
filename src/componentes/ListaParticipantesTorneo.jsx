@@ -22,9 +22,12 @@ export default function ListaParticipantesTorneo({ participantes, capacidad }) {
       <div className="lista-participantes__grilla">
         {lugares.map((participante, indice) => {
           const esOrganizador = participante.esCreador
+          const claseAvatar = participante.disponible
+            ? 'lista-participantes__avatar'
+            : `lista-participantes__avatar lista-participantes__avatar--${indice % 3}`
           return (
             <article className={`lista-participantes__jugador${participante.disponible ? ' lista-participantes__jugador--disponible' : ''}`} key={participante.id}>
-              <span className={`lista-participantes__avatar${participante.disponible ? '' : ` lista-participantes__avatar--${indice % 3}`}`} aria-hidden="true">
+              <span className={claseAvatar} aria-hidden="true">
                 {participante.disponible ? '+' : obtenerIniciales(participante.nombre)}
               </span>
               <div>
