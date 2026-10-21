@@ -1,4 +1,4 @@
-import { createContext as crearContexto, useContext as usarContexto, useEffect as usarEfecto, useState as usarEstado } from 'react'
+import { createContext as crearContexto, useCallback as usarCallback, useContext as usarContexto, useEffect as usarEfecto, useMemo as usarMemo, useState as usarEstado } from 'react'
 import { borrarSesion, claveToken, guardarSesion, obtenerDatosToken, obtenerToken } from '../servicios/servicioSesion.js'
 
 const ContextoSesion = crearContexto(null)
@@ -6,14 +6,20 @@ const ContextoSesion = crearContexto(null)
 export function ProveedorSesion({ children: contenido }) {
   const [token, establecerToken] = usarEstado(obtenerToken)
 
-  function abrirSesion(respuesta, mantenerSesion) {
+  const abrirSesion = usarCallback((respuesta, mantenerSesion) => {
     establecerToken(guardarSesion(respuesta, mantenerSesion))
-  }
+  }, [establecerToken])
 
-  function cerrarSesion() {
+  const cerrarSesion = usarCallback(() => {
     borrarSesion()
     establecerToken(null)
-  }
+  }, [establecerToken])
+
+  const sincronizarSesion = usarCallback((evento) => {
+    if (evento.type !== 'storage' || evento.key === claveToken || evento.key === null) {
+      establecerToken(obtenerToken())
+    }
+  }, [establecerToken])
 
   usarEfecto(() => {
     let temporizador
@@ -30,12 +36,6 @@ export function ProveedorSesion({ children: contenido }) {
       }
     }
 
-    function sincronizarSesion(evento) {
-      if (evento.type !== 'storage' || evento.key === claveToken || evento.key === null) {
-        establecerToken(obtenerToken())
-      }
-    }
-
     revisarVencimiento()
     window.addEventListener('storage', sincronizarSesion)
     window.addEventListener('focus', sincronizarSesion)
@@ -44,10 +44,17 @@ export function ProveedorSesion({ children: contenido }) {
       window.removeEventListener('storage', sincronizarSesion)
       window.removeEventListener('focus', sincronizarSesion)
     }
-  }, [token])
+  }, [token, sincronizarSesion])
+
+  const valorSesion = usarMemo(() => ({
+    token,
+    autenticado: Boolean(token),
+    abrirSesion,
+    cerrarSesion,
+  }), [token, abrirSesion, cerrarSesion])
 
   return (
-    <ContextoSesion.Provider value={{ token, autenticado: Boolean(token), abrirSesion, cerrarSesion }}>
+    <ContextoSesion.Provider value={valorSesion}>
       {contenido}
     </ContextoSesion.Provider>
   )

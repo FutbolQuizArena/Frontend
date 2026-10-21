@@ -23,7 +23,8 @@ export async function obtenerUsuariosAdmin({ buscar = '', rol = '', estaHabilita
       (estaHabilitado === '' || usuario.esta_habilitado === (estaHabilitado === 'true')))
   }
 
-  const ruta = `/api/admin/usuarios${consulta.size ? `?${consulta}` : ''}`
+  const parametros = consulta.size ? `?${consulta}` : ''
+  const ruta = `/api/admin/usuarios${parametros}`
   const respuesta = await solicitarApi(ruta)
   if (!Array.isArray(respuesta)) throw new Error('El servidor devolvió un listado de usuarios inesperado.')
   return respuesta
