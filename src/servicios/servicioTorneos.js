@@ -26,6 +26,7 @@ function adaptarTorneo(torneo, filtro, indice) {
     estadoVisible = torneo.estado.replaceAll('_', ' ')
   }
   const codigo = torneo.codigo_acceso || ''
+  const detalleCodigo = codigo ? ` · Código ${codigo}` : ''
 
   return {
     id: torneo.id,
@@ -37,7 +38,7 @@ function adaptarTorneo(torneo, filtro, indice) {
     capacidad,
     estado: estadoVisible,
     estadoOriginal: torneo.estado,
-    detalle: `${participantes}/${capacidad} jugadores${codigo ? ` · Código ${codigo}` : ''}`,
+    detalle: `${participantes}/${capacidad} jugadores${detalleCodigo}`,
     progreso,
     tono: obtenerTono(indice),
     codigo,

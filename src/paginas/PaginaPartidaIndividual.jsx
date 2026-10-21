@@ -130,25 +130,6 @@ export default function PaginaPartidaIndividual() {
     return () => window.clearInterval(temporizador)
   }, [bloqueado, mostrarFeedback, preguntaActual, tiempoRestante])
 
-  const avanzarPregunta = () => {
-    const siguienteIndice = indicePreguntaActual + 1
-
-    if (siguienteIndice >= preguntas.length) {
-      const respuestasFinales = [...respuestas]
-      const resultado = finalizarPartidaIndividual(partidaId, respuestasFinales)
-      sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
-      navegarConManejo(navegar, '/partida/resultado')
-      return
-    }
-
-    setIndicePreguntaActual(siguienteIndice)
-    setTiempoRestante(parametros.segundosPorPregunta || 15)
-    setRespuestaSeleccionada(null)
-    setMostrarFeedback(false)
-    setBloqueado(false)
-    setRespuestaCorrecta(null)
-  }
-
   const manejarRespuesta = async (opcionSeleccionada, esCorrecta, tiempoAgotado = false) => {
     if (!preguntaActual || bloqueado) {
       return

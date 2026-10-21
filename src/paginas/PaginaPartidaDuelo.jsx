@@ -35,21 +35,17 @@ export default function PaginaPartidaDuelo() {
   const [indicePregunta, setIndicePregunta] = usarEstado(0)
   const [respuestaSeleccionada, setRespuestaSeleccionada] = usarEstado(null)
   const [estadoFeedback, setEstadoFeedback] = usarEstado(null)
-  const [mostrarFeedback, setMostrarFeedback] = usarEstado(false)
   const [bloqueado, setBloqueado] = usarEstado(false)
   const [tiempoRestante, setTiempoRestante] = usarEstado(obtenerTiempoBase())
   const [puntajeLocal, setPuntajeLocal] = usarEstado(0)
-  const [puntajeRival, setPuntajeRival] = usarEstado(0)
+  const [puntajeRival] = usarEstado(0)
   const [aciertosLocal, setAciertosLocal] = usarEstado(0)
-  const [aciertosRival, setAciertosRival] = usarEstado(0)
+  const [aciertosRival] = usarEstado(0)
   const [estadoRival, setEstadoRival] = usarEstado('Respondiendo...')
   const [categoriaDuelo, setCategoriaDuelo] = usarEstado('Fútbol')
 
   const puntajeLocalRef = usarReferencia(0)
   const aciertosLocalRef = usarReferencia(0)
-  const puntajeRivalRef = usarReferencia(0)
-  const aciertosRivalRef = usarReferencia(0)
-
   const preguntaActual = preguntas[indicePregunta] ?? null
   const totalPreguntas = preguntas.length || 1
   const categoriaActual = (preguntaActual?.categoria && preguntaActual.categoria !== 'Aleatoria')
