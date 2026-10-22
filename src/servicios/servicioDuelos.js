@@ -110,82 +110,80 @@ function normalizarDueloOnline(respuesta, usuarioActual = null) {
 }
  
 
+function obtenerDatosJugadoresResultado(respuesta, esJugador1, usuarioActual) {
+  const numeroLocal = esJugador1 ? 1 : 2
+  const numeroRival = esJugador1 ? 2 : 1
+  const nombreLocal = respuesta?.[`jugador${numeroLocal}_nombre`] || usuarioActual?.nombre || 'Tú'
+  const nombreRival = respuesta?.[`jugador${numeroRival}_nombre`] || 'Rival'
+
+  return {
+    puntajeLocal: Number(respuesta?.[`puntaje_jugador${numeroLocal}`] ?? 0),
+    puntajeRival: Number(respuesta?.[`puntaje_jugador${numeroRival}`] ?? 0),
+    aciertosLocal: Number(respuesta?.[`aciertos_jugador${numeroLocal}`] ?? 0),
+    aciertosRival: Number(respuesta?.[`aciertos_jugador${numeroRival}`] ?? 0),
+    nombreLocal,
+    nombreRival,
+  }
+}
+
+function obtenerGanadorResultado(estaFinalizado, empate, ganadorNumero, esJugador1) {
+  if (!estaFinalizado || (!empate && ganadorNumero !== 1 && ganadorNumero !== 2)) {
+    return { ganador: 'pendiente', resultadoTexto: 'PENDIENTE' }
+  }
+
+  if (empate) return { ganador: 'empate', resultadoTexto: 'EMPATE' }
+
+  const jugadorGanador = ganadorNumero === 1 ? 1 : 2
+  const ganoJugadorLocal = jugadorGanador === (esJugador1 ? 1 : 2)
+  return {
+    ganador: ganoJugadorLocal ? 'local' : 'rival',
+    resultadoTexto: ganoJugadorLocal ? '¡VICTORIA!' : 'DERROTA',
+  }
+}
+
 export function obtenerResultadoDuelo(idDuelo, usuarioActual = null) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
     .then((respuesta) => {
       const idUsuarioActual = usuarioActual?.id ? Number(usuarioActual.id) : null
       const esJugador1 = idUsuarioActual !== null ? Number(respuesta?.jugador1_id) === idUsuarioActual : true
 
-      const puntajeLocal = esJugador1
-        ? Number(respuesta?.puntaje_jugador1 ?? 0)
-        : Number(respuesta?.puntaje_jugador2 ?? 0)
-      const puntajeRival = esJugador1
-        ? Number(respuesta?.puntaje_jugador2 ?? 0)
-        : Number(respuesta?.puntaje_jugador1 ?? 0)
-
-      const aciertosLocal = esJugador1
-        ? Number(respuesta?.aciertos_jugador1 ?? 0)
-        : Number(respuesta?.aciertos_jugador2 ?? 0)
-      const aciertosRival = esJugador1
-        ? Number(respuesta?.aciertos_jugador2 ?? 0)
-        : Number(respuesta?.aciertos_jugador1 ?? 0)
-
-      const nombreLocal = esJugador1
-        ? (respuesta?.jugador1_nombre || usuarioActual?.nombre || 'Tú')
-        : (respuesta?.jugador2_nombre || usuarioActual?.nombre || 'Tú')
-      const nombreRival = esJugador1
-        ? (respuesta?.jugador2_nombre || 'Rival')
-        : (respuesta?.jugador1_nombre || 'Rival')
+      const datosJugadores = obtenerDatosJugadoresResultado(respuesta, esJugador1, usuarioActual)
 
       const estado = String(respuesta?.estado ?? '').toUpperCase()
       const estaFinalizado = estado === 'FINALIZADA' || estado === 'FINALIZADO'
       const empate = Boolean(respuesta?.es_empate)
       const ganadorNumero = Number(respuesta?.numero_ganador ?? 0)
 
-      let ganador = 'pendiente'
-      let resultadoTexto = 'PENDIENTE'
-
-      if (estaFinalizado) {
-        if (empate) {
-          ganador = 'empate'
-          resultadoTexto = 'EMPATE'
-        } else if (ganadorNumero === 1) {
-          ganador = esJugador1 ? 'local' : 'rival'
-          resultadoTexto = esJugador1 ? '¡VICTORIA!' : 'DERROTA'
-        } else if (ganadorNumero === 2) {
-          ganador = esJugador1 ? 'rival' : 'local'
-          resultadoTexto = esJugador1 ? 'DERROTA' : '¡VICTORIA!'
-        }
-      }
+      const resultadoGanador = obtenerGanadorResultado(estaFinalizado, empate, ganadorNumero, esJugador1)
 
       return {
         idPartida: Number(respuesta?.id ?? idDuelo ?? 0),
         estado,
-        ganador,
+        ganador: resultadoGanador.ganador,
         jugadorLocal: {
-          nombre: nombreLocal,
-          alias: generarAlias(nombreLocal),
-          avatar: generarAvatar(nombreLocal),
-          puntaje: puntajeLocal,
-          aciertos: aciertosLocal,
+          nombre: datosJugadores.nombreLocal,
+          alias: generarAlias(datosJugadores.nombreLocal),
+          avatar: generarAvatar(datosJugadores.nombreLocal),
+          puntaje: datosJugadores.puntajeLocal,
+          aciertos: datosJugadores.aciertosLocal,
           totalPreguntas: 10,
           tiempoPromedio: 0,
         },
         oponente: {
-          nombre: nombreRival,
-          alias: generarAlias(nombreRival),
-          avatar: generarAvatar(nombreRival),
-          puntaje: puntajeRival,
-          aciertos: aciertosRival,
+          nombre: datosJugadores.nombreRival,
+          alias: generarAlias(datosJugadores.nombreRival),
+          avatar: generarAvatar(datosJugadores.nombreRival),
+          puntaje: datosJugadores.puntajeRival,
+          aciertos: datosJugadores.aciertosRival,
           totalPreguntas: 10,
           tiempoPromedio: 0,
         },
         resumen: {
-          diferencia: Math.abs(puntajeLocal - puntajeRival),
-          porcentajeLocal: Math.round((aciertosLocal / 10) * 100),
-          porcentajeOponente: Math.round((aciertosRival / 10) * 100),
+          diferencia: Math.abs(datosJugadores.puntajeLocal - datosJugadores.puntajeRival),
+          porcentajeLocal: Math.round((datosJugadores.aciertosLocal / 10) * 100),
+          porcentajeOponente: Math.round((datosJugadores.aciertosRival / 10) * 100),
         },
-        resultadoTexto,
+        resultadoTexto: resultadoGanador.resultadoTexto,
       }
     })
     .catch(() => {

@@ -12,6 +12,43 @@ import '../estilos/estilosMarcoAdmin.css'
 
 const tamanioPagina = 5
 
+async function cargarDatosPreguntas({ vistaPrevia, datosEjemplo, pagina, busquedaAplicada, categoria, estado }) {
+  const rolUsuario = vistaPrevia ? 'VISTA_PREVIA' : (await obtenerPerfil()).rol
+  if (rolUsuario !== 'ADMINISTRADOR' && !vistaPrevia) {
+    return { rolUsuario, preguntas: [], sinAcceso: true }
+  }
+
+  if (datosEjemplo) {
+    const preguntas = await obtenerPreguntasAdmin({ vistaPrevia })
+    return { rolUsuario, preguntas }
+  }
+
+  const [resultado, categorias] = await Promise.all([
+    obtenerPreguntasAdmin({ pagina, buscar: busquedaAplicada, categoriaId: categoria, estado }),
+    obtenerCategoriasAdmin(),
+  ])
+
+  return {
+    rolUsuario,
+    preguntas: resultado.preguntas,
+    total: resultado.total,
+    totalPaginas: resultado.totalPaginas,
+    categorias,
+  }
+}
+
+function manejarTeclasDialogoEliminar(evento, eliminando) {
+  if (evento.key === 'Escape' && !eliminando) return 'cerrar'
+  if (evento.key !== 'Tab') return null
+
+  const botones = evento.currentTarget.querySelectorAll('button:not(:disabled)')
+  const primero = botones[0]
+  const ultimo = botones[botones.length - 1]
+  if (evento.shiftKey && document.activeElement === primero) return ultimo
+  if (!evento.shiftKey && document.activeElement === ultimo) return primero
+  return null
+}
+
 export default function PaginaPreguntasAdmin() {
   const [parametros] = useSearchParams()
   const ubicacion = useLocation()
@@ -51,30 +88,18 @@ export default function PaginaPreguntasAdmin() {
     let vigente = true
     establecerCargando(true)
     establecerErrorCarga('')
-    async function cargar() {
-      const rolUsuario = vistaPrevia ? 'VISTA_PREVIA' : (await obtenerPerfil()).rol
-      if (rolUsuario !== 'ADMINISTRADOR' && !vistaPrevia) {
-        if (vigente) { establecerRol(rolUsuario); establecerPreguntas([]) }
-        return
-      }
-      if (datosEjemplo) {
-        const lista = await obtenerPreguntasAdmin({ vistaPrevia })
-        if (vigente) { establecerRol(rolUsuario); establecerPreguntas(lista) }
-      } else {
-        const [lista, categorias] = await Promise.all([
-          obtenerPreguntasAdmin({ pagina, buscar: busquedaAplicada, categoriaId: categoria, estado }),
-          obtenerCategoriasAdmin(),
-        ])
-        if (vigente) {
-          establecerRol(rolUsuario)
-          establecerPreguntas(lista.preguntas)
-          establecerTotal(lista.total)
-          establecerPaginasServidor(lista.totalPaginas)
-          establecerCategoriasServidor(categorias)
+    cargarDatosPreguntas({ vistaPrevia, datosEjemplo, pagina, busquedaAplicada, categoria, estado })
+      .then((datos) => {
+        if (!vigente) return
+        establecerRol(datos.rolUsuario)
+        establecerPreguntas(datos.preguntas)
+        if (!datos.sinAcceso && !datosEjemplo) {
+          establecerTotal(datos.total)
+          establecerPaginasServidor(datos.totalPaginas)
+          establecerCategoriasServidor(datos.categorias)
         }
-      }
-    }
-    cargar().catch((error) => { if (vigente) establecerErrorCarga(error.message || 'No pudimos cargar las preguntas.') })
+      })
+      .catch((error) => { if (vigente) establecerErrorCarga(error.message || 'No pudimos cargar las preguntas.') })
       .finally(() => { if (vigente) establecerCargando(false) })
     return () => { vigente = false }
   }, [intento, vistaPrevia, datosEjemplo, pagina, busquedaAplicada, categoria, estado])
@@ -130,14 +155,9 @@ export default function PaginaPreguntasAdmin() {
         <nav className="admin-preguntas__paginacion" aria-label="Páginas de preguntas"><span>Página {pagina} de {totalPaginas}</span><div><button type="button" disabled={pagina === 1} onClick={() => establecerPagina((actual) => actual - 1)}>Anterior</button><button type="button" disabled={pagina === totalPaginas} onClick={() => establecerPagina((actual) => actual + 1)}>Siguiente</button></div></nav>
       </section>}
       {preguntaAEliminar && <dialog ref={dialogo} className="admin-preguntas__confirmacion" onCancel={(evento) => { evento.preventDefault(); if (!eliminando) establecerPreguntaAEliminar(null) }} role="alertdialog" aria-modal="true" aria-labelledby="titulo-eliminar-pregunta" aria-describedby="detalle-eliminar-pregunta" onKeyDown={(evento) => {
-        if (evento.key === 'Escape' && !eliminando) establecerPreguntaAEliminar(null)
-        if (evento.key === 'Tab') {
-          const botones = evento.currentTarget.querySelectorAll('button:not(:disabled)')
-          const primero = botones[0]
-          const ultimo = botones[botones.length - 1]
-          if (evento.shiftKey && document.activeElement === primero) { evento.preventDefault(); ultimo?.focus() }
-          else if (!evento.shiftKey && document.activeElement === ultimo) { evento.preventDefault(); primero?.focus() }
-        }
+        const destino = manejarTeclasDialogoEliminar(evento, eliminando)
+        if (destino === 'cerrar') establecerPreguntaAEliminar(null)
+        else if (destino) { evento.preventDefault(); destino.focus() }
       }}><h2 id="titulo-eliminar-pregunta">¿Eliminar pregunta?</h2><p id="detalle-eliminar-pregunta">{preguntaAEliminar.enunciado}</p><p>{datosEjemplo ? 'Esta acción quitará la pregunta del listado temporal.' : 'Esta acción eliminará la pregunta del banco de contenido.'}</p>{errorEliminar && <p role="alert">{errorEliminar}</p>}<div><button ref={botonCancelar} type="button" disabled={eliminando} onClick={() => establecerPreguntaAEliminar(null)}>Cancelar</button><button type="button" disabled={eliminando} onClick={() => { void confirmarEliminacion() }}>{eliminando ? 'Eliminando…' : 'Sí, eliminar'}</button></div></dialog>}
     </div>
   </MarcoTorneo>

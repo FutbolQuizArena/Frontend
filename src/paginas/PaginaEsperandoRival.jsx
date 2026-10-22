@@ -35,6 +35,14 @@ function obtenerSubtituloBusqueda(estadoBusqueda) {
   return 'Emparejando con otro jugador'
 }
 
+function programarEntradaALaPartida(montadoRef, canceladoRef, navegar) {
+  return window.setTimeout(() => {
+    if (montadoRef.current && !canceladoRef.current) {
+      navegarConManejo(navegar, '/duelo/partida')
+    }
+  }, 1400)
+}
+
 export default function PaginaEsperandoRival() {
   const navegar = usarNavegacion()
   const canceladoRef = usarReferencia(false)
@@ -126,11 +134,7 @@ export default function PaginaEsperandoRival() {
           }))
           setRival(rivalFinal)
           setEstadoBusqueda('encontrado')
-          window.setTimeout(() => {
-            if (montadoRef.current && !canceladoRef.current) {
-              navegarConManejo(navegar, '/duelo/partida')
-            }
-          }, 1400)
+          programarEntradaALaPartida(montadoRef, canceladoRef, navegar)
           return
         }
 
@@ -166,11 +170,7 @@ export default function PaginaEsperandoRival() {
                 setRival(rivalFinal)
                 setEstadoBusqueda('encontrado')
 
-                window.setTimeout(() => {
-                  if (montadoRef.current && !canceladoRef.current) {
-                    navegarConManejo(navegar, '/duelo/partida')
-                  }
-                }, 1400)
+                programarEntradaALaPartida(montadoRef, canceladoRef, navegar)
               }
             } catch {
               // Continúa reintentando en la siguiente iteración si falla una petición puntual
