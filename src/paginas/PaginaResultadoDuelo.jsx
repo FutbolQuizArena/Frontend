@@ -46,6 +46,53 @@ function obtenerSubtituloComparativa(enEspera, localEsGanador, rivalEsGanador) {
   return 'Empate perfecto'
 }
 
+function estaFinalizado(estado) {
+  return estado === 'FINALIZADA' || estado === 'FINALIZADO'
+}
+
+function leerResultadoGuardado() {
+  const resultadoGuardado = sessionStorage.getItem('resultadoDuelo')
+  if (!resultadoGuardado) return null
+
+  try {
+    return JSON.parse(resultadoGuardado)
+  } catch {
+    return null
+  }
+}
+
+function crearResultadoEnEspera(datosBackend, datosLocales) {
+  return {
+    ...datosBackend,
+    ganador: 'pendiente',
+    resultadoTexto: 'Esperando al rival...',
+    jugadorLocal: datosLocales?.jugadorLocal || datosBackend.jugadorLocal,
+    oponente: {
+      ...(datosBackend.oponente || datosLocales?.oponente),
+      puntaje: 0,
+      aciertos: 0,
+    },
+  }
+}
+
+function iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado) {
+  let intervalo
+  intervalo = window.setInterval(async () => {
+    try {
+      const resultadoActualizado = await obtenerResultadoDuelo(dueloId, perfil)
+      if (!estaActivo()) return
+      if (resultadoActualizado && estaFinalizado(resultadoActualizado.estado)) {
+        setResultado(resultadoActualizado)
+        window.clearInterval(intervalo)
+      }
+    } catch {
+      // Se reintenta en el próximo intervalo.
+    }
+  }, 2000)
+
+  return intervalo
+}
+
 export default function PaginaResultadoDuelo() {
   const navegar = usarNavegacion()
   const { idDuelo } = usarParametros()
@@ -62,19 +109,10 @@ export default function PaginaResultadoDuelo() {
         const perfil = await obtenerPerfil().catch(() => null)
         if (activo) setPerfilUsuario(perfil)
 
-        const resultadoGuardado = sessionStorage.getItem('resultadoDuelo')
-        let datosLocales = null
-
-        if (resultadoGuardado) {
-          try {
-            datosLocales = JSON.parse(resultadoGuardado)
-            if (activo) {
-              setResultado(datosLocales)
-              setCargando(false)
-            }
-          } catch {
-            datosLocales = null
-          }
+        const datosLocales = leerResultadoGuardado()
+        if (datosLocales && activo) {
+          setResultado(datosLocales)
+          setCargando(false)
         }
 
         const dueloId = idDuelo || datosLocales?.idPartida
@@ -91,44 +129,18 @@ export default function PaginaResultadoDuelo() {
         if (!activo) return
 
         if (datosBackend) {
-          if (datosBackend.estado === 'FINALIZADA' || datosBackend.estado === 'FINALIZADO') {
+          if (estaFinalizado(datosBackend.estado)) {
             setResultado(datosBackend)
             setCargando(false)
             return
           }
 
           // Si el duelo sigue EN_CURSO (rival aún jugando), el ganador debe ser 'pendiente'
-          setResultado({
-            ...datosBackend,
-            ganador: 'pendiente',
-            resultadoTexto: 'Esperando al rival...',
-            jugadorLocal: datosLocales?.jugadorLocal || datosBackend.jugadorLocal,
-            oponente: {
-              ...(datosBackend.oponente || datosLocales?.oponente),
-              puntaje: 0,
-              aciertos: 0,
-            },
-          })
+          setResultado(crearResultadoEnEspera(datosBackend, datosLocales))
           setCargando(false)
 
           // Polling cada 2 segundos hasta que el rival termine
-          intervaloPolling = window.setInterval(() => {
-            void (async () => {
-              try {
-              const resActualizado = await obtenerResultadoDuelo(dueloId, perfil)
-              if (!activo) return
-              if (resActualizado && (resActualizado.estado === 'FINALIZADA' || resActualizado.estado === 'FINALIZADO')) {
-                setResultado(resActualizado)
-                if (intervaloPolling) {
-                  window.clearInterval(intervaloPolling)
-                  intervaloPolling = null
-                }
-              }
-            } catch {
-              // reintentar
-            }
-            })()
-          }, 2000)
+          intervaloPolling = iniciarPollingResultado(dueloId, perfil, () => activo, setResultado)
         }
       } catch (error) {
         if (activo && !resultado) {

@@ -18,6 +18,95 @@ const enlaces = [
 
 const obtenerTiempoBase = () => 15
 
+function restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCategoriaDuelo) {
+  if (typeof window === 'undefined') return
+  const guardado = window.sessionStorage.getItem('dueloActual')
+  if (!guardado) return
+
+  try {
+    const duelo = JSON.parse(guardado)
+    if (duelo.id) setPartidaId(duelo.id)
+    if (duelo.jugadorLocal) setJugadorLocal(duelo.jugadorLocal)
+    if (duelo.rival) setRival(duelo.rival)
+    if (duelo.categoriaNombre || duelo.categoria_nombre) {
+      setCategoriaDuelo(duelo.categoriaNombre || duelo.categoria_nombre)
+    }
+  } catch {
+    // Si los datos guardados no son válidos, se conservan los valores iniciales.
+  }
+}
+
+function avanzarPreguntaDuelo({ siguienteIndice, preguntas, partidaId, jugadorLocal, rival, puntajeLocalRef, aciertosLocalRef, navegar, setIndicePregunta, setRespuestaSeleccionada, setEstadoFeedback, setBloqueado, setTiempoRestante, setEstadoRival }) {
+  if (siguienteIndice >= preguntas.length) {
+    const totalPuntajeLocal = puntajeLocalRef.current
+    const totalAciertosLocal = aciertosLocalRef.current
+    const cantidadPreguntas = preguntas.length || 10
+    const resultado = {
+      idPartida: partidaId,
+      estado: 'EN_CURSO',
+      ganador: 'pendiente',
+      resultadoTexto: 'Esperando al rival...',
+      jugadorLocal: {
+        nombre: jugadorLocal.nombre,
+        alias: jugadorLocal.alias,
+        avatar: jugadorLocal.avatar,
+        puntaje: totalPuntajeLocal,
+        aciertos: totalAciertosLocal,
+        totalPreguntas: cantidadPreguntas,
+        tiempoPromedio: 0,
+      },
+      oponente: {
+        nombre: rival.nombre,
+        alias: rival.alias,
+        avatar: rival.avatar,
+        puntaje: 0,
+        aciertos: 0,
+        totalPreguntas: cantidadPreguntas,
+        tiempoPromedio: 0,
+      },
+      resumen: {
+        diferencia: 0,
+        porcentajeLocal: Math.round((totalAciertosLocal / cantidadPreguntas) * 100),
+        porcentajeOponente: 0,
+      },
+      finalizada: false,
+    }
+    sessionStorage.setItem('resultadoDuelo', JSON.stringify(resultado))
+    navegarConManejo(navegar, `/duelo/${partidaId}/resultado`)
+    return
+  }
+
+  setIndicePregunta(siguienteIndice)
+  setRespuestaSeleccionada(null)
+  setEstadoFeedback(null)
+  setBloqueado(false)
+  setTiempoRestante(obtenerTiempoBase())
+  setEstadoRival('Respondiendo...')
+}
+
+async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, preguntaActual, bloqueado, tiempoRestante, partidaId, setBloqueado, setRespuestaSeleccionada, setEstadoFeedback, setEstadoRival, puntajeLocalRef, aciertosLocalRef, setPuntajeLocal, setAciertosLocal, avanzarPregunta }) {
+  if (!preguntaActual || bloqueado) return
+
+  setBloqueado(true)
+  setRespuestaSeleccionada(opcionSeleccionada)
+  const tiempoUsado = tiempoAgotado ? obtenerTiempoBase() : Math.max(1, obtenerTiempoBase() - tiempoRestante)
+  const resultadoApi = await registrarRespuestaDuelo(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
+  const acerto = Boolean(resultadoApi?.esCorrecta)
+  const puntosGanados = Number(resultadoApi?.puntajeObtenido ?? 0)
+
+  setEstadoFeedback(acerto ? 'correcta' : 'incorrecta')
+
+  if (acerto) {
+    puntajeLocalRef.current += puntosGanados
+    aciertosLocalRef.current += 1
+    setPuntajeLocal(puntajeLocalRef.current)
+    setAciertosLocal(aciertosLocalRef.current)
+  }
+
+  setEstadoRival('Respondiendo...')
+  window.setTimeout(avanzarPregunta, 1200)
+}
+
 export default function PaginaPartidaDuelo() {
   const navegar = usarNavegacion()
   const [partidaId, setPartidaId] = usarEstado(() => (window.crypto?.randomUUID ? window.crypto.randomUUID() : `duelo-${Date.now()}`))
@@ -55,23 +144,7 @@ export default function PaginaPartidaDuelo() {
   usarEfecto(() => {
     let activo = true
 
-    // Cargar información guardada del duelo actual
-    if (typeof window !== 'undefined') {
-      const guardado = window.sessionStorage.getItem('dueloActual')
-      if (guardado) {
-        try {
-          const duelo = JSON.parse(guardado)
-          if (duelo.id) setPartidaId(duelo.id)
-          if (duelo.jugadorLocal) setJugadorLocal(duelo.jugadorLocal)
-          if (duelo.rival) setRival(duelo.rival)
-          if (duelo.categoriaNombre || duelo.categoria_nombre) {
-            setCategoriaDuelo(duelo.categoriaNombre || duelo.categoria_nombre)
-          }
-        } catch {
-          // fallback
-        }
-      }
-    }
+    restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCategoriaDuelo)
 
     // Cargar perfil real si faltan datos del usuario local
     obtenerPerfil()
@@ -121,87 +194,40 @@ export default function PaginaPartidaDuelo() {
     return () => window.clearInterval(temporizador)
   }, [bloqueado, estadoFeedback, preguntaActual, tiempoRestante])
 
-  const avanzarPregunta = () => {
-    const siguienteIndice = indicePregunta + 1
+  const avanzarPregunta = () => avanzarPreguntaDuelo({
+    siguienteIndice: indicePregunta + 1,
+    preguntas,
+    partidaId,
+    jugadorLocal,
+    rival,
+    puntajeLocalRef,
+    aciertosLocalRef,
+    navegar,
+    setIndicePregunta,
+    setRespuestaSeleccionada,
+    setEstadoFeedback,
+    setBloqueado,
+    setTiempoRestante,
+    setEstadoRival,
+  })
 
-    if (siguienteIndice >= preguntas.length) {
-      const totalPuntajeLocal = puntajeLocalRef.current
-      const totalAciertosLocal = aciertosLocalRef.current
-
-      // Al terminar las preguntas propias, el resultado final queda pendiente hasta que el rival también termine
-      const resultado = {
-        idPartida: partidaId,
-        estado: 'EN_CURSO',
-        ganador: 'pendiente',
-        resultadoTexto: 'Esperando al rival...',
-        jugadorLocal: {
-          nombre: jugadorLocal.nombre,
-          alias: jugadorLocal.alias,
-          avatar: jugadorLocal.avatar,
-          puntaje: totalPuntajeLocal,
-          aciertos: totalAciertosLocal,
-          totalPreguntas: preguntas.length || 10,
-          tiempoPromedio: 0,
-        },
-        oponente: {
-          nombre: rival.nombre,
-          alias: rival.alias,
-          avatar: rival.avatar,
-          puntaje: 0,
-          aciertos: 0,
-          totalPreguntas: preguntas.length || 10,
-          tiempoPromedio: 0,
-        },
-        resumen: {
-          diferencia: 0,
-          porcentajeLocal: Math.round((totalAciertosLocal / (preguntas.length || 10)) * 100),
-          porcentajeOponente: 0,
-        },
-        finalizada: false,
-      }
-      sessionStorage.setItem('resultadoDuelo', JSON.stringify(resultado))
-      navegarConManejo(navegar, `/duelo/${partidaId}/resultado`)
-      return
-    }
-
-    setIndicePregunta(siguienteIndice)
-    setRespuestaSeleccionada(null)
-    setEstadoFeedback(null)
-    setBloqueado(false)
-    setTiempoRestante(obtenerTiempoBase())
-    setEstadoRival('Respondiendo...')
-  }
-
-  const manejarRespuesta = async (opcionSeleccionada, tiempoAgotado = false) => {
-    if (!preguntaActual || bloqueado) {
-      return
-    }
-
-    setBloqueado(true)
-    setRespuestaSeleccionada(opcionSeleccionada)
-
-    const tiempoUsado = tiempoAgotado ? obtenerTiempoBase() : Math.max(1, obtenerTiempoBase() - tiempoRestante)
-    
-    // Registrar respuesta real en el backend:
-    const resultadoApi = await registrarRespuestaDuelo(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
-    const acerto = Boolean(resultadoApi?.esCorrecta)
-    const puntosGanados = Number(resultadoApi?.puntajeObtenido ?? 0)
-
-    setEstadoFeedback(acerto ? 'correcta' : 'incorrecta')
-
-    if (acerto) {
-      puntajeLocalRef.current += puntosGanados
-      aciertosLocalRef.current += 1
-      setPuntajeLocal(puntajeLocalRef.current)
-      setAciertosLocal(aciertosLocalRef.current)
-    }
-
-    setEstadoRival('Respondiendo...')
-
-    window.setTimeout(() => {
-      avanzarPregunta()
-    }, 1200)
-  }
+  const manejarRespuesta = (opcionSeleccionada, tiempoAgotado = false) => procesarRespuestaDuelo({
+    opcionSeleccionada,
+    tiempoAgotado,
+    preguntaActual,
+    bloqueado,
+    tiempoRestante,
+    partidaId,
+    setBloqueado,
+    setRespuestaSeleccionada,
+    setEstadoFeedback,
+    setEstadoRival,
+    puntajeLocalRef,
+    aciertosLocalRef,
+    setPuntajeLocal,
+    setAciertosLocal,
+    avanzarPregunta,
+  })
 
   if (!preguntaActual) {
     return <main className="partida-duelo__loading">Cargando duelo...</main>

@@ -7,17 +7,7 @@ import { obtenerSalaTorneo, salirDelTorneo } from '../servicios/servicioTorneos.
 import '../estilos/estilosSalaDetalleTorneo.css'
 import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 
-export default function PaginaSalaTorneo() {
-  const { idTorneo } = usarParametros()
-  const navegar = usarNavegacion()
-  const [sala, establecerSala] = usarEstado(null)
-  const [cargando, establecerCargando] = usarEstado(true)
-  const [mensajeError, establecerMensajeError] = usarEstado('')
-  const [codigoError, establecerCodigoError] = usarEstado('')
-  const [mensajeAccion, establecerMensajeAccion] = usarEstado('')
-  const [intentoCarga, establecerIntentoCarga] = usarEstado(0)
-  const [saliendo, establecerSaliendo] = usarEstado(false)
-
+function usarCargaSalaTorneo(idTorneo, intentoCarga, establecerSala, establecerCargando, establecerMensajeError, establecerCodigoError) {
   usarEfecto(() => {
     let vigente = true
     establecerCargando(true)
@@ -36,10 +26,12 @@ export default function PaginaSalaTorneo() {
       .finally(() => { if (vigente) establecerCargando(false) })
 
     return () => { vigente = false }
-  }, [idTorneo, intentoCarga])
+  }, [idTorneo, intentoCarga, establecerSala, establecerCargando, establecerMensajeError, establecerCodigoError])
+}
 
+function usarActualizacionSalaTorneo(idTorneo, estadoSala, establecerSala) {
   usarEfecto(() => {
-    if (sala?.estado !== 'ESPERANDO JUGADORES') return undefined
+    if (estadoSala !== 'ESPERANDO JUGADORES') return undefined
     let vigente = true
     const intervalo = window.setInterval(() => {
       obtenerSalaTorneo(idTorneo).then((resultado) => {
@@ -49,49 +41,81 @@ export default function PaginaSalaTorneo() {
       })
     }, 15000)
     return () => { vigente = false; window.clearInterval(intervalo) }
-  }, [idTorneo, sala?.estado])
+  }, [idTorneo, estadoSala, establecerSala])
+}
 
-  async function copiarCodigo() {
-    establecerMensajeAccion('')
-    try {
-      if (!navigator.clipboard?.writeText) throw new Error('Portapapeles no disponible')
-      await navigator.clipboard.writeText(sala.codigo)
-      establecerMensajeAccion('Código copiado al portapapeles.')
-    } catch {
-      establecerMensajeAccion('No pudimos copiar el código. Copialo manualmente.')
-    }
+async function copiarCodigoSala(sala, establecerMensajeAccion) {
+  establecerMensajeAccion('')
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Portapapeles no disponible')
+    await navigator.clipboard.writeText(sala.codigo)
+    establecerMensajeAccion('Código copiado al portapapeles.')
+  } catch {
+    establecerMensajeAccion('No pudimos copiar el código. Copialo manualmente.')
   }
+}
 
-  async function manejarSalida() {
-    establecerMensajeError('')
-    establecerSaliendo(true)
-    try {
-      const usuario = await obtenerPerfil()
-      if (usuario.id === sala.creadorId && !window.confirm('Sos el creador: salir cancelará el torneo para todos los participantes. ¿Querés continuar?')) return
-      await salirDelTorneo(idTorneo)
-      navegarConManejo(navegar, '/torneos', { replace: true })
-    } catch (error) {
-      establecerMensajeError(error.message || 'No pudimos salir del torneo.')
-    } finally {
-      establecerSaliendo(false)
-    }
+async function salirDeSalaTorneo({ idTorneo, sala, navegar, establecerMensajeError, establecerSaliendo }) {
+  establecerMensajeError('')
+  establecerSaliendo(true)
+  try {
+    const usuario = await obtenerPerfil()
+    if (usuario.id === sala.creadorId && !window.confirm('Sos el creador: salir cancelará el torneo para todos los participantes. ¿Querés continuar?')) return
+    await salirDelTorneo(idTorneo)
+    navegarConManejo(navegar, '/torneos', { replace: true })
+  } catch (error) {
+    establecerMensajeError(error.message || 'No pudimos salir del torneo.')
+  } finally {
+    establecerSaliendo(false)
   }
+}
 
+function EstadoInicialSalaTorneo({ cargando, mensajeError, codigoError, sala, idTorneo, reintentar }) {
   if (cargando) {
     return <MarcoTorneo tituloMovil="Sala del torneo" subtituloMovil={`Torneo #${idTorneo}`}><section className="estado-pantalla-torneo" aria-live="polite"><span className="estado-pantalla-torneo__carga" /><p>Cargando sala…</p></section></MarcoTorneo>
   }
 
-  if (mensajeError && !sala) {
-    const noEncontrado = codigoError === 'TORNEO_NO_DISPONIBLE' || codigoError === 'TORNEO_NO_ENCONTRADO' || codigoError === 'RECURSO_NO_ENCONTRADO'
-    return (
-      <MarcoTorneo tituloMovil="Sala del torneo" subtituloMovil={`Torneo #${idTorneo}`}>
-        <section className="estado-pantalla-torneo" role="alert">
-          <strong>{noEncontrado ? 'Torneo inexistente' : 'No pudimos cargar la sala'}</strong>
-          <p>{mensajeError}</p>
-          {noEncontrado ? <Enlace to="/torneos">Volver a Torneos</Enlace> : <button type="button" onClick={() => establecerIntentoCarga((intento) => intento + 1)}>Reintentar</button>}
-        </section>
-      </MarcoTorneo>
-    )
+  if (!mensajeError || sala) return null
+
+  const noEncontrado = ['TORNEO_NO_DISPONIBLE', 'TORNEO_NO_ENCONTRADO', 'RECURSO_NO_ENCONTRADO'].includes(codigoError)
+  return (
+    <MarcoTorneo tituloMovil="Sala del torneo" subtituloMovil={`Torneo #${idTorneo}`}>
+      <section className="estado-pantalla-torneo" role="alert">
+        <strong>{noEncontrado ? 'Torneo inexistente' : 'No pudimos cargar la sala'}</strong>
+        <p>{mensajeError}</p>
+        {noEncontrado ? <Enlace to="/torneos">Volver a Torneos</Enlace> : <button type="button" onClick={reintentar}>Reintentar</button>}
+      </section>
+    </MarcoTorneo>
+  )
+}
+
+export default function PaginaSalaTorneo() {
+  const { idTorneo } = usarParametros()
+  const navegar = usarNavegacion()
+  const [sala, establecerSala] = usarEstado(null)
+  const [cargando, establecerCargando] = usarEstado(true)
+  const [mensajeError, establecerMensajeError] = usarEstado('')
+  const [codigoError, establecerCodigoError] = usarEstado('')
+  const [mensajeAccion, establecerMensajeAccion] = usarEstado('')
+  const [intentoCarga, establecerIntentoCarga] = usarEstado(0)
+  const [saliendo, establecerSaliendo] = usarEstado(false)
+
+  usarCargaSalaTorneo(idTorneo, intentoCarga, establecerSala, establecerCargando, establecerMensajeError, establecerCodigoError)
+  usarActualizacionSalaTorneo(idTorneo, sala?.estado, establecerSala)
+
+  const copiarCodigo = () => copiarCodigoSala(sala, establecerMensajeAccion)
+  const manejarSalida = () => salirDeSalaTorneo({ idTorneo, sala, navegar, establecerMensajeError, establecerSaliendo })
+  const mostrarEstadoInicial = cargando || Boolean(mensajeError && !sala)
+
+  if (mostrarEstadoInicial) {
+    return <EstadoInicialSalaTorneo
+      cargando={cargando}
+      mensajeError={mensajeError}
+      codigoError={codigoError}
+      sala={sala}
+      idTorneo={idTorneo}
+      reintentar={() => establecerIntentoCarga((intento) => intento + 1)}
+    />
   }
 
   const participantesCompletos = sala.participantes.length === sala.capacidad
