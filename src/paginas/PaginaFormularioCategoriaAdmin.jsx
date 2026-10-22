@@ -77,7 +77,7 @@ export default function PaginaFormularioCategoriaAdmin() {
   return <MarcoTorneo administrador sufijoAdmin={sufijo} tituloMovil={titulo} subtituloMovil="Gestión de contenido">
     <div className="admin-preguntas admin-formulario admin-formulario-categoria">
       <header className="admin-preguntas__encabezado"><div><h1>{titulo}</h1><p>Organizá las preguntas por categoría.</p></div><Link to={regreso}>Volver a categorías</Link></header>
-      {cargando && <p role="status">Cargando categoría…</p>}
+      {cargando && <p><output>Cargando categoría…</output></p>}
       {!cargando && errorCarga && <p className="admin-preguntas__estado" role="alert">{errorCarga}</p>}
       {!cargando && !errorCarga && rol !== 'ADMINISTRADOR' && !vistaPrevia && <p className="admin-preguntas__estado" role="alert">Solo los administradores pueden gestionar categorías.</p>}
       {!cargando && !errorCarga && (rol === 'ADMINISTRADOR' || vistaPrevia) && <form className="admin-formulario__panel" onSubmit={guardar} noValidate>

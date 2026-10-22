@@ -148,7 +148,7 @@ export default function PaginaPerfil() {
           </fieldset>
           <p className="perfil__nota perfil__solo-escritorio">Tu historial y puntaje no cambian al editar los datos.</p>
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-          {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito}</p>}
+          {mensajeExito && <p className="mensaje mensaje--exito"><output>{mensajeExito}</output></p>}
           <div className="perfil__acciones">
             <Boton tipo="submit" cargando={guardando} textoCargando="Guardando cambios…">Guardar cambios</Boton>
             <button type="button" className="perfil__cancelar" onClick={() => navegar('/home')} disabled={guardando}>Cancelar</button>

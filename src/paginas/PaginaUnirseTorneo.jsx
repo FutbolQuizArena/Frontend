@@ -129,7 +129,7 @@ export default function PaginaUnirseTorneo() {
           </fieldset>
 
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-          {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito}</p>}
+          {mensajeExito && <p className="mensaje mensaje--exito"><output>{mensajeExito}</output></p>}
           <Boton tipo="submit" cargando={ingresando} textoCargando="Ingresando…">Unirme al torneo</Boton>
         </form>
       </main>

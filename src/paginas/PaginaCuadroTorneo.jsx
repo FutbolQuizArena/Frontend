@@ -84,7 +84,7 @@ function TorneoFinalizado({ torneo }) {
         <button type="button" onClick={() => establecerMostrarCuadro(true)}>Ver cuadro completo</button>
         <Enlace to="/torneos">Volver a torneos</Enlace>
       </div>
-      {mensajeCompartir && <p className="torneo-finalizado__mensaje" role="status">{mensajeCompartir}</p>}
+      {mensajeCompartir && <p className="torneo-finalizado__mensaje"><output>{mensajeCompartir}</output></p>}
     </div>
   )
 }
