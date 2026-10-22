@@ -19,7 +19,7 @@
 .marco-admin .admin-formulario__panel > label, .marco-admin .admin-formulario__fila label { color: var(--color-secundario); font-weight: 400; }
 .marco-admin .admin-formulario__panel textarea { min-height: 92px; }
 .marco-admin .admin-formulario__panel fieldset legend, .marco-admin .admin-formulario__panel fieldset > p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.marco-admin .admin-formulario__radio { display: none; }
+.marco-admin .admin-formulario__radio { display: none; font-size: 12px; color: var(--color-secundario); }
 .marco-admin .marco-torneo__lateral { width: 260px; }
 .marco-admin .marca__arena { color: var(--color-dorado); }
 .marco-admin__gestion { color: var(--color-tenue); font-size: 11px; }
@@ -47,7 +47,6 @@
 .marco-admin .admin-formulario__opcion { grid-template-columns: 1fr; position: relative; }
 .marco-admin .admin-formulario__opcion > input { min-height: 56px; }
 .marco-admin .admin-formulario__opcion--correcta > input { border-color: var(--color-principal); }
-.marco-admin .admin-formulario__radio { font-size: 12px; color: var(--color-secundario); }
 .admin-formulario__nota { padding: 18px; border-radius: 12px; color: var(--color-secundario); background: var(--color-campo); font-size: 13px; }
 .marco-admin .admin-formulario__acciones > * { min-width: 180px; padding: 15px 24px; border-radius: 12px; text-align: center; text-decoration: none; }
 .marco-admin .admin-formulario__acciones a { border: 1px solid var(--color-borde); background: var(--color-campo); }

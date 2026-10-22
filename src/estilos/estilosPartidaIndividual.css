@@ -16,7 +16,7 @@
 
 .partida-individual__panel {
   min-width: 0;
-  padding: 0;
+  padding: 28px 32px 40px 40px;
   display: flex;
   flex-direction: column;
 }
@@ -24,8 +24,9 @@
 .partida-individual__barra-derecha {
   background: rgba(8, 18, 14, 0.9);
   border: 1px solid rgba(122, 149, 134, 0.28);
+  border-left: 1px solid rgba(122, 149, 134, 0.28);
   border-radius: 18px;
-  padding: 18px 16px;
+  padding: 28px 18px 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -90,21 +91,6 @@
   font-size: 1.8rem;
   line-height: 1.1;
   font-weight: 700;
-}
-
-.partida-individual__panel {
-  padding: 28px 32px 40px 40px;
-  display: flex;
-  flex-direction: column;
-}
-
-.partida-individual__barra-derecha {
-  background: rgba(8, 18, 14, 0.9);
-  border-left: 1px solid rgba(122, 149, 134, 0.28);
-  padding: 28px 18px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
 }
 
 .partida-individual__estado-partida {
