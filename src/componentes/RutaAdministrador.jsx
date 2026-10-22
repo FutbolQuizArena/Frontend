@@ -32,7 +32,7 @@ export default function RutaAdministrador() {
   if (estado === 'autorizado') return <Outlet />
   return <main className="pagina-no-encontrada">
     <p className="sobretitulo">FUTBOLQUIZ ADMIN</p>
-    {estado === 'cargando' && <p role="status">Verificando permisos…</p>}
+    {estado === 'cargando' && <p><output>Verificando permisos…</output></p>}
     {estado === 'denegado' && <><h1>Acceso restringido</h1><p role="alert">Solo los administradores pueden acceder a esta sección.</p><Link to="/home">Volver al inicio</Link></>}
     {estado === 'error' && <><h1>No pudimos verificar tu cuenta</h1><p role="alert">{mensaje}</p><button type="button" onClick={() => establecerIntento((actual) => actual + 1)}>Reintentar</button><Link to="/home">Volver al inicio</Link></>}
   </main>

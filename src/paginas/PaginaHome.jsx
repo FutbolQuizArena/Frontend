@@ -101,7 +101,7 @@ export default function PaginaHome() {
           <h2 id="titulo-torneos"><span className="inicio__solo-escritorio">Torneos disponibles</span><span className="inicio__solo-movil">TORNEOS DISPONIBLES</span></h2>
           <div className="inicio__tarjeta-torneo">
             <div>
-              {cargandoTorneo && <p role="status">Cargando torneos…</p>}
+              {cargandoTorneo && <p><output>Cargando torneos…</output></p>}
               {!cargandoTorneo && errorTorneo && <p>No pudimos cargar los torneos disponibles.</p>}
               {!cargandoTorneo && !errorTorneo && !torneoDestacado && <p>No hay torneos disponibles por ahora.</p>}
               {torneoDestacado && <><p className="inicio__etiqueta-torneo">DISPONIBLE</p><h3>{torneoDestacado.nombre}</h3><p>Eliminación directa · {torneoDestacado.participantes}/{torneoDestacado.capacidad} jugadores</p></>}

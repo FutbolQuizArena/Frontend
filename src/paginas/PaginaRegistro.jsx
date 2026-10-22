@@ -85,7 +85,7 @@ export default function PaginaRegistro() {
         </div>
 
         {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-        {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito}</p>}
+        {mensajeExito && <p className="mensaje mensaje--exito"><output>{mensajeExito}</output></p>}
 
         <Boton tipo="submit" cargando={enviando} textoCargando="Creando cuenta…">Crear mi cuenta</Boton>
       </form>

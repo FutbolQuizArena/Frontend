@@ -131,7 +131,7 @@ export default function PaginaSalaTorneo() {
           {sala.estado === 'ESPERANDO JUGADORES' && <button className="sala-torneo__salir" type="button" onClick={() => { void manejarSalida() }} disabled={saliendo}>{saliendo ? 'Saliendo…' : 'Salir del torneo'}</button>}
         </div>
         {mensajeError && <p className="mensaje mensaje--error sala-torneo__mensaje" role="alert">{mensajeError}</p>}
-        {mensajeAccion && <p className="mensaje mensaje--exito sala-torneo__mensaje" role="status">{mensajeAccion}</p>}
+        {mensajeAccion && <p className="mensaje mensaje--exito sala-torneo__mensaje"><output>{mensajeAccion}</output></p>}
       </div>
     </MarcoTorneo>
   )

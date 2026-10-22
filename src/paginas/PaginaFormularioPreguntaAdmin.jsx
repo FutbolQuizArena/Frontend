@@ -89,7 +89,7 @@ export default function PaginaFormularioPreguntaAdmin() {
   return <MarcoTorneo administrador sufijoAdmin={vistaPrevia ? '?vistaPrevia=1' : ''} tituloMovil={idPregunta ? 'Editar pregunta' : 'Nueva pregunta'} subtituloMovil="Gestión de contenido">
     <div className="admin-preguntas admin-formulario">
       <header className="admin-preguntas__encabezado"><div><h1>{idPregunta ? 'Editar pregunta' : 'Nueva pregunta'}</h1><p>Completá el enunciado y marcá una de las cuatro respuestas como correcta.</p></div><Link to={regreso}>Volver a preguntas</Link></header>
-      {cargando && <p role="status">Cargando pregunta…</p>}
+      {cargando && <p><output>Cargando pregunta…</output></p>}
       {!cargando && rol !== 'ADMINISTRADOR' && !vistaPrevia && !error && <p role="alert">Solo los administradores pueden gestionar preguntas.</p>}
       {!cargando && error && (!encontrada || (rol !== 'ADMINISTRADOR' && !vistaPrevia)) && <p role="alert">{error}</p>}
       {!cargando && (rol === 'ADMINISTRADOR' || vistaPrevia) && encontrada && <form className="admin-formulario__panel" onSubmit={guardar} noValidate>
