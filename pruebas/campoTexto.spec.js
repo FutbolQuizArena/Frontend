@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixturesCobertura.js'
 
 test('CampoTexto asocia su etiqueta y actualiza el texto ingresado', async ({ page }) => {
   await page.goto('/pruebas/fixtures/campo-texto.html')
