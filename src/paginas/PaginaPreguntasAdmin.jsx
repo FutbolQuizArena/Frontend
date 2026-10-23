@@ -55,6 +55,17 @@ function coincideConFiltros(pregunta, consulta, categoria, estado) {
     (estado === 'todas' || pregunta.estado === estado)
 }
 
+function obtenerPaginaPreguntas({ datosEjemplo, filtradas, preguntas, total, paginasServidor, pagina }) {
+  if (!datosEjemplo) {
+    return { cantidad: total, totalPaginas: paginasServidor, visibles: preguntas }
+  }
+  return {
+    cantidad: filtradas.length,
+    totalPaginas: Math.max(1, Math.ceil(filtradas.length / tamanioPagina)),
+    visibles: filtradas.slice((pagina - 1) * tamanioPagina, pagina * tamanioPagina),
+  }
+}
+
 export default function PaginaPreguntasAdmin() {
   const [parametros] = useSearchParams()
   const ubicacion = useLocation()
@@ -115,9 +126,9 @@ export default function PaginaPreguntasAdmin() {
     : categoriasServidor
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
   const filtradas = preguntas.filter((pregunta) => coincideConFiltros(pregunta, consulta, categoria, estado))
-  const cantidad = datosEjemplo ? filtradas.length : total
-  const totalPaginas = datosEjemplo ? Math.max(1, Math.ceil(filtradas.length / tamanioPagina)) : paginasServidor
-  const visibles = datosEjemplo ? filtradas.slice((pagina - 1) * tamanioPagina, pagina * tamanioPagina) : preguntas
+  const { cantidad, totalPaginas, visibles } = obtenerPaginaPreguntas({
+    datosEjemplo, filtradas, preguntas, total, paginasServidor, pagina,
+  })
 
   function cambiarBusqueda(valor) { establecerBusqueda(valor); establecerPagina(1) }
   function cambiarCategoria(valor) { establecerCategoria(valor); establecerPagina(1) }
@@ -140,7 +151,7 @@ export default function PaginaPreguntasAdmin() {
     }
   }
 
-  return <MarcoTorneo administrador sufijoAdmin={vistaPrevia ? '?vistaPrevia=1' : ''} tituloMovil="Administración" subtituloMovil="Preguntas">
+  return <MarcoTorneo administrador sufijoAdmin={sufijo} tituloMovil="Administración" subtituloMovil="Preguntas">
     <div className="admin-preguntas admin-listado">
       <header className="admin-preguntas__encabezado"><div><h1>Administración de preguntas</h1><p>Gestioná el banco de contenido de FutbolQuiz.</p></div>{!cargando && !errorCarga && (rol === 'ADMINISTRADOR' || vistaPrevia) && <Link className="admin-listado__nuevo" to={`/admin/preguntas/nueva${sufijo}`}>Nueva pregunta</Link>}</header>
       {cargando && <p className="admin-preguntas__estado"><output>Cargando preguntas…</output></p>}
