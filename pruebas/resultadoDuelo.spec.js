@@ -83,6 +83,36 @@ prueba('muestra un estado resiliente cuando faltan datos', async ({ page: pagina
   await esperar(pagina.getByRole('heading', { name: 'Sin datos del duelo' })).toBeVisible()
 })
 
+prueba('actualiza el resultado cuando el rival termina de jugar', async ({ page: pagina }) => {
+  let consultas = 0
+
+  await pagina.route('**/api/duelos/42', (ruta) => {
+    consultas += 1
+    return ruta.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 42,
+        estado: consultas <= 2 ? 'EN_CURSO' : 'FINALIZADA',
+        jugador1_id: 1,
+        jugador1_nombre: 'Lucas',
+        jugador2_id: 2,
+        jugador2_nombre: 'Rival',
+        puntaje_jugador1: 80,
+        puntaje_jugador2: 100,
+        numero_ganador: consultas <= 2 ? null : 2,
+      }),
+    })
+  })
+
+  await pagina.goto('/duelo/42/resultado')
+
+  await esperar.poll(() => consultas).toBeGreaterThanOrEqual(1)
+  await esperar(pagina.getByText('Esperando al rival...', { exact: true }).first()).toBeVisible()
+  await esperar(pagina.getByText('DERROTA', { exact: true })).toBeVisible({ timeout: 7000 })
+  esperar(consultas).toBeGreaterThanOrEqual(3)
+})
+
 prueba('mantiene el layout responsive sin scroll horizontal en móvil', async ({ page: pagina }) => {
   await pagina.setViewportSize({ width: 390, height: 844 })
   await pagina.evaluate(() => {
