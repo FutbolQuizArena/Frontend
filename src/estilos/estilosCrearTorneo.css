@@ -23,7 +23,7 @@
 .crear-torneo .campo__entrada { height: 54px; background: var(--color-sutil); font-size: 15px; }
 .crear-torneo .campo__entrada[type='password']::placeholder { color: var(--color-tenue); font-weight: 400; }
 .crear-torneo__cantidad { display: grid; gap: 13px; }
-.crear-torneo__opciones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: 56px; padding: 4px; border-radius: 14px; background: var(--color-sutil); }
+.crear-torneo__opciones { min-width: 0; margin: 0; border: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: 56px; padding: 4px; border-radius: 14px; background: var(--color-sutil); }
 .crear-torneo__opcion { border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--color-secundario); font-size: 14px; font-weight: 600; cursor: pointer; }
 .crear-torneo__opcion:hover { color: var(--color-texto); }
 .crear-torneo__opcion--activa { border-color: var(--color-principal); background: var(--color-elevado); color: var(--color-texto); }

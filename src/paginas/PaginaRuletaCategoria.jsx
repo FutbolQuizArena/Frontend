@@ -128,14 +128,14 @@ export default function PaginaRuletaCategoria() {
               </Boton>
 
               {categoriaElegida && (
-                <div className="ruleta-categoria__resultado" role="dialog" aria-modal="true" aria-labelledby="categoria-resultante">
+                <dialog open className="ruleta-categoria__resultado" aria-labelledby="categoria-resultante">
                   <p className="ruleta-categoria__etiqueta">Categoría seleccionada:</p>
                   <h2 id="categoria-resultante">{categoriaElegida.nombre}</h2>
                   <Boton alHacerClic={manejarContinuar}>
                     Continuar a la Partida
                   </Boton>
                   {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-                </div>
+                </dialog>
               )}
             </div>
           </div>

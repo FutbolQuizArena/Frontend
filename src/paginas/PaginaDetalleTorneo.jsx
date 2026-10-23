@@ -59,7 +59,7 @@ export default function PaginaDetalleTorneo() {
           <article><small>ESPERANDO</small><h2>Liga de Campeones</h2><p>6/8 jugadores · Código LIGA24</p></article>
         </div>
         <div className="detalle-torneo__velo" />
-        <section className="detalle-torneo__panel" role="dialog" aria-modal="true" aria-labelledby="titulo-detalle-torneo">
+        <dialog open className="detalle-torneo__panel" aria-labelledby="titulo-detalle-torneo">
           <span className="detalle-torneo__asa" aria-hidden="true" />
           <h1 id="titulo-detalle-torneo">{torneo.nombre}</h1>
           <p className="detalle-torneo__subtitulo">{torneo.estado === 'FINALIZADO' ? 'Resultado final del torneo.' : 'Tu información dentro del torneo.'}</p>
@@ -71,7 +71,7 @@ export default function PaginaDetalleTorneo() {
             <div><dt>Código</dt><dd className="detalle-torneo__codigo">{torneo.codigo}</dd></div>
           </dl>
           <div className="detalle-torneo__acciones"><Enlace to="/torneos">Volver</Enlace><Enlace className="detalle-torneo__continuar" to={destinoAccion}>{torneo.accion}</Enlace></div>
-        </section>
+        </dialog>
       </div>
     </MarcoTorneo>
   )
