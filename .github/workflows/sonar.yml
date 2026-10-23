@@ -13,7 +13,7 @@ permissions:
 jobs:
   sonar:
     name: Analyze frontend
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -31,11 +31,10 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
-
       - name: Run E2E tests and generate coverage
         run: npm test
+        env:
+          CANAL_NAVEGADOR: chrome
 
       - name: Analyze with SonarQube Cloud
         uses: SonarSource/sonarqube-scan-action@v8.3.0
