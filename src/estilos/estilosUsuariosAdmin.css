@@ -5,7 +5,7 @@
 
 .admin-usuarios__boton-accion {
   border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.05);
+  background: #22352b;
   color: #fff;
   border-radius: 6px;
   padding: 5px 10px;
@@ -15,6 +15,11 @@
   transition: all 0.2s ease;
   text-align: center;
   width: fit-content;
+}
+@media (min-width: 901px) {
+  .admin-usuarios__tabla li:nth-child(even) .admin-usuarios__boton-accion:not(:hover) {
+    background: #16231d;
+  }
 }
 .admin-usuarios__boton-accion:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.12);

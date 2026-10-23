@@ -192,5 +192,5 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; }
+  html:root *, html:root *::before, html:root *::after { transition: none; }
 }

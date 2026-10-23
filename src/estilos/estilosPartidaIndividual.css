@@ -286,12 +286,12 @@
 }
 
 .tarjeta-pregunta__feedback--correcto {
-  background: rgba(53, 196, 102, 0.12);
+  background: #153a25;
   color: #aaf0be;
 }
 
 .tarjeta-pregunta__feedback--incorrecto {
-  background: rgba(228, 84, 84, 0.12);
+  background: #321e1b;
   color: #ffb9b9;
 }
 

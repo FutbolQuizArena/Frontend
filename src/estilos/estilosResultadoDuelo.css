@@ -65,7 +65,7 @@
 }
 
 .resultado-duelo__banner--pendiente {
-  background: rgba(148, 163, 184, 0.08);
+  background: #202933;
   color: #dfe7f3;
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
@@ -152,12 +152,16 @@
 .tarjeta-comparativa-duelo__estado {
   border-radius: 999px;
   padding: 7px 12px;
-  background: rgba(148, 163, 184, 0.14);
+  background: #28353f;
   color: #dfeaf5;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.tarjeta-comparativa-duelo--local .tarjeta-comparativa-duelo__estado {
+  background: #233f3b;
 }
 
 .tarjeta-comparativa-duelo__datos {
@@ -207,7 +211,7 @@
 }
 
 .boton--secundario {
-  background: rgba(148, 163, 184, 0.08);
+  background: #1b232a;
   color: #edf5ff;
   border: 1px solid rgba(148, 163, 184, 0.26);
 }
