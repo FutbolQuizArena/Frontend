@@ -117,14 +117,14 @@ export default function PaginaCrearTorneo() {
 
             <div className="crear-torneo__cantidad">
               <p id="etiqueta-cantidad">Cantidad de <span className="crear-torneo__solo-escritorio">participantes</span><span className="crear-torneo__solo-movil">jugadores</span></p>
-              <div className="crear-torneo__opciones" role="group" aria-labelledby="etiqueta-cantidad" aria-describedby={errores.cantidadParticipantes ? 'error-cantidad' : undefined}>
+              <fieldset className="crear-torneo__opciones" aria-labelledby="etiqueta-cantidad" aria-describedby={errores.cantidadParticipantes ? 'error-cantidad' : undefined}>
                 {cantidadesPermitidas.map((cantidad) => (
                   <button key={cantidad} type="button" className={datos.cantidadParticipantes === cantidad ? 'crear-torneo__opcion crear-torneo__opcion--activa' : 'crear-torneo__opcion'}
                     aria-pressed={datos.cantidadParticipantes === cantidad} onClick={() => seleccionarCantidad(cantidad)}>
                     {cantidad}<span className="crear-torneo__solo-escritorio"> jugadores</span>
                   </button>
                 ))}
-              </div>
+              </fieldset>
               {errores.cantidadParticipantes && <p className="campo__error" id="error-cantidad">{errores.cantidadParticipantes}</p>}
             </div>
 

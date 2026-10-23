@@ -107,6 +107,10 @@
 }
 
 .ruleta-categoria__resultado {
+  position: static;
+  width: auto;
+  margin: 0;
+  color: inherit;
   padding: 24px 22px 18px;
   border: 1px solid rgba(53, 196, 102, 0.7);
   border-radius: 18px;
