@@ -239,3 +239,9 @@
     width: 100%;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .cargando-duelo__anillo {
+    animation: none;
+  }
+}

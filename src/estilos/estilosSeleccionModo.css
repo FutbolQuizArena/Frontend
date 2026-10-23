@@ -203,3 +203,13 @@
     max-width: none;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta-modo-juego {
+    transition: none;
+  }
+
+  .tarjeta-modo-juego:hover {
+    transform: none;
+  }
+}
