@@ -261,11 +261,11 @@ export default function PaginaResultadoDuelo() {
     tiempoPromedio: 0,
   }
 
-  const estaFinalizado = resultado?.estado === 'FINALIZADA' || resultado?.estado === 'FINALIZADO'
-  const localEsGanador = estaFinalizado && resultado.ganador === 'local'
-  const rivalEsGanador = estaFinalizado && resultado.ganador === 'rival'
-  const empate = estaFinalizado && resultado.ganador === 'empate'
-  const enEspera = !estaFinalizado || resultado.ganador === 'pendiente'
+  const resultadoFinalizado = resultado?.estado === 'FINALIZADA' || resultado?.estado === 'FINALIZADO'
+  const localEsGanador = resultadoFinalizado && resultado.ganador === 'local'
+  const rivalEsGanador = resultadoFinalizado && resultado.ganador === 'rival'
+  const empate = resultadoFinalizado && resultado.ganador === 'empate'
+  const enEspera = !resultadoFinalizado || resultado.ganador === 'pendiente'
 
   return (
     <div className="inicio resultado-duelo__pagina">
