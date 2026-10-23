@@ -93,6 +93,30 @@ function iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado) {
   return intervalo
 }
 
+function NavegacionResultadoDuelo({ jugadorLocal }) {
+  return <aside className="inicio__lateral">
+    <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
+      FUTBOLQUIZ<span className="marca__arena">ARENA</span>
+    </Enlace>
+    <nav className="inicio__navegacion" aria-label="Navegación principal">
+      {enlaces.map(({ destino, titulo, simbolo }) => (
+        <EnlaceNavegacion
+          key={destino}
+          to={destino}
+          className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
+        >
+          <span aria-hidden="true">{simbolo}</span>
+          {titulo}
+        </EnlaceNavegacion>
+      ))}
+    </nav>
+    {jugadorLocal && <div className="inicio__acumulado">
+      <p>PUNTAJE ACUMULADO</p>
+      <span>{jugadorLocal.alias} · {jugadorLocal.puntaje} pts</span>
+    </div>}
+  </aside>
+}
+
 export default function PaginaResultadoDuelo() {
   const navegar = usarNavegacion()
   const { idDuelo } = usarParametros()
@@ -178,23 +202,7 @@ export default function PaginaResultadoDuelo() {
   if (cargando) {
     return (
       <div className="inicio resultado-duelo__pagina">
-        <aside className="inicio__lateral">
-          <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
-            FUTBOLQUIZ<span className="marca__arena">ARENA</span>
-          </Enlace>
-          <nav className="inicio__navegacion" aria-label="Navegación principal">
-            {enlaces.map(({ destino, titulo, simbolo }) => (
-              <EnlaceNavegacion
-                key={destino}
-                to={destino}
-                className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-              >
-                <span aria-hidden="true">{simbolo}</span>
-                {titulo}
-              </EnlaceNavegacion>
-            ))}
-          </nav>
-        </aside>
+        <NavegacionResultadoDuelo />
 
         <main className="resultado-duelo__contenido resultado-duelo__contenido--cargando">
           <p>Cargando resultado...</p>
@@ -206,23 +214,7 @@ export default function PaginaResultadoDuelo() {
   if (!resultado) {
     return (
       <div className="inicio resultado-duelo__pagina">
-        <aside className="inicio__lateral">
-          <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
-            FUTBOLQUIZ<span className="marca__arena">ARENA</span>
-          </Enlace>
-          <nav className="inicio__navegacion" aria-label="Navegación principal">
-            {enlaces.map(({ destino, titulo, simbolo }) => (
-              <EnlaceNavegacion
-                key={destino}
-                to={destino}
-                className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-              >
-                <span aria-hidden="true">{simbolo}</span>
-                {titulo}
-              </EnlaceNavegacion>
-            ))}
-          </nav>
-        </aside>
+        <NavegacionResultadoDuelo />
 
         <main className="resultado-duelo__contenido">
           <section className="resultado-duelo__panel resultado-duelo__panel--estado-vacio">
@@ -269,29 +261,7 @@ export default function PaginaResultadoDuelo() {
 
   return (
     <div className="inicio resultado-duelo__pagina">
-      <aside className="inicio__lateral">
-        <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
-          FUTBOLQUIZ<span className="marca__arena">ARENA</span>
-        </Enlace>
-
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion
-              key={destino}
-              to={destino}
-              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-            >
-              <span aria-hidden="true">{simbolo}</span>
-              {titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
-
-        <div className="inicio__acumulado">
-          <p>PUNTAJE ACUMULADO</p>
-          <span>{jugadorLocal.alias} · {jugadorLocal.puntaje} pts</span>
-        </div>
-      </aside>
+      <NavegacionResultadoDuelo jugadorLocal={jugadorLocal} />
 
       <header className="inicio__cabecera resultado-duelo__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
