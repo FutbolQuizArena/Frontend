@@ -49,6 +49,12 @@ function manejarTeclasDialogoEliminar(evento, eliminando) {
   return null
 }
 
+function coincideConFiltros(pregunta, consulta, categoria, estado) {
+  return (!consulta || pregunta.enunciado.toLocaleLowerCase('es-AR').includes(consulta)) &&
+    (categoria === 'todas' || pregunta.categoria === categoria) &&
+    (estado === 'todas' || pregunta.estado === estado)
+}
+
 export default function PaginaPreguntasAdmin() {
   const [parametros] = useSearchParams()
   const ubicacion = useLocation()
@@ -108,10 +114,7 @@ export default function PaginaPreguntasAdmin() {
     ? [...new Set(preguntas.map((pregunta) => pregunta.categoria))].sort((a, b) => a.localeCompare(b, 'es-AR')).map((nombre) => ({ id: nombre, nombre }))
     : categoriasServidor
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
-  const filtradas = preguntas.filter((pregunta) =>
-    (!consulta || pregunta.enunciado.toLocaleLowerCase('es-AR').includes(consulta)) &&
-    (categoria === 'todas' || pregunta.categoria === categoria) &&
-    (estado === 'todas' || pregunta.estado === estado))
+  const filtradas = preguntas.filter((pregunta) => coincideConFiltros(pregunta, consulta, categoria, estado))
   const cantidad = datosEjemplo ? filtradas.length : total
   const totalPaginas = datosEjemplo ? Math.max(1, Math.ceil(filtradas.length / tamanioPagina)) : paginasServidor
   const visibles = datosEjemplo ? filtradas.slice((pagina - 1) * tamanioPagina, pagina * tamanioPagina) : preguntas
