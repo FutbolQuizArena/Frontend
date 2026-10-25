@@ -50,6 +50,7 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
 .navegacion { display: flex; align-items: center; gap: 24px; color: var(--color-secundario); font-size: 13px; }
 .navegacion__enlace { min-width: 134px; padding: 12px 24px; border: 1px solid var(--color-borde); border-radius: 12px; font-size: 12px; font-weight: 600; text-align: center; text-decoration: none; color: var(--color-texto); background: var(--color-sutil); }
 .navegacion__enlace:hover { background: var(--color-elevado); }
+.autenticacion__ayuda { max-width: 456px; margin: 18px auto 0; text-align: center; font-size: 13px; }
 
 .autenticacion__contenido { display: grid; grid-template-columns: minmax(0, 41fr) minmax(0, 31fr); min-height: max(944px, calc(100svh - 80px)); }
 .autenticacion--registro .autenticacion__contenido { grid-template-columns: repeat(2, minmax(0, 1fr)); }

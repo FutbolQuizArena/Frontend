@@ -66,6 +66,7 @@ export default function PaginaHome() {
       <header className="inicio__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil"><strong>Hola, {usuario.nombre}</strong><span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span></div>
+        <Enlace className="inicio__ayuda" to="/ayuda">Ayuda</Enlace>
         <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{usuario.iniciales}</Enlace>
         <BotonCerrarSesion />
       </header>
