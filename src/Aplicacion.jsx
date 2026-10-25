@@ -25,6 +25,7 @@ import PaginaFormularioPreguntaAdmin from './paginas/PaginaFormularioPreguntaAdm
 import PaginaFormularioCategoriaAdmin from './paginas/PaginaFormularioCategoriaAdmin.jsx'
 import PaginaUsuariosAdmin from './paginas/PaginaUsuariosAdmin.jsx'
 import PaginaAyuda from './paginas/PaginaAyuda.jsx'
+import PaginaRankingGeneral from './paginas/PaginaRankingGeneral.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaAdministrador from './componentes/RutaAdministrador.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
@@ -62,7 +63,7 @@ export default function Aplicacion() {
         <Ruta path="/torneos/:idTorneo/sala" element={<PaginaSalaTorneo />} />
         <Ruta path="/torneos/:idTorneo/cuadro" element={<PaginaCuadroTorneo />} />
         <Ruta path="/torneos/:idTorneo" element={<PaginaDetalleTorneo />} />
-        <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking próximamente" />} />
+        <Ruta path="/ranking" element={<PaginaRankingGeneral />} />
         <Ruta path="/perfil" element={<PaginaPerfil />} />
         <Ruta element={<RutaAdministrador />}>
           <Ruta path="/admin" element={<PaginaPreguntasAdmin />} />
