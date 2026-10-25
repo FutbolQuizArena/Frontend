@@ -162,7 +162,7 @@ export default function PaginaAyuda() {
           <div className="ayuda__portada-texto">
             <p className="ayuda__etiqueta"><span aria-hidden="true">●</span> CENTRO DE AYUDA</p>
             <h1 id="titulo-ayuda">Todo para jugar <span>sin quedarte en el banco.</span></h1>
-            <p>Encontrá respuestas rápidas sobre tu cuenta, las partidas y los torneos.</p>
+            <p>Encontrá respuestas rápidas sobre tu cuenta, las partidas, los duelos y los torneos.</p>
             <div className="ayuda__acciones">
               <a className="ayuda__accion-principal" href="#preguntas">Ver preguntas frecuentes <span aria-hidden="true">→</span></a>
             </div>
