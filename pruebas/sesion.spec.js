@@ -57,7 +57,7 @@ prueba('mantener sesión guarda el JWT persistente y permite abrir otra pestaña
   esperar(await pagina.evaluate(() => sessionStorage.getItem('futbolquizToken'))).toBeNull()
   const otraPagina = await contexto.newPage()
   await otraPagina.goto('/perfil')
-  await esperar(otraPagina.getByRole('heading', { name: 'Editar perfil' })).toBeVisible()
+  await esperar(otraPagina.getByRole('heading', { name: 'Mi perfil' })).toBeVisible()
   await pagina.getByRole('button', { name: 'Cerrar sesión' }).click()
   await esperar(otraPagina).toHaveURL(/\/login$/)
 })
