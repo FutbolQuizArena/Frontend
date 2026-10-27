@@ -17,6 +17,7 @@ function obtenerTextoResultado(partida) {
 export default function TarjetaPartidaHistorial({ partida, alVerDetalle: manejarVerDetalle }) {
   const textoResultado = obtenerTextoResultado(partida)
   const tonoResultado = textoResultado === 'Victoria' ? 'victoria' : textoResultado === 'Derrota' ? 'derrota' : 'neutral'
+  const puntaje = partida.puntaje === null ? '—' : `${partida.puntaje.toLocaleString('es-AR')} pts`
 
   return (
     <tr className="historial__fila">
@@ -24,7 +25,7 @@ export default function TarjetaPartidaHistorial({ partida, alVerDetalle: manejar
       <td data-etiqueta="Categoría"><span className="historial__categoria">{partida.categoria}</span></td>
       <td data-etiqueta="Modo">{partida.modo}</td>
       <td data-etiqueta="Resultado"><span className={`historial__resultado historial__resultado--${tonoResultado}`}>{textoResultado}</span></td>
-      <td data-etiqueta="Puntaje"><strong className="historial__puntaje">{partida.puntaje.toLocaleString('es-AR')} pts</strong></td>
+      <td data-etiqueta="Puntaje"><strong className="historial__puntaje">{puntaje}</strong></td>
       <td data-etiqueta="Detalle"><button className="historial__detalle" type="button" onClick={() => manejarVerDetalle(partida)}>Ver detalle ›</button></td>
     </tr>
   )

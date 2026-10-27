@@ -85,7 +85,7 @@ function obtenerFilasDetalle(partida) {
     { etiqueta: 'Fecha', valor: formatearFechaDetalle(partida.fecha) },
     { etiqueta: 'Modo', valor: partida.modo },
     { etiqueta: 'Resultado', valor: partida.resultado },
-    { etiqueta: 'Puntaje', valor: `${partida.puntaje.toLocaleString('es-AR')} pts` },
+    { etiqueta: 'Puntaje', valor: partida.puntaje === null ? 'No disponible' : `${partida.puntaje.toLocaleString('es-AR')} pts` },
   ]
   if (partida.oponente) filas.push({ etiqueta: 'Oponente', valor: partida.oponente })
   if (partida.detalle) filas.push({ etiqueta: 'Resumen', valor: partida.detalle })

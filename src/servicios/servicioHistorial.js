@@ -1,44 +1,80 @@
 import { solicitarApi } from './clienteApi.js'
 
-// Normaliza cada registro para que la vista no dependa de nombres snake_case del backend.
-// TODO: reemplazar por endpoint real cuando el backend de historial esté listo (GET /api/historial)
-function adaptarPartida(partida) {
+function adaptarPartidaIndividual(partida) {
   return {
-    id: partida.id ?? partida.partida_id ?? partida.torneo_id,
-    fecha: partida.fecha ?? partida.fecha_fin ?? partida.fecha_creacion,
-    categoria: partida.categoria ?? partida.categoria_nombre ?? partida.nombre_categoria ?? partida.torneo_nombre ?? '—',
-    modo: partida.modo ?? partida.tipo_partida ?? partida.tipo ?? 'Individual',
-    resultado: partida.resultado ?? partida.estado_resultado ?? partida.estado ?? 'Completada',
-    puntaje: Number(partida.puntaje ?? partida.puntaje_final ?? partida.puntaje_obtenido ?? 0),
-    respuestasCorrectas: partida.respuestasCorrectas ?? partida.respuestas_correctas ?? null,
-    totalRespuestas: partida.totalRespuestas ?? partida.total_respuestas ?? null,
-    oponente: partida.oponente ?? partida.nombre_oponente ?? null,
-    detalle: partida.detalle ?? partida.descripcion ?? null,
+    id: partida.partida_id,
+    fecha: partida.fecha_fin,
+    categoria: partida.categoria_nombre || 'Sin categoría',
+    modo: 'Individual',
+    resultado: 'Completada',
+    puntaje: Number(partida.puntaje_final ?? 0),
   }
 }
 
-// Conserva las métricas del DTO aunque todavía no se muestren en la captura de la pantalla.
-// TODO: reemplazar por endpoint real cuando el backend de historial esté listo (GET /api/historial)
-function adaptarEstadisticas(estadisticas = {}) {
+function adaptarDuelo(duelo) {
   return {
-    partidasJugadas: Number(estadisticas.partidasJugadas ?? estadisticas.partidas_jugadas ?? 0),
-    porcentajeVictorias: Number(estadisticas.porcentajeVictorias ?? estadisticas.porcentaje_victorias ?? 0),
-    puntajeAcumulado: Number(estadisticas.puntajeAcumulado ?? estadisticas.puntaje_acumulado ?? 0),
-    torneosDisputados: Number(estadisticas.torneosDisputados ?? estadisticas.torneos_disputados ?? 0),
-    torneosGanados: Number(estadisticas.torneosGanados ?? estadisticas.torneos_ganados ?? 0),
+    id: `duelo-${duelo.duelo_id}`,
+    fecha: duelo.fecha_fin,
+    categoria: duelo.categoria_nombre || 'Sin categoría',
+    modo: 'Duelo',
+    resultado: duelo.resultado,
+    puntaje: Number(duelo.puntaje_propio ?? 0),
+    oponente: duelo.rival_nombre,
+    detalle: `Marcador: ${duelo.puntaje_propio}–${duelo.puntaje_rival}`,
   }
 }
 
-// Adapta los nombres del contrato HTTP a un DTO estable para las pantallas.
-// TODO: reemplazar por endpoint real cuando el backend de historial esté listo (GET /api/historial)
+function normalizarEstadoTorneo(estado) {
+  const texto = (estado || 'Completado').replaceAll('_', ' ').toLocaleLowerCase('es-AR')
+  return `${texto.charAt(0).toLocaleUpperCase('es-AR')}${texto.slice(1)}`
+}
+
+function adaptarTorneo(torneo) {
+  const ronda = torneo.ronda_alcanzada
+  return {
+    id: `torneo-${torneo.torneo_id}`,
+    fecha: torneo.fecha_creacion,
+    categoria: torneo.nombre,
+    modo: 'Torneo',
+    resultado: torneo.es_campeon ? 'Victoria' : normalizarEstadoTorneo(torneo.estado),
+    puntaje: null,
+    detalle: ronda ? `Ronda alcanzada: ${ronda}` : 'El torneo todavía no generó cruces.',
+    esCampeon: Boolean(torneo.es_campeon),
+  }
+}
+
+function ordenarPorFechaDescendente(registros) {
+  return registros.sort((registroA, registroB) => {
+    const fechaA = registroA.fecha ? new Date(registroA.fecha).getTime() : 0
+    const fechaB = registroB.fecha ? new Date(registroB.fecha).getTime() : 0
+    return fechaB - fechaA
+  })
+}
+
+// Consulta los tres historiales privados del usuario autenticado y unifica sus DTOs para React.
 export async function obtenerHistorialPersonal() {
-  const respuesta = await solicitarApi('/api/historial')
-  const partidas = respuesta?.partidasHistorial ?? respuesta?.partidas_historial ?? respuesta?.partidas ?? []
-  const torneos = respuesta?.torneosHistorial ?? respuesta?.torneos_historial ?? respuesta?.torneos ?? []
+  // El backend mantiene una consulta independiente para cada tipo de actividad del jugador.
+  const [respuestaIndividual, respuestaDuelos, respuestaTorneos] = await Promise.all([
+    solicitarApi('/api/historial/partidas-individuales'),
+    solicitarApi('/api/historial/duelos'),
+    solicitarApi('/api/historial/torneos'),
+  ])
+
+  const partidasIndividuales = (respuestaIndividual?.partidas ?? []).map(adaptarPartidaIndividual)
+  const duelos = (respuestaDuelos?.duelos ?? []).map(adaptarDuelo)
+  const torneos = (respuestaTorneos?.torneos ?? []).map(adaptarTorneo)
+  const partidasHistorial = ordenarPorFechaDescendente([...partidasIndividuales, ...duelos])
 
   return {
-    estadisticasGenerales: adaptarEstadisticas(respuesta?.estadisticasGenerales ?? respuesta?.estadisticas_generales ?? {}),
-    partidasHistorial: Array.isArray(partidas) ? partidas.map(adaptarPartida) : [],
-    torneosHistorial: Array.isArray(torneos) ? torneos.map(adaptarPartida) : [],
+    estadisticasGenerales: {
+      partidasJugadas: Number(respuestaIndividual?.total ?? partidasIndividuales.length)
+        + Number(respuestaDuelos?.total ?? duelos.length),
+      porcentajeVictorias: null,
+      puntajeAcumulado: null,
+      torneosDisputados: Number(respuestaTorneos?.total ?? torneos.length),
+      torneosGanados: torneos.filter((torneo) => torneo.esCampeon).length,
+    },
+    partidasHistorial,
+    torneosHistorial: ordenarPorFechaDescendente(torneos),
   }
 }

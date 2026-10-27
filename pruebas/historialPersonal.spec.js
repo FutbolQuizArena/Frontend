@@ -2,23 +2,40 @@ import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
 const historialPrueba = {
-  estadisticas_generales: { partidas_jugadas: 5, porcentaje_victorias: 40, puntaje_acumulado: 3850 },
-  partidas_historial: [
-    { id: 1, fecha_fin: '2026-09-07T12:00:00Z', categoria_nombre: 'Mundiales', tipo_partida: 'Individual', respuestas_correctas: 8, total_respuestas: 10, puntaje_final: 850 },
-    { id: 2, fecha_fin: '2026-09-06T12:00:00Z', categoria_nombre: 'Historia', tipo_partida: 'Duelo', resultado: 'VICTORIA', puntaje_final: 790, nombre_oponente: 'Rival' },
-    { id: 3, fecha_fin: '2026-09-04T12:00:00Z', categoria_nombre: 'Clubes', tipo_partida: 'Individual', respuestas_correctas: 7, total_respuestas: 10, puntaje_final: 680 },
-    { id: 4, fecha_fin: '2026-09-02T12:00:00Z', categoria_nombre: 'Jugadores', tipo_partida: 'Duelo', resultado: 'DERROTA', puntaje_final: 610 },
-  ],
-  torneos_historial: [{ id: 5, fecha_creacion: '2026-08-30T12:00:00Z', torneo_nombre: 'Copa Apertura', tipo: 'Torneo', resultado: 'Completada', puntaje: 920 }],
+  individuales: {
+    total: 2,
+    partidas: [
+      { partida_id: 1, fecha_fin: '2026-09-07T12:00:00Z', categoria_nombre: 'Mundiales', puntaje_final: 850 },
+      { partida_id: 3, fecha_fin: '2026-09-04T12:00:00Z', categoria_nombre: 'Clubes', puntaje_final: 680 },
+    ],
+  },
+  duelos: {
+    total: 2,
+    duelos: [
+      { duelo_id: 2, fecha_fin: '2026-09-06T12:00:00Z', categoria_nombre: 'Historia', modalidad: 'ONLINE', resultado: 'VICTORIA', puntaje_propio: 790, puntaje_rival: 600, rival_nombre: 'Rival' },
+      { duelo_id: 4, fecha_fin: '2026-09-02T12:00:00Z', categoria_nombre: 'Jugadores', modalidad: 'LOCAL', resultado: 'DERROTA', puntaje_propio: 610, puntaje_rival: 700 },
+    ],
+  },
+  torneos: {
+    total: 1,
+    torneos: [{ torneo_id: 5, fecha_creacion: '2026-08-30T12:00:00Z', nombre: 'Copa Apertura', estado: 'FINALIZADO', ronda_alcanzada: 2, es_campeon: false }],
+  },
 }
 
 async function prepararHistorial(pagina, respuesta = historialPrueba) {
   await prepararSesion(pagina)
-  await pagina.route('**/api/historial', (ruta) => ruta.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(respuesta),
-  }))
+  const rutasHistorial = [
+    ['/api/historial/partidas-individuales', respuesta.individuales],
+    ['/api/historial/duelos', respuesta.duelos],
+    ['/api/historial/torneos', respuesta.torneos],
+  ]
+  for (const [rutaApi, contenido] of rutasHistorial) {
+    await pagina.route(`**${rutaApi}`, (ruta) => ruta.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(contenido),
+    }))
+  }
 }
 
 prueba('muestra el historial cronológico y diferencia las victorias de las derrotas', async ({ page: pagina }) => {
@@ -52,7 +69,11 @@ prueba('abre el detalle de una partida y permite cambiar al historial de torneos
 })
 
 prueba('muestra un estado vacío cuando el usuario todavía no tiene historial', async ({ page: pagina }) => {
-  await prepararHistorial(pagina, { estadisticas_generales: {}, partidas_historial: [], torneos_historial: [] })
+  await prepararHistorial(pagina, {
+    individuales: { partidas: [], total: 0 },
+    duelos: { duelos: [], total: 0 },
+    torneos: { torneos: [], total: 0 },
+  })
   await pagina.goto('/historial')
 
   await esperar(pagina.getByText('Todavía no jugaste partidas')).toBeVisible()
