@@ -1,5 +1,7 @@
 import { Link as Enlace, NavLink as EnlaceNavegacion, useLocation as usarUbicacion } from 'react-router-dom'
 import BotonCerrarSesion from './BotonCerrarSesion.jsx'
+import EnlaceAdministracion from './EnlaceAdministracion.jsx'
+import { obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosPerfil.css'
 
 const enlaces = [
@@ -11,14 +13,13 @@ const enlaces = [
 ]
 
 export default function MarcoPerfil({ tituloMovil, subtituloMovil, perfil, children }) {
-  const iniciales = perfil?.iniciales || 'FQ'
-  const puntaje = perfil?.puntajeTotal
-  const etiquetaRol = perfil?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'
+  const perfilVisible = perfil ?? obtenerPerfilEnCache()
+  const iniciales = perfilVisible?.iniciales || 'FQ'
+  const puntaje = perfilVisible?.puntajeTotal
+  const etiquetaRol = perfilVisible?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'
   const textoPuntaje = puntaje == null ? 'No disponible' : `${etiquetaRol} · ${puntaje.toLocaleString('es-AR')} pts`
   const ubicacion = usarUbicacion()
-  const enlacesVisibles = perfil?.rol === 'ADMINISTRADOR'
-    ? [...enlaces, { destino: '/admin', titulo: 'Administración', simbolo: '⚙' }]
-    : enlaces
+  const esAdministrador = perfilVisible?.rol === 'ADMINISTRADOR'
 
   return (
     <div className="perfil">
@@ -27,12 +28,13 @@ export default function MarcoPerfil({ tituloMovil, subtituloMovil, perfil, child
         <Enlace className="marca perfil__marca" to="/home" aria-label="FutbolQuiz Arena">
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
-        <nav className={`perfil__navegacion${perfil?.rol === 'ADMINISTRADOR' ? ' perfil__navegacion--admin' : ''}`} aria-label="Navegación principal">
-          {enlacesVisibles.map(({ destino, titulo, simbolo }) => (
+        <nav className={`perfil__navegacion${esAdministrador ? ' perfil__navegacion--admin' : ''}`} aria-label="Navegación principal">
+          {enlaces.map(({ destino, titulo, simbolo }) => (
             <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `perfil__enlace${activo || (destino === '/perfil' && ubicacion.pathname === '/historial') ? ' perfil__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="perfil__enlace" />
         </nav>
         <div className="perfil__acumulado">
           <p>PUNTAJE ACUMULADO</p>
