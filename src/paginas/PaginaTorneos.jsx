@@ -1,8 +1,9 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import TarjetaTorneo from '../componentes/TarjetaTorneo.jsx'
 import { obtenerMisTorneos, obtenerTorneosDisponibles, obtenerTorneosFinalizados } from '../servicios/servicioTorneos.js'
-import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosTorneos.css'
 
 const enlaces = [
@@ -59,7 +60,7 @@ export default function PaginaTorneos() {
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [busqueda, establecerBusqueda] = usarEstado('')
   const [filtro, establecerFiltro] = usarEstado('todos')
-  const [perfil, establecerPerfil] = usarEstado(null)
+  const [perfil, establecerPerfil] = usarEstado(obtenerPerfilEnCache)
   const [perfilCargado, establecerPerfilCargado] = usarEstado(false)
   const seccion = secciones[seccionActiva]
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
@@ -122,6 +123,7 @@ export default function PaginaTorneos() {
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="torneos__enlace" />
         </nav>
         <div className="torneos__acumulado"><p>PUNTAJE ACUMULADO</p><span>{obtenerTextoPuntaje(perfil, perfilCargado)}</span></div>
       </aside>
