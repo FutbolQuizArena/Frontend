@@ -48,8 +48,8 @@ export default function PaginaFormularioPreguntaAdmin() {
         if (idPregunta) {
           if (vigente) { setDatos(pregunta); setEncontrada(true) }
         }
-      } catch (fallo) {
-        if (vigente) setError(fallo.message || 'No pudimos cargar la pregunta.')
+      } catch (error_) {
+        if (vigente) setError(error_.message || 'No pudimos cargar la pregunta.')
       } finally {
         if (vigente) setCargando(false)
       }
@@ -81,8 +81,8 @@ export default function PaginaFormularioPreguntaAdmin() {
       if (idPregunta) await actualizarPreguntaAdmin(idPregunta, pregunta, { vistaPrevia })
       else await crearPreguntaAdmin(pregunta, { vistaPrevia })
       navegarConManejo(navegar, regreso, { state: { avisoPregunta: datosEjemplo ? 'Pregunta guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Pregunta guardada.' } })
-    } catch (fallo) {
-      setError(fallo.message || 'No pudimos guardar la pregunta.')
+    } catch (error_) {
+      setError(error_.message || 'No pudimos guardar la pregunta.')
     } finally {
       setGuardando(false)
     }

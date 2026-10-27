@@ -16,8 +16,8 @@ export default function PaginaRankingGeneral() {
     // La vista solo conoce el contrato del servicio; toda la comunicación HTTP queda fuera de React.
     obtenerRankingGeneral().then((datos) => {
       if (activa) establecerDatosRanking(datos)
-    }).catch((fallo) => {
-      if (activa) establecerError(fallo?.message || 'No pudimos cargar el ranking.')
+    }).catch((error_) => {
+      if (activa) establecerError(error_?.message || 'No pudimos cargar el ranking.')
     })
     return () => { activa = false }
   }, [])

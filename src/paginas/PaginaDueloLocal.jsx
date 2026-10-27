@@ -54,8 +54,8 @@ export default function PaginaDueloLocal() {
       setAciertosJugador1(0)
       setAciertosJugador2(0)
       setUltimoResultado(null)
-    } catch (fallo) {
-      setError(fallo.message || 'No pudimos cargar preguntas del servidor. Intentá de nuevo.')
+    } catch (error_) {
+      setError(error_.message || 'No pudimos cargar preguntas del servidor. Intentá de nuevo.')
     } finally {
       setCargandoDuelo(false)
     }
@@ -77,8 +77,8 @@ export default function PaginaDueloLocal() {
         opcionSeleccionada,
         10,
       )
-    } catch (fallo) {
-      setError(fallo.message || 'No pudimos registrar la respuesta. Intentá de nuevo.')
+    } catch (error_) {
+      setError(error_.message || 'No pudimos registrar la respuesta. Intentá de nuevo.')
       setRegistrandoRespuesta(false)
       return
     }

@@ -31,7 +31,7 @@ export default function PaginaCategoriasAdmin() {
       const lista = rolActual === 'ADMINISTRADOR' || vistaPrevia ? await obtenerCategoriasAdmin({ vistaPrevia }) : []
       if (vigente) { setRol(rolActual); setCategorias(lista) }
     }
-    cargar().catch((fallo) => { if (vigente) setError(fallo.message || 'No pudimos cargar las categorías.') })
+    cargar().catch((error_) => { if (vigente) setError(error_.message || 'No pudimos cargar las categorías.') })
       .finally(() => { if (vigente) setCargando(false) })
     return () => { vigente = false }
   }, [intento, vistaPrevia])

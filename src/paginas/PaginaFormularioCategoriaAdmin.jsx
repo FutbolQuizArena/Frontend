@@ -44,8 +44,8 @@ export default function PaginaFormularioCategoriaAdmin() {
           const categoria = await obtenerCategoriaAdmin(idCategoria, { vistaPrevia })
           if (vigente) setDatos(categoria)
         }
-      } catch (fallo) {
-        if (vigente) setErrorCarga(fallo.message || 'No pudimos cargar la categoría.')
+      } catch (error_) {
+        if (vigente) setErrorCarga(error_.message || 'No pudimos cargar la categoría.')
       } finally {
         if (vigente) setCargando(false)
       }
@@ -66,8 +66,8 @@ export default function PaginaFormularioCategoriaAdmin() {
       if (idCategoria) await actualizarCategoriaAdmin(idCategoria, datos, { vistaPrevia })
       else await crearCategoriaAdmin(datos, { vistaPrevia })
       navegarConManejo(navegar, regreso, { state: { avisoCategoria: datosEjemplo ? 'Categoría guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Categoría guardada.' } })
-    } catch (fallo) {
-      setErrorFormulario(fallo.message || 'No pudimos guardar la categoría.')
+    } catch (error_) {
+      setErrorFormulario(error_.message || 'No pudimos guardar la categoría.')
     } finally {
       setGuardando(false)
     }

@@ -49,7 +49,7 @@ export default function PaginaUsuariosAdmin() {
       const lista = await obtenerUsuariosAdmin({ buscar, rol, estaHabilitado: estado }, { vistaPrevia })
       if (vigente) setUsuarios(lista)
     }
-    cargar().catch((fallo) => { if (vigente) setError(fallo.message || 'No pudimos cargar los usuarios.') })
+    cargar().catch((error_) => { if (vigente) setError(error_.message || 'No pudimos cargar los usuarios.') })
       .finally(() => { if (vigente) setCargando(false) })
     return () => { vigente = false }
   }, [buscar, rol, estado, intento, vistaPrevia])
@@ -75,8 +75,8 @@ export default function PaginaUsuariosAdmin() {
       if (estado && visibles.length === 1 && pagina > 1) setPagina((actual) => actual - 1)
       setAviso(nuevoEstado ? `Usuario ${usuarioSeleccionado.nombre} habilitado.` : `Usuario ${usuarioSeleccionado.nombre} deshabilitado.`)
       setUsuarioSeleccionado(null)
-    } catch (fallo) {
-      setErrorEstado(fallo.message || 'No pudimos cambiar el estado del usuario.')
+    } catch (error_) {
+      setErrorEstado(error_.message || 'No pudimos cambiar el estado del usuario.')
     } finally {
       setGuardandoEstado(false)
     }

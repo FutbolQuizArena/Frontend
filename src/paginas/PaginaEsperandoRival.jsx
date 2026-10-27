@@ -109,7 +109,7 @@ export default function PaginaEsperandoRival() {
 
         if (!montadoRef.current || canceladoRef.current || emparejadoRef.current) return
 
-        if (!duelo || !duelo.id) {
+        if (!duelo?.id) {
           setEstadoBusqueda('error')
           return
         }
