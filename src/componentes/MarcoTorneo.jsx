@@ -44,7 +44,7 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
         <nav className="marco-torneo__navegacion" aria-label="Navegación principal">
           {administrador && <p className="marco-admin__gestion">GESTIÓN</p>}
           {(administrador ? enlacesAdmin : [...enlaces, ...(usuario?.rol === 'ADMINISTRADOR' ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])]).map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin')} aria-current={esFormularioDeSeccion(destino) ? 'page' : undefined} className={({ isActive: activo }) => `marco-torneo__enlace${(activo || esFormularioDeSeccion(destino)) ? ' marco-torneo__enlace--activo' : ''}`}>
+            <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin')} aria-current={esFormularioDeSeccion(destino) ? 'page' : undefined} className={({ isActive: activo }) => `marco-torneo__enlace${(activo || esFormularioDeSeccion(destino) || (destino === '/perfil' && ubicacion.pathname === '/historial')) ? ' marco-torneo__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
