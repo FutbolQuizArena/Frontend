@@ -98,13 +98,13 @@ function DialogoDetalleHistorial({ partida, alCerrar }) {
   return (
     <div className="historial__velo">
       <button className="historial__fondo" type="button" aria-label="Cerrar detalle" onClick={alCerrar} />
-      <section className="historial__dialogo" role="dialog" aria-modal="true" aria-labelledby="historial-detalle-titulo">
+      <dialog open className="historial__dialogo" aria-labelledby="historial-detalle-titulo">
         <button className="historial__cerrar" type="button" aria-label="Cerrar detalle" onClick={alCerrar}>×</button>
         <p className="historial__dialogo-sobretitulo">DETALLE DE ACTIVIDAD</p>
         <h2 id="historial-detalle-titulo">{partida.categoria}</h2>
         <dl>{obtenerFilasDetalle(partida).map(({ etiqueta, valor }) => <div key={etiqueta}><dt>{etiqueta}</dt><dd>{valor}</dd></div>)}</dl>
         <button className="historial__cerrar-accion" type="button" onClick={alCerrar}>Cerrar</button>
-      </section>
+      </dialog>
     </div>
   )
 }
