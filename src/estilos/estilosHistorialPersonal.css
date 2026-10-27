@@ -55,7 +55,7 @@
   .historial__tabla tbody { display: grid; gap: 11px; }
   .historial__fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 14px; border: 1px solid #203b2c; border-radius: 14px; background: #14291f; }
   .historial__fila:nth-child(even) { background: #10231a; }
-  .historial__fila td { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: auto !important; height: auto; min-width: 0; padding: 0; background: transparent !important; font-size: 12px; white-space: normal; }
+  .historial__tabla tbody .historial__fila > td { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: auto; height: auto; min-width: 0; padding: 0; background: transparent; font-size: 12px; white-space: normal; }
   .historial__fila td::before { content: attr(data-etiqueta); flex: 0 0 auto; color: var(--color-secundario); font-size: 10px; }
   .historial__fila td:first-child { grid-column: 1; }
   .historial__fila td:nth-child(2) { grid-column: 1; }
