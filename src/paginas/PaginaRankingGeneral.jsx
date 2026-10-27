@@ -39,7 +39,7 @@ export default function PaginaRankingGeneral() {
         </header>
 
         {error && <p className="ranking-general__estado" role="alert">{error}</p>}
-        {!error && !datosRanking && <p className="ranking-general__estado" role="status">Cargando ranking…</p>}
+        {!error && !datosRanking && <output className="ranking-general__estado" aria-live="polite">Cargando ranking…</output>}
 
         {datosRanking && (
           <>
