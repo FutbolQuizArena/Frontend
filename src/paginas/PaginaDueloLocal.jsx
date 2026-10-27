@@ -1,6 +1,6 @@
 import { useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
-import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
+import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import PantallaPreparacionDuelo from '../componentes/PantallaPreparacionDuelo.jsx'
 import PantallaCambioTurno from '../componentes/PantallaCambioTurno.jsx'
@@ -8,13 +8,7 @@ import PantallaResultadoDueloLocal from '../componentes/PantallaResultadoDueloLo
 import { guardarResultadoDueloLocal, iniciarDueloLocal, obtenerResultadoDueloLocal, registrarRespuestaTurnoLocal } from '../servicios/servicioDuelosLocales.js'
 import '../estilos/estilosDueloLocal.css'
 
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
+
 
 export default function PaginaDueloLocal() {
   const navegar = usarNavegacion()
@@ -173,19 +167,7 @@ export default function PaginaDueloLocal() {
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
 
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion
-              key={destino}
-              to={destino}
-              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-            >
-              <span aria-hidden="true">{simbolo}</span>
-              {titulo}
-            </EnlaceNavegacion>
-          ))}
-          <EnlaceAdministracion claseEnlace="inicio__enlace" />
-        </nav>
+        <NavegacionInicio destinoJugar="/jugar" />
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
