@@ -96,7 +96,8 @@ function DialogoDetalleHistorial({ partida, alCerrar }) {
   if (!partida) return null
 
   return (
-    <div className="historial__velo" role="presentation" onMouseDown={(evento) => cerrarAlPresionarFondo(evento, alCerrar)}>
+    <div className="historial__velo">
+      <button className="historial__fondo" type="button" aria-label="Cerrar detalle" onClick={alCerrar} />
       <section className="historial__dialogo" role="dialog" aria-modal="true" aria-labelledby="historial-detalle-titulo">
         <button className="historial__cerrar" type="button" aria-label="Cerrar detalle" onClick={alCerrar}>×</button>
         <p className="historial__dialogo-sobretitulo">DETALLE DE ACTIVIDAD</p>
@@ -106,10 +107,6 @@ function DialogoDetalleHistorial({ partida, alCerrar }) {
       </section>
     </div>
   )
-}
-
-function cerrarAlPresionarFondo(evento, cerrar) {
-  if (evento.target === evento.currentTarget) cerrar()
 }
 
 export default function PaginaHistorialPersonal() {

@@ -43,7 +43,10 @@ prueba('abre el detalle de una partida y permite cambiar al historial de torneos
 
   await pagina.getByRole('button', { name: 'Ver detalle' }).first().click()
   await esperar(pagina.getByRole('dialog')).toContainText('Mundiales')
-  await pagina.getByRole('button', { name: 'Cerrar detalle' }).click()
+  await pagina.mouse.click(5, 5)
+  await esperar(pagina.getByRole('dialog')).toBeHidden()
+  await pagina.getByRole('button', { name: 'Ver detalle' }).first().click()
+  await pagina.getByRole('dialog').getByRole('button', { name: 'Cerrar detalle' }).click()
   await pagina.getByRole('tab', { name: 'Torneos' }).click()
   await esperar(pagina.getByRole('region', { name: 'Torneos anteriores' }).getByText('Copa Apertura')).toBeVisible()
 })
