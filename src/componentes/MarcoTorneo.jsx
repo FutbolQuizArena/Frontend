@@ -17,6 +17,7 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
   const textoPuntajeAcumulado = usuario
     ? `${etiquetaRolUsuario} · ${usuario.puntajeTotal.toLocaleString('es-AR')} pts`
     : 'Cargando…'
+  const clasesMarco = ['marco-torneo', administrador && 'marco-admin', claseAdicional].filter(Boolean).join(' ')
   const enlacesAdmin = [
     { destino: `/admin${sufijoAdmin}`, titulo: 'Preguntas', simbolo: '?' },
     { destino: `/admin/categorias${sufijoAdmin}`, titulo: 'Categorías', simbolo: '▦' },
@@ -37,7 +38,7 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
   }, [])
 
   return (
-    <div className={`marco-torneo${administrador ? ' marco-admin' : ''}${claseAdicional ? ` ${claseAdicional}` : ''}`}>
+    <div className={clasesMarco}>
       <a className="enlace-salto" href="#contenido-torneo">Ir al contenido</a>
       <aside className="marco-torneo__lateral">
         <Enlace className="marca marco-torneo__marca" to="/home" aria-label="FutbolQuiz Arena">FUTBOLQUIZ<span className="marca__arena">{administrador ? 'ADMIN' : 'ARENA'}</span></Enlace>
