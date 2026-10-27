@@ -68,7 +68,7 @@ function EstadoVacioHistorial({ pestanaActiva }) {
 }
 
 function ContenidoHistorial({ cargando, error, partidas, pestanaActiva, alReintentar, alVerDetalle }) {
-  if (cargando) return <p className="historial__estado" role="status">Cargando historial…</p>
+  if (cargando) return <output className="historial__estado" aria-live="polite">Cargando historial…</output>
   if (error) return <div className="historial__estado historial__estado--error" role="alert"><p>{error}</p><button type="button" onClick={alReintentar}>Reintentar</button></div>
   if (!partidas?.length) return <EstadoVacioHistorial pestanaActiva={pestanaActiva} />
   return <TablaHistorial partidas={partidas} alVerDetalle={alVerDetalle} />
