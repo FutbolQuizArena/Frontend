@@ -84,8 +84,8 @@ export default function PaginaHome() {
         </section>
         <section className="inicio__ranking" aria-labelledby="titulo-ranking">
           <h2 id="titulo-ranking">Ranking general</h2>
-          <p>Ranking próximamente.</p>
-          <Enlace to="/ranking">Estado del ranking</Enlace>
+          <p>Consultá las posiciones y tu lugar en el ranking.</p>
+          <Enlace to="/ranking">Ver ranking</Enlace>
         </section>
         <section className="inicio__torneo" aria-labelledby="titulo-torneos">
           <h2 id="titulo-torneos"><span className="inicio__solo-escritorio">Torneos disponibles</span><span className="inicio__solo-movil">TORNEOS DISPONIBLES</span></h2>

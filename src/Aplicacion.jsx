@@ -5,6 +5,7 @@ import PaginaHome from './paginas/PaginaHome.jsx'
 import PaginaPendiente from './paginas/PaginaPendiente.jsx'
 import PaginaPerfil from './paginas/PaginaPerfil.jsx'
 import PaginaHistorialPersonal from './paginas/PaginaHistorialPersonal.jsx'
+import PaginaMiPerfil from './paginas/PaginaMiPerfil.jsx'
 import PaginaCrearTorneo from './paginas/PaginaCrearTorneo.jsx'
 import PaginaTorneos from './paginas/PaginaTorneos.jsx'
 import PaginaUnirseTorneo from './paginas/PaginaUnirseTorneo.jsx'
@@ -65,7 +66,8 @@ export default function Aplicacion() {
         <Ruta path="/torneos/:idTorneo/cuadro" element={<PaginaCuadroTorneo />} />
         <Ruta path="/torneos/:idTorneo" element={<PaginaDetalleTorneo />} />
         <Ruta path="/ranking" element={<PaginaRankingGeneral />} />
-        <Ruta path="/perfil" element={<PaginaPerfil />} />
+        <Ruta path="/perfil" element={<PaginaMiPerfil />} />
+        <Ruta path="/perfil/editar" element={<PaginaPerfil />} />
         <Ruta path="/historial" element={<PaginaHistorialPersonal />} />
         <Ruta element={<RutaAdministrador />}>
           <Ruta path="/admin" element={<PaginaPreguntasAdmin />} />

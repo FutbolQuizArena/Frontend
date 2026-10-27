@@ -1,7 +1,7 @@
 import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { crearTokenPrueba, prepararSesion } from './datosSesion.js'
 
-const rutasPrivadas = ['/home', '/perfil', '/partida-individual', '/duelo', '/torneos', '/torneos/crear', '/torneos/unirse', '/torneos/1', '/torneos/1/sala', '/torneos/1/cuadro', '/ranking', '/admin']
+const rutasPrivadas = ['/home', '/perfil', '/perfil/editar', '/historial', '/partida-individual', '/duelo', '/torneos', '/torneos/crear', '/torneos/unirse', '/torneos/1', '/torneos/1/sala', '/torneos/1/cuadro', '/ranking', '/admin']
 
 prueba.beforeEach(async ({ context: contexto }) => {
   await contexto.route('**/api/**', (ruta) => ruta.fulfill({
@@ -57,7 +57,7 @@ prueba('mantener sesión guarda el JWT persistente y permite abrir otra pestaña
   esperar(await pagina.evaluate(() => sessionStorage.getItem('futbolquizToken'))).toBeNull()
   const otraPagina = await contexto.newPage()
   await otraPagina.goto('/perfil')
-  await esperar(otraPagina.getByRole('heading', { name: 'Editar perfil' })).toBeVisible()
+  await esperar(otraPagina.getByRole('heading', { name: 'Mi perfil' })).toBeVisible()
   await pagina.getByRole('button', { name: 'Cerrar sesión' }).click()
   await esperar(otraPagina).toHaveURL(/\/login$/)
 })
