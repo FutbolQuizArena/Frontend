@@ -25,12 +25,12 @@ export default function PaginaFormularioCategoriaAdmin() {
   const datosEjemplo = vistaPrevia || esSesionAdminPrueba(obtenerToken())
   const sufijo = vistaPrevia ? '?vistaPrevia=1' : ''
   const regreso = `/admin/categorias${sufijo}`
-  const [rol, establecerRol] = useState(null)
-  const [datos, establecerDatos] = useState(inicial)
-  const [cargando, establecerCargando] = useState(true)
-  const [guardando, establecerGuardando] = useState(false)
-  const [errorCarga, establecerErrorCarga] = useState('')
-  const [errorFormulario, establecerErrorFormulario] = useState('')
+  const [rol, setRol] = useState(null)
+  const [datos, setDatos] = useState(inicial)
+  const [cargando, setCargando] = useState(true)
+  const [guardando, setGuardando] = useState(false)
+  const [errorCarga, setErrorCarga] = useState('')
+  const [errorFormulario, setErrorFormulario] = useState('')
 
   useEffect(() => {
     let vigente = true
@@ -38,16 +38,16 @@ export default function PaginaFormularioCategoriaAdmin() {
       try {
         const rolActual = vistaPrevia ? 'VISTA_PREVIA' : (await obtenerPerfil()).rol
         if (!vigente) return
-        establecerRol(rolActual)
+        setRol(rolActual)
         if (rolActual !== 'ADMINISTRADOR' && !vistaPrevia) return
         if (idCategoria) {
           const categoria = await obtenerCategoriaAdmin(idCategoria, { vistaPrevia })
-          if (vigente) establecerDatos(categoria)
+          if (vigente) setDatos(categoria)
         }
       } catch (fallo) {
-        if (vigente) establecerErrorCarga(fallo.message || 'No pudimos cargar la categoría.')
+        if (vigente) setErrorCarga(fallo.message || 'No pudimos cargar la categoría.')
       } finally {
-        if (vigente) establecerCargando(false)
+        if (vigente) setCargando(false)
       }
     }
     void cargar()
@@ -57,19 +57,19 @@ export default function PaginaFormularioCategoriaAdmin() {
   async function guardar(evento) {
     evento.preventDefault()
     if (!datos.nombre.trim()) {
-      establecerErrorFormulario('Ingresá el nombre de la categoría.')
+      setErrorFormulario('Ingresá el nombre de la categoría.')
       return
     }
-    establecerErrorFormulario('')
-    establecerGuardando(true)
+    setErrorFormulario('')
+    setGuardando(true)
     try {
       if (idCategoria) await actualizarCategoriaAdmin(idCategoria, datos, { vistaPrevia })
       else await crearCategoriaAdmin(datos, { vistaPrevia })
       navegarConManejo(navegar, regreso, { state: { avisoCategoria: datosEjemplo ? 'Categoría guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Categoría guardada.' } })
     } catch (fallo) {
-      establecerErrorFormulario(fallo.message || 'No pudimos guardar la categoría.')
+      setErrorFormulario(fallo.message || 'No pudimos guardar la categoría.')
     } finally {
-      establecerGuardando(false)
+      setGuardando(false)
     }
   }
 
@@ -81,9 +81,9 @@ export default function PaginaFormularioCategoriaAdmin() {
       {!cargando && errorCarga && <p className="admin-preguntas__estado" role="alert">{errorCarga}</p>}
       {!cargando && !errorCarga && rol !== 'ADMINISTRADOR' && !vistaPrevia && <p className="admin-preguntas__estado" role="alert">Solo los administradores pueden gestionar categorías.</p>}
       {!cargando && !errorCarga && (rol === 'ADMINISTRADOR' || vistaPrevia) && <form className="admin-formulario__panel" onSubmit={guardar} noValidate>
-        <label>Nombre de la categoría<input value={datos.nombre} onChange={(evento) => establecerDatos({ ...datos, nombre: evento.target.value })} maxLength="100" /></label>
-        {datosEjemplo && <label>Descripción (opcional)<textarea value={datos.descripcion || ''} onChange={(evento) => establecerDatos({ ...datos, descripcion: evento.target.value })} maxLength="300" rows="3" /></label>}
-        <label>Estado<select value={datos.estado} onChange={(evento) => establecerDatos({ ...datos, estado: evento.target.value })}><option value="ACTIVA">Activa</option><option value="BORRADOR">Borrador</option></select></label>
+        <label>Nombre de la categoría<input value={datos.nombre} onChange={(evento) => setDatos({ ...datos, nombre: evento.target.value })} maxLength="100" /></label>
+        {datosEjemplo && <label>Descripción (opcional)<textarea value={datos.descripcion || ''} onChange={(evento) => setDatos({ ...datos, descripcion: evento.target.value })} maxLength="300" rows="3" /></label>}
+        <label>Estado<select value={datos.estado} onChange={(evento) => setDatos({ ...datos, estado: evento.target.value })}><option value="ACTIVA">Activa</option><option value="BORRADOR">Borrador</option></select></label>
         {errorFormulario && <p className="admin-formulario__error" role="alert">{errorFormulario}</p>}
         {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}
         <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{obtenerTextoBotonCategoria(guardando, idCategoria)}</button></div>
