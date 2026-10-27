@@ -13,6 +13,8 @@ const enlaces = [
 export default function MarcoPerfil({ tituloMovil, subtituloMovil, perfil, children }) {
   const iniciales = perfil?.iniciales || 'FQ'
   const puntaje = perfil?.puntajeTotal
+  const etiquetaRol = perfil?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'
+  const textoPuntaje = puntaje == null ? 'No disponible' : `${etiquetaRol} · ${puntaje.toLocaleString('es-AR')} pts`
   const ubicacion = usarUbicacion()
   const enlacesVisibles = perfil?.rol === 'ADMINISTRADOR'
     ? [...enlaces, { destino: '/admin', titulo: 'Administración', simbolo: '⚙' }]
@@ -34,7 +36,7 @@ export default function MarcoPerfil({ tituloMovil, subtituloMovil, perfil, child
         </nav>
         <div className="perfil__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>{puntaje == null ? 'No disponible' : `${perfil.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · ${puntaje.toLocaleString('es-AR')} pts`}</span>
+          <span>{textoPuntaje}</span>
         </div>
       </aside>
 
