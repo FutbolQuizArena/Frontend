@@ -63,3 +63,16 @@ prueba('solicita páginas adicionales cuando el ranking supera cien jugadores', 
   await esperar(pagina.getByRole('region', { name: 'Tu posición' }).getByText('#101')).toBeVisible()
   await esperar(pagina.getByRole('region', { name: 'Clasificación' }).getByText('Santiago')).toBeVisible()
 })
+
+prueba('muestra un error cuando no se puede consultar el ranking', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  await pagina.route('**/api/ranking?*', (ruta) => ruta.fulfill({
+    status: 503,
+    json: { message: 'Ranking no disponible' },
+  }))
+
+  await pagina.goto('/ranking')
+
+  await esperar(pagina.getByRole('alert')).toBeVisible()
+  await esperar(pagina.getByText('Cargando ranking…')).toHaveCount(0)
+})

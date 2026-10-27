@@ -91,3 +91,29 @@ prueba('mantiene la vista responsive sin scroll horizontal en móvil', async ({ 
 
   await esperar(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 2)
 })
+
+prueba('permite reintentar si fallan el inicio del duelo y el registro de una respuesta', async ({ page: pagina }) => {
+  let primerInicio = true
+  await pagina.route('**/api/duelos/local', (ruta) => {
+    if (primerInicio) {
+      primerInicio = false
+      return ruta.fulfill({ status: 503, json: { message: 'Duelo no disponible' } })
+    }
+    return ruta.fallback()
+  })
+
+  await pagina.goto('/duelo/local', { waitUntil: 'domcontentloaded' })
+  await pagina.getByRole('button', { name: 'Comenzar Duelo' }).click()
+  await esperar(pagina.getByRole('alert')).toBeVisible()
+
+  await pagina.getByRole('button', { name: 'Comenzar Duelo' }).click()
+  await esperar(pagina.getByRole('button', { name: /opción/i }).first()).toBeVisible()
+
+  await pagina.route('**/api/duelos/preguntas/*/respuesta', (ruta) => ruta.fulfill({
+    status: 503,
+    json: { message: 'Respuesta no disponible' },
+  }))
+  await pagina.getByRole('button', { name: /opción/i }).first().click()
+  await esperar(pagina.getByRole('alert')).toBeVisible()
+  await esperar(pagina.getByRole('button', { name: /opción/i }).first()).toBeEnabled()
+})
