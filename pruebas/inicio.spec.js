@@ -20,6 +20,11 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
         { id: 12, nombre: 'Copa real', cantidad_participantes: 8, cantidad_participantes_actual: 3, tiene_contrasena: false, estado: 'ESPERANDO_JUGADORES', fecha_creacion: '2026-09-25T12:00:00Z', creador_id: 2, codigo_acceso: null },
       ]) })
     }
+    if (new URL(ruta.request().url()).pathname === '/api/ranking') {
+      return ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+        jugadores: [], total_jugadores: 0, pagina: 1, tamano_pagina: 100, mi_posicion: null,
+      }) })
+    }
     return ruta.abort()
   })
   await pagina.setViewportSize({ width: 1440, height: 1024 })
@@ -42,7 +47,7 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
   await esperar(pagina.getByText('Ranking próximamente.')).toBeVisible()
   for (const [nombre, destino, titulo] of [
     ['Ver torneo', 'torneos', 'Torneos'],
-    ['Estado del ranking', 'ranking', 'Ranking próximamente'],
+    ['Estado del ranking', 'ranking', 'Ranking general'],
     ['Ver mi perfil', 'perfil', 'Editar perfil'],
   ]) {
     await pagina.getByRole('link', { name: nombre, exact: true }).click()
@@ -65,6 +70,11 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
 })
 
 prueba('la Home se adapta al celular y mantiene accesibles los enlaces', async ({ page: pagina }) => {
+  await pagina.route('**/api/ranking?*', (ruta) => ruta.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ jugadores: [], total_jugadores: 0, pagina: 1, tamano_pagina: 100, mi_posicion: null }),
+  }))
   for (const ancho of [320, 390, 768, 1024, 1440]) {
     await pagina.setViewportSize({ width: ancho, height: 844 })
     await pagina.goto('/home')
@@ -79,7 +89,7 @@ prueba('la Home se adapta al celular y mantiene accesibles los enlaces', async (
   await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
   await pagina.getByRole('navigation').getByRole('link', { name: 'Ranking' }).click()
   await esperar(pagina).toHaveURL(/\/ranking$/)
-  await esperar(pagina.getByRole('heading', { name: 'Ranking próximamente' })).toBeVisible()
+  await esperar(pagina.getByRole('heading', { name: 'Ranking general' })).toBeVisible()
   await pagina.goto('/home')
   await pagina.screenshot({ path: 'test-results/inicio-movil.png', fullPage: true })
 })

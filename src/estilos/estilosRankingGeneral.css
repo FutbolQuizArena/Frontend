@@ -37,10 +37,6 @@
 .ranking-fila:not(.ranking-fila--propia) .ranking-fila__variacion[aria-label='Sin cambios'] { color: #829588; }
 .ranking-seccion__vacio { margin: 0; padding: 16px; border: 1px solid var(--color-borde); border-radius: 12px; color: var(--color-secundario); font-size: 13px; }
 
-@media (min-width: 901px) {
-  .ranking-general__volver { display: none; }
-}
-
 @media (max-width: 900px) {
   .marco-torneo--ranking .marco-torneo__lateral { padding: 0; }
   .marco-torneo--ranking .marco-torneo__marca { margin-left: 8px; }
