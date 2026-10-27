@@ -32,6 +32,7 @@ Las rutas de ranking e historial se añadieron al repositorio Backend en `develo
 | Usuario autenticado | `GET/PATCH /api/usuarios/me`, `PATCH /api/usuarios/me/password` |
 | Categorías para jugar | `GET /api/categorias`, `GET /api/partidas/categorias` |
 | Ranking general | `GET /api/ranking?pagina={pagina}&tamano_pagina={cantidad}` (máximo 100 por página) |
+| Ranking | `GET /api/ranking?pagina={pagina}&tamano_pagina={cantidad}` |
 | Historial personal | `GET /api/historial/partidas-individuales`, `GET /api/historial/duelos`, `GET /api/historial/torneos` |
 | Torneos | `POST/GET /api/torneos`, `POST /api/torneos/unirse`, `GET /api/torneos/{torneo_id}`, `DELETE /api/torneos/{torneo_id}/salir`, `POST /api/torneos/{torneo_id}/cruces/{cruce_id}/iniciar-duelo`, `POST /api/torneos/{torneo_id}/cruces/{cruce_id}/resolver` |
 | Partida individual | `POST /api/partidas/individual`, `POST /api/partidas/preguntas/{pregunta_partida_id}/respuesta`, `GET /api/partidas/{partida_id}/resultado` |
