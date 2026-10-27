@@ -75,6 +75,7 @@ export default function PaginaPartidaIndividual() {
         setRespuestas([])
         setRespuestaCorrecta(null)
       } catch (error) {
+        // Si no se puede iniciar la partida en el servidor, mantenemos la salida alternativa local.
         if (cancelado) {
           return
         }
@@ -177,6 +178,7 @@ export default function PaginaPartidaIndividual() {
 
           sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
         } catch (error) {
+          // Si no se puede finalizar en el servidor, guardamos el resultado calculado localmente.
           const resultado = finalizarPartidaIndividual(partidaId, nuevasRespuestas)
           sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify({
             ...resultado,

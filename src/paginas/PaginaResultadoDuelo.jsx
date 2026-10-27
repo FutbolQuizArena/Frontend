@@ -151,6 +151,7 @@ export default function PaginaResultadoDuelo() {
           intervaloPolling = iniciarPollingResultado(dueloId, perfil, () => activo, setResultado)
         }
       } catch (error) {
+        // Si falla la consulta, conservamos el resultado local o mostramos el estado sin resultado.
         if (activo && !resultado) {
           setResultado(null)
           setCargando(false)

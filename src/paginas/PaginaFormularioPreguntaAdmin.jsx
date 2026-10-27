@@ -26,13 +26,13 @@ export default function PaginaFormularioPreguntaAdmin() {
   const vistaPrevia = import.meta.env.DEV && parametros.get('vistaPrevia') === '1'
   const datosEjemplo = vistaPrevia || esSesionAdminPrueba(obtenerToken())
   const regreso = `/admin${vistaPrevia ? '?vistaPrevia=1' : ''}`
-  const [rol, establecerRol] = useState(null)
-  const [datos, establecerDatos] = useState(formularioVacio)
-  const [categorias, establecerCategorias] = useState([])
-  const [cargando, establecerCargando] = useState(true)
-  const [guardando, establecerGuardando] = useState(false)
-  const [error, establecerError] = useState('')
-  const [encontrada, establecerEncontrada] = useState(!idPregunta)
+  const [rol, setRol] = useState(null)
+  const [datos, setDatos] = useState(formularioVacio)
+  const [categorias, setCategorias] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [guardando, setGuardando] = useState(false)
+  const [error, setError] = useState('')
+  const [encontrada, setEncontrada] = useState(!idPregunta)
 
   useEffect(() => {
     let vigente = true
@@ -40,18 +40,18 @@ export default function PaginaFormularioPreguntaAdmin() {
       try {
         const rolActual = vistaPrevia ? 'VISTA_PREVIA' : (await obtenerPerfil()).rol
         if (!vigente) return
-        establecerRol(rolActual)
+        setRol(rolActual)
         if (rolActual !== 'ADMINISTRADOR' && !vistaPrevia) return
         const categoriasDisponibles = await obtenerCategoriasAdmin({ vistaPrevia })
         const pregunta = idPregunta ? await obtenerPreguntaAdmin(idPregunta, { vistaPrevia }) : null
-        if (vigente) establecerCategorias(categoriasDisponibles.filter((categoria) => categoria.estado === 'ACTIVA' || categoria.nombre === pregunta?.categoria).map((categoria) => categoria.nombre).sort((a, b) => a.localeCompare(b, 'es-AR')))
+        if (vigente) setCategorias(categoriasDisponibles.filter((categoria) => categoria.estado === 'ACTIVA' || categoria.nombre === pregunta?.categoria).map((categoria) => categoria.nombre).sort((a, b) => a.localeCompare(b, 'es-AR')))
         if (idPregunta) {
-          if (vigente) { establecerDatos(pregunta); establecerEncontrada(true) }
+          if (vigente) { setDatos(pregunta); setEncontrada(true) }
         }
-      } catch (fallo) {
-        if (vigente) establecerError(fallo.message || 'No pudimos cargar la pregunta.')
+      } catch (error_) {
+        if (vigente) setError(error_.message || 'No pudimos cargar la pregunta.')
       } finally {
-        if (vigente) establecerCargando(false)
+        if (vigente) setCargando(false)
       }
     }
     void cargar()
@@ -59,7 +59,7 @@ export default function PaginaFormularioPreguntaAdmin() {
   }, [idPregunta, vistaPrevia])
 
   function cambiarOpcion(indice, valor) {
-    establecerDatos((actual) => ({ ...actual, opciones: actual.opciones.map((opcion, posicion) => posicion === indice ? valor : opcion) }))
+    setDatos((actual) => ({ ...actual, opciones: actual.opciones.map((opcion, posicion) => posicion === indice ? valor : opcion) }))
   }
 
   async function guardar(evento) {
@@ -67,24 +67,24 @@ export default function PaginaFormularioPreguntaAdmin() {
     const enunciado = datos.enunciado.trim()
     const opciones = datos.opciones.map((opcion) => opcion.trim())
     if (!enunciado || !datos.categoria || opciones.some((opcion) => !opcion) || datos.respuestaCorrecta === null) {
-      establecerError('Completá el enunciado, la categoría, las cuatro opciones y elegí la respuesta correcta.')
+      setError('Completá el enunciado, la categoría, las cuatro opciones y elegí la respuesta correcta.')
       return
     }
     if (new Set(opciones.map((opcion) => opcion.toLocaleLowerCase('es-AR'))).size !== 4) {
-      establecerError('Las cuatro opciones deben ser diferentes.')
+      setError('Las cuatro opciones deben ser diferentes.')
       return
     }
-    establecerError('')
-    establecerGuardando(true)
+    setError('')
+    setGuardando(true)
     try {
       const pregunta = { enunciado, categoria: datos.categoria, dificultad: datos.dificultad, estado: datos.estado, opciones, respuestaCorrecta: datos.respuestaCorrecta }
       if (idPregunta) await actualizarPreguntaAdmin(idPregunta, pregunta, { vistaPrevia })
       else await crearPreguntaAdmin(pregunta, { vistaPrevia })
       navegarConManejo(navegar, regreso, { state: { avisoPregunta: datosEjemplo ? 'Pregunta guardada temporalmente. Los cambios se pierden al recargar la página.' : 'Pregunta guardada.' } })
-    } catch (fallo) {
-      establecerError(fallo.message || 'No pudimos guardar la pregunta.')
+    } catch (error_) {
+      setError(error_.message || 'No pudimos guardar la pregunta.')
     } finally {
-      establecerGuardando(false)
+      setGuardando(false)
     }
   }
 
@@ -96,9 +96,9 @@ export default function PaginaFormularioPreguntaAdmin() {
       {!cargando && error && (!encontrada || (rol !== 'ADMINISTRADOR' && !vistaPrevia)) && <p role="alert">{error}</p>}
       {!cargando && (rol === 'ADMINISTRADOR' || vistaPrevia) && encontrada && <form className="admin-formulario__panel" onSubmit={guardar} noValidate>
 
-        <label>Enunciado de la pregunta<textarea value={datos.enunciado} onChange={(evento) => establecerDatos({ ...datos, enunciado: evento.target.value })} rows="3" maxLength="500" /></label>
-        <div className="admin-formulario__fila"><label>Categoría<select value={datos.categoria} onChange={(evento) => establecerDatos({ ...datos, categoria: evento.target.value })}><option value="">Seleccioná una categoría</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Respuesta correcta<select aria-label="Respuesta correcta" value={datos.respuestaCorrecta ?? ''} onChange={(evento) => establecerDatos({ ...datos, respuestaCorrecta: evento.target.value === '' ? null : Number(evento.target.value) })}><option value="">Seleccionar opción</option>{letrasOpciones.map((letra, indice) => <option key={letra} value={indice}>Opción {letra}</option>)}</select></label></div>
-        <fieldset><legend>Opciones de respuesta</legend><p>Seleccioná la opción correcta.</p>{letrasOpciones.map((letra, indice) => <div className={`admin-formulario__opcion${datos.respuestaCorrecta === indice ? ' admin-formulario__opcion--correcta' : ''}`} key={letra}><label htmlFor={`opcion-${indice}`}>Opción {letra}</label><input id={`opcion-${indice}`} value={datos.opciones[indice]} onChange={(evento) => cambiarOpcion(indice, evento.target.value)} maxLength="200" /><label className="admin-formulario__radio"><input type="radio" name="correcta" checked={datos.respuestaCorrecta === indice} onChange={() => establecerDatos({ ...datos, respuestaCorrecta: indice })} />Correcta</label></div>)}</fieldset><p className="admin-formulario__nota">Cada pregunta debe tener exactamente cuatro opciones y una única respuesta correcta.</p>
+        <label>Enunciado de la pregunta<textarea value={datos.enunciado} onChange={(evento) => setDatos({ ...datos, enunciado: evento.target.value })} rows="3" maxLength="500" /></label>
+        <div className="admin-formulario__fila"><label>Categoría<select value={datos.categoria} onChange={(evento) => setDatos({ ...datos, categoria: evento.target.value })}><option value="">Seleccioná una categoría</option>{categorias.map((nombre) => <option key={nombre} value={nombre}>{nombre}</option>)}</select></label><label>Respuesta correcta<select aria-label="Respuesta correcta" value={datos.respuestaCorrecta ?? ''} onChange={(evento) => setDatos({ ...datos, respuestaCorrecta: evento.target.value === '' ? null : Number(evento.target.value) })}><option value="">Seleccionar opción</option>{letrasOpciones.map((letra, indice) => <option key={letra} value={indice}>Opción {letra}</option>)}</select></label></div>
+        <fieldset><legend>Opciones de respuesta</legend><p>Seleccioná la opción correcta.</p>{letrasOpciones.map((letra, indice) => <div className={`admin-formulario__opcion${datos.respuestaCorrecta === indice ? ' admin-formulario__opcion--correcta' : ''}`} key={letra}><label htmlFor={`opcion-${indice}`}>Opción {letra}</label><input id={`opcion-${indice}`} value={datos.opciones[indice]} onChange={(evento) => cambiarOpcion(indice, evento.target.value)} maxLength="200" /><label className="admin-formulario__radio"><input type="radio" name="correcta" checked={datos.respuestaCorrecta === indice} onChange={() => setDatos({ ...datos, respuestaCorrecta: indice })} />Correcta</label></div>)}</fieldset><p className="admin-formulario__nota">Cada pregunta debe tener exactamente cuatro opciones y una única respuesta correcta.</p>
         {error && <p className="admin-formulario__error" role="alert">{error}</p>}
         {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}<div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{obtenerTextoBotonPregunta(guardando, idPregunta)}</button></div>
       </form>}

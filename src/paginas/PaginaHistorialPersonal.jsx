@@ -22,8 +22,8 @@ function usarHistorialPersonal() {
       .then((datos) => {
         if (componenteActivo) establecerHistorial(datos)
       })
-      .catch((errorApi) => {
-        if (componenteActivo) establecerError(errorApi.message || mensajeErrorPredeterminado)
+      .catch((error_) => {
+        if (componenteActivo) establecerError(error_.message || mensajeErrorPredeterminado)
       })
       .finally(() => {
         if (componenteActivo) establecerCargando(false)

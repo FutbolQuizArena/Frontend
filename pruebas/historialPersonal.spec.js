@@ -89,3 +89,17 @@ prueba('reorganiza las partidas en móvil sin desbordamiento horizontal', async 
   esperar(await pagina.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   await pagina.screenshot({ path: 'test-results/historial-movil.png', fullPage: true })
 })
+
+prueba('muestra un error y permite reintentar si falla la consulta del historial', async ({ page: pagina }) => {
+  await prepararHistorial(pagina)
+  await pagina.route('**/api/historial/partidas-individuales', (ruta) => ruta.fulfill({
+    status: 503,
+    json: { message: 'Historial no disponible' },
+  }))
+
+  await pagina.goto('/historial')
+
+  await esperar(pagina.getByRole('alert')).toBeVisible()
+  await pagina.getByRole('button', { name: 'Reintentar' }).click()
+  await esperar(pagina.getByRole('alert')).toBeVisible()
+})

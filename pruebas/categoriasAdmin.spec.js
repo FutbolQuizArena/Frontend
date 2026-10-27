@@ -23,3 +23,19 @@ prueba('un jugador no puede consultar las categorías de administración', async
   await esperar(pagina.getByRole('alert')).toContainText('Solo los administradores')
   await esperar(pagina.getByRole('heading', { name: 'Gestión de categorías' })).toHaveCount(0)
 })
+
+prueba('informa el error si el administrador no puede cargar las categorías', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({
+    json: { id: 2, nombre: 'Admin', email: 'admin@ejemplo.com', rol: 'ADMINISTRADOR', puntaje_total: 0 },
+  }))
+  await pagina.route('**/api/admin/categorias', (ruta) => ruta.fulfill({
+    status: 503,
+    json: { message: 'Categorías no disponibles' },
+  }))
+
+  await pagina.goto('/admin/categorias')
+
+  await esperar(pagina.getByRole('alert')).toBeVisible()
+  await esperar(pagina.getByRole('button', { name: 'Reintentar' })).toBeVisible()
+})
