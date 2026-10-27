@@ -1,5 +1,6 @@
 import { useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import PantallaPreparacionDuelo from '../componentes/PantallaPreparacionDuelo.jsx'
 import PantallaCambioTurno from '../componentes/PantallaCambioTurno.jsx'
@@ -183,6 +184,7 @@ export default function PaginaDueloLocal() {
               {titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="inicio__enlace" />
         </nav>
 
         <div className="inicio__acumulado">

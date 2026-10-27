@@ -1,5 +1,6 @@
 import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import MarcadorDuelo from '../componentes/MarcadorDuelo.jsx'
 import TarjetaJugadorDuelo from '../componentes/TarjetaJugadorDuelo.jsx'
@@ -251,6 +252,7 @@ export default function PaginaPartidaDuelo() {
               {titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="inicio__enlace" />
         </nav>
 
         <div className="inicio__acumulado">

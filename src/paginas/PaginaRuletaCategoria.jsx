@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteRuleta from '../componentes/ComponenteRuleta.jsx'
@@ -91,6 +92,7 @@ export default function PaginaRuletaCategoria() {
               {titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="inicio__enlace" />
         </nav>
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>

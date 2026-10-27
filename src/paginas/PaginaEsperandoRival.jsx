@@ -1,5 +1,6 @@
 import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteCargandoDuelo from '../componentes/ComponenteCargandoDuelo.jsx'
@@ -225,6 +226,7 @@ export default function PaginaEsperandoRival() {
               {titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="inicio__enlace" />
         </nav>
 
         <div className="inicio__acumulado">

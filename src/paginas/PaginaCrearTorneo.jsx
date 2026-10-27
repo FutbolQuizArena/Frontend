@@ -1,5 +1,6 @@
 import { useRef as usarReferencia, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
 import { crearTorneo } from '../servicios/servicioTorneos.js'
@@ -91,6 +92,7 @@ export default function PaginaCrearTorneo() {
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="crear-torneo__enlace" />
         </nav>
         <div className="crear-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>Jugador · 2.450 pts</span></div>
       </aside>

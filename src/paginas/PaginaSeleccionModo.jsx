@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import TarjetaModoJuego from '../componentes/TarjetaModoJuego.jsx'
 import { modosJuegoBase, obtenerModosJuego } from '../servicios/servicioModosJuego.js'
@@ -65,6 +66,7 @@ export default function PaginaSeleccionModo() {
               {titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="inicio__enlace" />
         </nav>
 
         <div className="inicio__acumulado">

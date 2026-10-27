@@ -2,8 +2,9 @@ import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import TarjetaModo from '../componentes/TarjetaModo.jsx'
-import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 import { obtenerTorneosDisponibles } from '../servicios/servicioTorneos.js'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
@@ -21,7 +22,7 @@ const formatearPuntaje = (puntaje) => puntaje == null ? '—' : puntaje.toLocale
 
 export default function PaginaHome() {
   const navegar = usarNavegacion()
-  const [usuario, establecerUsuario] = usarEstado(usuarioInicial)
+  const [usuario, establecerUsuario] = usarEstado(() => ({ ...usuarioInicial, ...obtenerPerfilEnCache() }))
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [torneoDestacado, establecerTorneoDestacado] = usarEstado(null)
   const [cargandoTorneo, establecerCargandoTorneo] = usarEstado(true)
@@ -55,11 +56,12 @@ export default function PaginaHome() {
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
         <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {[...enlaces, ...(esAdministrador ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])].map(({ destino, titulo, simbolo }) => (
+          {enlaces.map(({ destino, titulo, simbolo }) => (
             <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="inicio__enlace" />
         </nav>
         <div className="inicio__acumulado"><p>PUNTAJE ACUMULADO</p><span>{esAdministrador ? 'Administrador' : 'Jugador'} · {formatearPuntaje(usuario.puntajeTotal)} pts</span></div>
       </aside>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import { obtenerResultadoPartida } from '../servicios/servicioPartidas.js'
@@ -101,6 +102,7 @@ export default function PaginaResultadoIndividual() {
               {titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="inicio__enlace" />
         </nav>
 
         <div className="inicio__acumulado">

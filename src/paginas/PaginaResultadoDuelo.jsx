@@ -1,5 +1,6 @@
 import { useEffect as usarEfecto, useMemo as usarMemo, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion, useParams as usarParametros } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
@@ -109,6 +110,7 @@ function NavegacionResultadoDuelo({ jugadorLocal }) {
           {titulo}
         </EnlaceNavegacion>
       ))}
+      <EnlaceAdministracion claseEnlace="inicio__enlace" />
     </nav>
     {jugadorLocal && <div className="inicio__acumulado">
       <p>PUNTAJE ACUMULADO</p>
