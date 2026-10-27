@@ -44,10 +44,10 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
   await esperar(pagina.getByRole('heading', { name: 'Buscando rival...' })).toBeVisible()
   await esperar(pagina.getByRole('button', { name: 'Cancelar Búsqueda' })).toBeVisible()
   await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
-  await esperar(pagina.getByText('Ranking próximamente.')).toBeVisible()
+  await esperar(pagina.getByText('Consultá las posiciones y tu lugar en el ranking.')).toBeVisible()
   for (const [nombre, destino, titulo] of [
     ['Ver torneo', 'torneos', 'Torneos'],
-    ['Estado del ranking', 'ranking', 'Ranking general'],
+    ['Ver ranking', 'ranking', 'Ranking general'],
     ['Ver mi perfil', 'perfil', 'Mi perfil'],
   ]) {
     await pagina.getByRole('link', { name: nombre, exact: true }).click()
