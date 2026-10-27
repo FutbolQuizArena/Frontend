@@ -36,3 +36,20 @@ prueba('un jugador no puede abrir el formulario de administración', async ({ pa
   await esperar(pagina.getByRole('alert')).toContainText('Solo los administradores')
   await esperar(pagina.getByRole('button', { name: 'Guardar pregunta' })).toHaveCount(0)
 })
+
+prueba('muestra el error si falla la carga de una pregunta para editar', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({
+    json: { id: 2, nombre: 'Admin', email: 'admin@ejemplo.com', rol: 'ADMINISTRADOR', puntaje_total: 0 },
+  }))
+  await pagina.route('**/api/admin/categorias', (ruta) => ruta.fulfill({ json: [] }))
+  await pagina.route('**/api/admin/preguntas/999', (ruta) => ruta.fulfill({
+    status: 503,
+    json: { message: 'No pudimos cargar la pregunta solicitada' },
+  }))
+
+  await pagina.goto('/admin/preguntas/999/editar', { waitUntil: 'domcontentloaded' })
+
+  await esperar(pagina.getByRole('alert')).toContainText('No pudimos cargar la pregunta solicitada')
+  await esperar(pagina.getByRole('button', { name: 'Guardar cambios' })).toHaveCount(0)
+})
