@@ -36,6 +36,7 @@
   .perfil__lateral { position: static; width: auto; padding: 0; }
   .perfil__marca, .perfil__acumulado { display: none; }
   .perfil__navegacion { position: fixed; right: 0; bottom: 0; left: 0; z-index: 3; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 7px 10px calc(15px + env(safe-area-inset-bottom)); background: #0c1f16; }
+  .perfil__navegacion--admin { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .perfil__enlace { flex-direction: column; justify-content: center; gap: 5px; min-height: 50px; padding: 6px 2px; border-radius: 15px; font-size: 9px; }
   .perfil__enlace--activo { color: var(--color-principal); background: #193426; }
   .perfil__cabecera { justify-content: flex-start; height: 72px; padding: 0 20px; gap: 12px; border-top: 3px solid var(--color-principal); border-bottom: 0; background: var(--color-superficie); }

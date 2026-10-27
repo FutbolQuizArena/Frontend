@@ -1,7 +1,9 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace } from 'react-router-dom'
 import MarcoPerfil from '../componentes/MarcoPerfil.jsx'
+import { obtenerHistorialPersonal } from '../servicios/servicioHistorial.js'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerPosicionUsuarioActual } from '../servicios/servicioRanking.js'
 import '../estilos/estilosMiPerfil.css'
 
 const accesos = [
@@ -12,6 +14,7 @@ const accesos = [
 
 export default function PaginaMiPerfil() {
   const [perfil, establecerPerfil] = usarEstado(null)
+  const [resumen, establecerResumen] = usarEstado(null)
   const [cargando, establecerCargando] = usarEstado(true)
   const [error, establecerError] = usarEstado('')
 
@@ -19,12 +22,31 @@ export default function PaginaMiPerfil() {
     let vigente = true
     obtenerPerfil()
       .then((datos) => { if (vigente) establecerPerfil(datos) })
-      .catch((fallo) => { if (vigente) establecerError(fallo.message || 'No pudimos cargar tu perfil.') })
+      .catch((error_) => { if (vigente) establecerError(error_.message || 'No pudimos cargar tu perfil.') })
       .finally(() => { if (vigente) establecerCargando(false) })
+
+    async function cargarResumen() {
+      const [historial, ranking] = await Promise.allSettled([
+        obtenerHistorialPersonal(),
+        obtenerPosicionUsuarioActual(),
+      ])
+      if (!vigente) return
+
+      const estadisticas = historial.status === 'fulfilled' ? historial.value.estadisticasGenerales : null
+      establecerResumen({
+        partidas: estadisticas?.partidasJugadas ?? null,
+        victorias: estadisticas?.duelosGanados ?? null,
+        torneos: estadisticas?.torneosDisputados ?? null,
+        posicion: ranking.status === 'fulfilled' ? ranking.value : null,
+      })
+    }
+
+    void cargarResumen()
     return () => { vigente = false }
   }, [])
 
   const puntaje = perfil?.puntajeTotal
+  const mostrarCantidad = (cantidad) => cantidad == null ? '—' : cantidad.toLocaleString('es-AR')
 
   return (
     <MarcoPerfil tituloMovil="Mi perfil" subtituloMovil="Cuenta y estadísticas" perfil={perfil}>
@@ -68,12 +90,13 @@ export default function PaginaMiPerfil() {
             <section className="mi-perfil__resumen" aria-labelledby="titulo-resumen">
               <h2 id="titulo-resumen">Resumen</h2>
               <dl>
-                <div><dt>Partidas</dt><dd aria-label="No disponible">—</dd></div>
-                <div><dt>Victorias en duelos</dt><dd aria-label="No disponible">—</dd></div>
-                <div><dt>Torneos jugados</dt><dd aria-label="No disponible">—</dd></div>
-                <div><dt>Ranking general</dt><dd aria-label="No disponible">—</dd></div>
+                <div><dt>Partidas</dt><dd>{mostrarCantidad(resumen?.partidas)}</dd></div>
+                <div><dt>Victorias en duelos</dt><dd>{mostrarCantidad(resumen?.victorias)}</dd></div>
+                <div><dt>Torneos jugados</dt><dd>{mostrarCantidad(resumen?.torneos)}</dd></div>
+                <div><dt>Ranking general</dt><dd>{resumen?.posicion == null ? '—' : `#${resumen.posicion}`}</dd></div>
               </dl>
-              <p className="mi-perfil__nota">Las estadísticas estarán disponibles cuando se integre el historial.</p>
+              {resumen && Object.values(resumen).some((valor) => valor == null) &&
+                <p className="mi-perfil__nota">Algunas estadísticas no están disponibles en este momento.</p>}
             </section>
           </div>
         </>}

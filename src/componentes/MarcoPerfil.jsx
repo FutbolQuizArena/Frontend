@@ -1,4 +1,4 @@
-import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import { Link as Enlace, NavLink as EnlaceNavegacion, useLocation as usarUbicacion } from 'react-router-dom'
 import BotonCerrarSesion from './BotonCerrarSesion.jsx'
 import '../estilos/estilosPerfil.css'
 
@@ -13,6 +13,10 @@ const enlaces = [
 export default function MarcoPerfil({ tituloMovil, subtituloMovil, perfil, children }) {
   const iniciales = perfil?.iniciales || 'FQ'
   const puntaje = perfil?.puntajeTotal
+  const ubicacion = usarUbicacion()
+  const enlacesVisibles = perfil?.rol === 'ADMINISTRADOR'
+    ? [...enlaces, { destino: '/admin', titulo: 'Administración', simbolo: '⚙' }]
+    : enlaces
 
   return (
     <div className="perfil">
@@ -21,9 +25,9 @@ export default function MarcoPerfil({ tituloMovil, subtituloMovil, perfil, child
         <Enlace className="marca perfil__marca" to="/home" aria-label="FutbolQuiz Arena">
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
-        <nav className="perfil__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `perfil__enlace${activo ? ' perfil__enlace--activo' : ''}`}>
+        <nav className={`perfil__navegacion${perfil?.rol === 'ADMINISTRADOR' ? ' perfil__navegacion--admin' : ''}`} aria-label="Navegación principal">
+          {enlacesVisibles.map(({ destino, titulo, simbolo }) => (
+            <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `perfil__enlace${activo || (destino === '/perfil' && ubicacion.pathname === '/historial') ? ' perfil__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}

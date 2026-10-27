@@ -69,6 +69,7 @@ export async function obtenerHistorialPersonal() {
     estadisticasGenerales: {
       partidasJugadas: Number(respuestaIndividual?.total ?? partidasIndividuales.length)
         + Number(respuestaDuelos?.total ?? duelos.length),
+      duelosGanados: duelos.filter((duelo) => duelo.resultado === 'VICTORIA').length,
       porcentajeVictorias: null,
       puntajeAcumulado: null,
       torneosDisputados: Number(respuestaTorneos?.total ?? torneos.length),

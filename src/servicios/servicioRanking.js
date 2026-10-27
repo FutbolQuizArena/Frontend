@@ -35,6 +35,11 @@ async function obtenerPaginaRanking(pagina) {
   return solicitarApi(`/api/ranking?${parametros.toString()}`)
 }
 
+export async function obtenerPosicionUsuarioActual() {
+  const respuesta = await obtenerPaginaRanking(1)
+  return respuesta?.mi_posicion?.posicion ?? null
+}
+
 // El endpoint requiere sesión y devuelve una clasificación paginada junto a mi_posicion.
 export async function obtenerRankingGeneral() {
   const primeraRespuesta = await obtenerPaginaRanking(1)
