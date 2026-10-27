@@ -24,11 +24,14 @@ La respuesta `200` es un **array**, sin envoltorio de paginación. Cada usuario 
 
 ## Otras rutas relevantes del Swagger actual
 
+Las rutas de ranking e historial se añadieron al repositorio Backend en `develop`; el branch `main` todavía no las contiene. El servidor configurado en `VITE_API_URL` debe desplegar esa versión para que estas consultas respondan.
+
 | Área | Rutas |
 | --- | --- |
 | Autenticación | `POST /api/auth/registro`, `POST /api/auth/login`, `POST /api/auth/logout` |
 | Usuario autenticado | `GET/PATCH /api/usuarios/me`, `PATCH /api/usuarios/me/password` |
 | Categorías para jugar | `GET /api/categorias`, `GET /api/partidas/categorias` |
+| Ranking general | `GET /api/ranking?pagina={pagina}&tamano_pagina={cantidad}` (máximo 100 por página) |
 | Ranking | `GET /api/ranking?pagina={pagina}&tamano_pagina={cantidad}` |
 | Historial personal | `GET /api/historial/partidas-individuales`, `GET /api/historial/duelos`, `GET /api/historial/torneos` |
 | Torneos | `POST/GET /api/torneos`, `POST /api/torneos/unirse`, `GET /api/torneos/{torneo_id}`, `DELETE /api/torneos/{torneo_id}/salir`, `POST /api/torneos/{torneo_id}/cruces/{cruce_id}/iniciar-duelo`, `POST /api/torneos/{torneo_id}/cruces/{cruce_id}/resolver` |
