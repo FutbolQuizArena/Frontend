@@ -2,6 +2,24 @@
 
 import { esSesionAdminPrueba, obtenerToken } from './servicioSesion.js'
 
+let tokenPerfilGuardado = null
+let perfilGuardado = null
+let tokenConsulta = null
+let consultaPerfil = null
+
+function guardarPerfil(token, perfil) {
+  if (token && token === obtenerToken()) {
+    tokenPerfilGuardado = token
+    perfilGuardado = perfil
+  }
+  return perfil
+}
+
+export function obtenerPerfilEnCache() {
+  const token = obtenerToken()
+  return token && token === tokenPerfilGuardado ? perfilGuardado : null
+}
+
 function adaptarPerfil(usuario) {
   return {
     id: usuario.id,
@@ -14,10 +32,23 @@ function adaptarPerfil(usuario) {
 }
 
 export async function obtenerPerfil() {
-  if (esSesionAdminPrueba(obtenerToken())) {
-    return adaptarPerfil({ id: 0, nombre: 'Admin de prueba', email: 'admin@futbolquiz.local', rol: 'ADMINISTRADOR', puntaje_total: 0 })
+  const token = obtenerToken()
+  if (esSesionAdminPrueba(token)) {
+    return guardarPerfil(token, adaptarPerfil({ id: 0, nombre: 'Admin de prueba', email: 'admin@futbolquiz.local', rol: 'ADMINISTRADOR', puntaje_total: 0 }))
   }
-  return adaptarPerfil(await solicitarApi('/api/usuarios/me'))
+  if (consultaPerfil && tokenConsulta === token) return consultaPerfil
+
+  const consulta = solicitarApi('/api/usuarios/me').then((usuario) => guardarPerfil(token, adaptarPerfil(usuario)))
+  tokenConsulta = token
+  consultaPerfil = consulta
+  try {
+    return await consulta
+  } finally {
+    if (consultaPerfil === consulta) {
+      tokenConsulta = null
+      consultaPerfil = null
+    }
+  }
 }
 
 export async function actualizarPerfil(datosPerfil) {
@@ -30,12 +61,13 @@ export async function actualizarPerfil(datosPerfil) {
     metodo: 'PATCH',
     datos,
   })
-  return adaptarPerfil(usuario)
+  return guardarPerfil(obtenerToken(), adaptarPerfil(usuario))
 }
 
 export async function cambiarContrasena(contrasenaActual, nuevaContrasena) {
-  return adaptarPerfil(await solicitarApi('/api/usuarios/me/password', {
+  const usuario = await solicitarApi('/api/usuarios/me/password', {
     metodo: 'PATCH',
     datos: { password_actual: contrasenaActual, nueva_password: nuevaContrasena },
-  }))
+  })
+  return guardarPerfil(obtenerToken(), adaptarPerfil(usuario))
 }

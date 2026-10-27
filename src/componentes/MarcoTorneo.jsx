@@ -1,6 +1,7 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useLocation } from 'react-router-dom'
-import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import EnlaceAdministracion from './EnlaceAdministracion.jsx'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
@@ -11,7 +12,7 @@ const enlaces = [
 ]
 
 export default function MarcoTorneo({ children: contenido, tituloMovil, subtituloMovil, administrador = false, sufijoAdmin = '', claseAdicional = '', inicialesUsuario }) {
-  const [usuario, establecerUsuario] = usarEstado(null)
+  const [usuario, establecerUsuario] = usarEstado(obtenerPerfilEnCache)
   const ubicacion = useLocation()
   const etiquetaRolUsuario = usuario?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'
   const textoPuntajeAcumulado = usuario
@@ -44,11 +45,12 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
         <Enlace className="marca marco-torneo__marca" to="/home" aria-label="FutbolQuiz Arena">FUTBOLQUIZ<span className="marca__arena">{administrador ? 'ADMIN' : 'ARENA'}</span></Enlace>
         <nav className="marco-torneo__navegacion" aria-label="Navegación principal">
           {administrador && <p className="marco-admin__gestion">GESTIÓN</p>}
-          {(administrador ? enlacesAdmin : [...enlaces, ...(usuario?.rol === 'ADMINISTRADOR' ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])]).map(({ destino, titulo, simbolo }) => (
+          {(administrador ? enlacesAdmin : enlaces).map(({ destino, titulo, simbolo }) => (
             <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin')} aria-current={esFormularioDeSeccion(destino) ? 'page' : undefined} className={({ isActive: activo }) => `marco-torneo__enlace${(activo || esFormularioDeSeccion(destino) || (destino === '/perfil' && ubicacion.pathname === '/historial')) ? ' marco-torneo__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          {!administrador && <EnlaceAdministracion claseEnlace="marco-torneo__enlace" />}
         </nav>
         <div className="marco-torneo__acumulado"><p>{administrador ? 'Rol: Administrador' : 'PUNTAJE ACUMULADO'}</p><span hidden={administrador}>{textoPuntajeAcumulado}</span></div>
       </aside>

@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import { Link as Enlace } from 'react-router-dom'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import TarjetaModoJuego from '../componentes/TarjetaModoJuego.jsx'
 import { modosJuegoBase, obtenerModosJuego } from '../servicios/servicioModosJuego.js'
 import '../estilos/estilosHome.css'
 import '../estilos/estilosSeleccionModo.css'
 
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
+
 
 export default function PaginaSeleccionModo() {
   const [modosDisponibles, setModosDisponibles] = useState(modosJuegoBase)
@@ -54,18 +49,7 @@ export default function PaginaSeleccionModo() {
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
 
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion
-              key={destino}
-              to={destino}
-              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-            >
-              <span aria-hidden="true">{simbolo}</span>
-              {titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
+        <NavegacionInicio destinoJugar="/jugar" />
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
