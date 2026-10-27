@@ -1,5 +1,7 @@
 function IndicadorPosicion({ variacion }) {
+  if (variacion === null || variacion === undefined) return <span className="ranking-fila__variacion" aria-label="Variación no disponible">—</span>
   if (!variacion) return <span className="ranking-fila__variacion" aria-label="Sin cambios">—</span>
+  if (variacion < 0) return <span className="ranking-fila__variacion" aria-label={`Bajó ${Math.abs(variacion)} lugares`}>↓ {Math.abs(variacion)}</span>
   return <span className="ranking-fila__variacion" aria-label={`Subió ${variacion} lugares`}>↑ {variacion}</span>
 }
 
@@ -18,7 +20,8 @@ function FilaRanking({ usuario, propia = false }) {
 
 export default function TablaRanking({ usuarios, usuarioActual }) {
   // La fila personal se muestra aparte; la lista general comienza después del podio.
-  const clasificacion = usuarios.filter((usuario) => usuario.posicion > 3)
+  const clasificacion = usuarios.filter((usuario) => usuario.posicion > 3
+    && String(usuario.id) !== String(usuarioActual?.id))
 
   return (
     <div className="ranking-listas">
