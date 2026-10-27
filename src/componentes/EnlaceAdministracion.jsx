@@ -21,5 +21,6 @@ export default function EnlaceAdministracion({ claseEnlace }) {
   }, [token])
 
   if (!esAdministrador) return null
-  return <EnlaceNavegacion to="/admin" className={({ isActive: activo }) => `${claseEnlace}${activo ? ` ${claseEnlace}--activo` : ''}`}><span aria-hidden="true">⚙</span>Administración</EnlaceNavegacion>
+  const claseActiva = `${claseEnlace} ${claseEnlace}--activo`
+  return <EnlaceNavegacion to="/admin" className={({ isActive: activo }) => activo ? claseActiva : claseEnlace}><span aria-hidden="true">⚙</span>Administración</EnlaceNavegacion>
 }
