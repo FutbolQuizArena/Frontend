@@ -1,6 +1,56 @@
 # Changelog
 
-Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, la rama actual, el código y las decisiones de esta conversación. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 25/09/2026.
+Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 27/10/2026.
+
+## 27/10 [6.3] Observaciones Low de SonarQube Cloud
+
+Cambios publicados en `fix/observaciones-bajas-sonar` para el PR #71, todavía pendiente de merge a `develop`.
+
+- **Estado de React:** se renombraron los setters de `useState` en seis archivos de administración para resolver 52 avisos de la misma regla. Las llamadas conservan los mismos valores y efectos.
+- **Código y errores:** se corrigieron 20 avisos adicionales: nombres de parámetros `catch`, imports sin uso, explicación de tres salidas alternativas ante errores, una condición con encadenamiento opcional y una transición CSS limitada al fondo y al borde.
+- **Cobertura:** se agregaron pruebas de los estados de error de categorías, preguntas administrativas, ranking, historial y duelo local. El análisis disponible del PR mostró 0 Low abiertos, 81,8 % de cobertura de código nuevo y Quality Gate aprobado después de los primeros cinco casos nuevos; el último caso, agregado en `bbda15f`, quedó pendiente de reanálisis al redactar esta entrada.
+- **Referencias:** `bb14013`, `4fd69cf`, `574ca9b`, `9cb1dab` y `bbda15f`. El detalle de los 72 avisos agrupados por regla está en la documentación local de Sonar, que no se publica en GitHub.
+
+## 26–27/10 [1.2.3, 6.1] Mi perfil, historial y ranking
+
+El ranking llegó con PR #67, el historial personal el 26/10 y la integración de navegación mediante PR #70 (`0df08a3`).
+
+- **Ranking:** `PaginaRankingGeneral.jsx` y `servicioRanking.js` consultan la clasificación, muestran la posición propia y contemplan errores de la API. La Home y la navegación abren la pantalla de ranking.
+- **Historial personal:** `PaginaHistorialPersonal.jsx` y `servicioHistorial.js` presentan partidas y torneos anteriores, con detalle, estado vacío, error y reintento. El frontend consulta los endpoints de historial; su disponibilidad depende del backend desplegado.
+- **Mi perfil:** `PaginaMiPerfil.jsx` reúne datos de la cuenta y accesos a editar perfil, historial, torneos y ranking. La edición existente sigue disponible como pantalla separada.
+- **Administración:** el acceso lateral se comparte para mantenerlo visible al navegar, integrado en PR #69 (`a84700c`). PR #72 (`96c8319`) simplificó una clase CSS construida con una plantilla anidada.
+
+## 24/10 [6.2] Manual de usuario y ayuda
+
+El manual se agregó en `62ae8e6` y la aclaración de modos de juego se integró mediante PR #65 (`873c720`).
+
+- **Manual:** se incorporó una guía de uso dentro de la aplicación para recorrer registro, ingreso y funciones principales, con pasos y preguntas frecuentes.
+- **Ayuda:** se ajustó el texto de modos disponibles para que la guía describa las opciones que ofrece la aplicación.
+
+## 22–23/10 [6.3] Accesibilidad, estilos y mantenibilidad
+
+Cambios integrados en `develop` mediante las tandas de Sonar de PR #55 a #65.
+
+- **Accesibilidad:** los estados usan elementos HTML adecuados, las listas y opciones tienen claves estables y se revisaron controles que requerían mejor semántica.
+- **Estilos:** se unificaron selectores duplicados, se revisaron contraste y especificidad, y se respetó la preferencia del sistema por movimiento reducido.
+- **Mantenibilidad:** se redujo la complejidad de páginas y servicios de juego y se compartió la navegación repetida de la pantalla de resultado de duelo.
+- **Pruebas:** se ampliaron los recorridos de Playwright para cubrir código nuevo y comprobar las correcciones antes de cada análisis de SonarQube Cloud.
+
+## 19–22/10 [6.3] Análisis de SonarQube Cloud y cobertura
+
+PR #29 (`ab787b5`) configuró el análisis; PR #33 (`f84b420`) incorporó la cobertura E2E. Las primeras correcciones se integraron mediante PR #35 (`bcfa040`) y tandas posteriores.
+
+- **Workflow:** GitHub Actions instala dependencias, compila el frontend, ejecuta las pruebas de Playwright, genera LCOV y envía el reporte a SonarQube Cloud en los eventos configurados.
+- **Calidad del código:** se atendieron promesas de navegación, expresiones regulares, ternarios anidados y avisos de mantenibilidad. Las correcciones se hicieron en el código; los cinco usos no criptográficos de `Math.random()` se revisaron y aceptaron en Sonar.
+- **Cobertura:** se añadieron casos para servicios y componentes con baja cobertura. La cobertura E2E enviada a Sonar y la cobertura unitaria local son mediciones distintas; las pruebas unitarias aún no forman parte de esta rama publicada.
+
+## 26/9 [1.2.3, 2.2.8, 6.1] Home, duelos y cierre de sesión
+
+Cambios posteriores a la revisión de septiembre, integrados en `develop` mediante `6e68791`, `7f900cf` y ajustes relacionados.
+
+- **Home y torneos:** se corrigieron enlaces y filtros, y se aclararon las métricas que todavía no estaban disponibles desde el backend.
+- **Duelos:** se ajustó la búsqueda de rival, la transición al estado en curso y la presentación del resultado para esperar el cierre de ambos jugadores.
+- **Sesión:** cerrar sesión se conectó con el backend, conservando la limpieza del token local.
 
 ## 25/9 [3.3.1, 3.3.5, 6.1] Auditoría de Home y torneos
 
