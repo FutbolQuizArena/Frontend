@@ -1,27 +1,22 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import TarjetaModo from '../componentes/TarjetaModo.jsx'
-import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 import { obtenerTorneosDisponibles } from '../servicios/servicioTorneos.js'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
 // TODO: reemplazar las estadísticas que GET /api/usuarios/me aún no publica.
 const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: null, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
+
 const formatearPuntaje = (puntaje) => puntaje == null ? '—' : puntaje.toLocaleString('es-AR')
 
 export default function PaginaHome() {
   const navegar = usarNavegacion()
-  const [usuario, establecerUsuario] = usarEstado(usuarioInicial)
+  const [usuario, establecerUsuario] = usarEstado(() => ({ ...usuarioInicial, ...obtenerPerfilEnCache() }))
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [torneoDestacado, establecerTorneoDestacado] = usarEstado(null)
   const [cargandoTorneo, establecerCargandoTorneo] = usarEstado(true)
@@ -54,13 +49,7 @@ export default function PaginaHome() {
         <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {[...enlaces, ...(esAdministrador ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])].map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}>
-              <span aria-hidden="true">{simbolo}</span>{titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
+        <NavegacionInicio destinoJugar="/jugar" />
         <div className="inicio__acumulado"><p>PUNTAJE ACUMULADO</p><span>{esAdministrador ? 'Administrador' : 'Jugador'} · {formatearPuntaje(usuario.puntajeTotal)} pts</span></div>
       </aside>
       <header className="inicio__cabecera">
