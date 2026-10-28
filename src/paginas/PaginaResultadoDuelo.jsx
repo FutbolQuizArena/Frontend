@@ -151,6 +151,7 @@ export default function PaginaResultadoDuelo() {
           intervaloPolling = iniciarPollingResultado(dueloId, perfil, () => activo, setResultado)
         }
       } catch (error) {
+        console.error('No se pudo consultar el resultado del duelo.', error)
         // Si falla la consulta, conservamos el resultado local o mostramos el estado sin resultado.
         if (activo && !resultado) {
           setResultado(null)
