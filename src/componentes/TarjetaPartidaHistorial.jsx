@@ -16,7 +16,12 @@ function obtenerTextoResultado(partida) {
 
 export default function TarjetaPartidaHistorial({ partida, alVerDetalle: manejarVerDetalle }) {
   const textoResultado = obtenerTextoResultado(partida)
-  const tonoResultado = textoResultado === 'Victoria' ? 'victoria' : textoResultado === 'Derrota' ? 'derrota' : 'neutral'
+  let tonoResultado = 'neutral'
+  if (textoResultado === 'Victoria') {
+    tonoResultado = 'victoria'
+  } else if (textoResultado === 'Derrota') {
+    tonoResultado = 'derrota'
+  }
   const puntaje = partida.puntaje === null ? '—' : `${partida.puntaje.toLocaleString('es-AR')} pts`
 
   return (
