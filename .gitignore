@@ -9,5 +9,6 @@ test-results/
 docs/*
 !docs/swagger.md
 coverage/
+coverage-unit/
 .nyc_output/
 
