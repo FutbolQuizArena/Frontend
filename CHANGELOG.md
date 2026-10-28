@@ -1,6 +1,12 @@
 # Changelog
 
-Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 27/10/2026.
+Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 28/10/2026.
+
+## 28/10 [2.2.8, 3.3.5, 6.1] Acceso a jugar y duelos de torneo
+
+- **Navegación:** los accesos «Jugar» de Perfil y Torneos abren la selección de modo. La URL anterior `/partida-individual` redirige a esa pantalla.
+- **Cruces:** el cuadro permite iniciar o retomar el duelo asignado al usuario mediante el endpoint del backend. La partida recupera preguntas pendientes y muestra el resultado real cuando ambos jugadores terminan. Los errores de la API se muestran sin inventar respuestas del torneo.
+- **Pruebas:** se agregaron casos de Playwright con respuestas HTTP simuladas para comprobar navegación, inicio, reanudación y errores. Estas simulaciones pertenecen a las pruebas; jugar un duelo de torneo en la aplicación requiere el backend actualizado.
 
 ## 27/10 [6.3] Observaciones Low de SonarQube Cloud
 

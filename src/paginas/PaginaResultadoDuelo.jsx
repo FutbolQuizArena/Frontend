@@ -70,11 +70,11 @@ function crearResultadoEnEspera(datosBackend, datosLocales) {
   }
 }
 
-function iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado) {
+function iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado, esTorneo) {
   let intervalo
   intervalo = window.setInterval(async () => {
     try {
-      const resultadoActualizado = await obtenerResultadoDuelo(dueloId, perfil)
+      const resultadoActualizado = await obtenerResultadoDuelo(dueloId, perfil, esTorneo)
       if (!estaActivo()) return
       if (resultadoActualizado && estaFinalizado(resultadoActualizado.estado)) {
         setResultado(resultadoActualizado)
@@ -104,6 +104,11 @@ function NavegacionResultadoDuelo({ jugadorLocal }) {
 export default function PaginaResultadoDuelo() {
   const navegar = usarNavegacion()
   const { idDuelo } = usarParametros()
+  const dueloGuardado = (() => {
+    try { return JSON.parse(sessionStorage.getItem('dueloActual') || 'null') } catch { return null }
+  })()
+  const esTorneo = Boolean(dueloGuardado?.torneoId && Number(dueloGuardado.id) === Number(idDuelo))
+  const destinoCuadro = esTorneo ? `/torneos/${dueloGuardado.torneoId}/cuadro` : null
   const [resultado, setResultado] = usarEstado(null)
   const [cargando, setCargando] = usarEstado(true)
   const [perfilUsuario, setPerfilUsuario] = usarEstado(null)
@@ -133,7 +138,7 @@ export default function PaginaResultadoDuelo() {
         }
 
         // Consultar resultado en backend para verificar si el rival ya terminó
-        const datosBackend = await obtenerResultadoDuelo(dueloId, perfil)
+        const datosBackend = await obtenerResultadoDuelo(dueloId, perfil, esTorneo)
         if (!activo) return
 
         if (datosBackend) {
@@ -144,11 +149,11 @@ export default function PaginaResultadoDuelo() {
           }
 
           // Si el duelo sigue EN_CURSO (rival aún jugando), el ganador debe ser 'pendiente'
-          setResultado(crearResultadoEnEspera(datosBackend, datosLocales))
+          setResultado(crearResultadoEnEspera(datosBackend, esTorneo ? null : datosLocales))
           setCargando(false)
 
           // Polling cada 2 segundos hasta que el rival termine
-          intervaloPolling = iniciarPollingResultado(dueloId, perfil, () => activo, setResultado)
+          intervaloPolling = iniciarPollingResultado(dueloId, perfil, () => activo, setResultado, esTorneo)
         }
       } catch (error) {
         console.error('No se pudo consultar el resultado del duelo.', error)
@@ -210,7 +215,7 @@ export default function PaginaResultadoDuelo() {
             <h2 className="resultado-duelo__titulo">Sin datos del duelo</h2>
             <p className="resultado-duelo__descripcion">No se recibió información del enfrentamiento.</p>
             <div className="resultado-duelo__acciones">
-              <Boton alHacerClic={() => navegar('/duelo/esperando')}>Pedir Revancha</Boton>
+              {destinoCuadro ? <Enlace className="boton" to={destinoCuadro}>Volver al cuadro</Enlace> : <Boton alHacerClic={() => navegar('/duelo/esperando')}>Pedir Revancha</Boton>}
               <button type="button" className="boton boton--secundario" onClick={manejarInicio}>Volver al inicio</button>
             </div>
           </section>
@@ -293,7 +298,7 @@ export default function PaginaResultadoDuelo() {
           </div>
 
           <div className="resultado-duelo__acciones">
-            <Boton alHacerClic={() => { void manejarRevancha() }} deshabilitado={enEspera}>Pedir Revancha</Boton>
+            {destinoCuadro ? <Enlace className="boton" to={destinoCuadro}>Volver al cuadro</Enlace> : <Boton alHacerClic={() => { void manejarRevancha() }} deshabilitado={enEspera}>Pedir Revancha</Boton>}
             <button type="button" className="boton boton--secundario" onClick={manejarInicio}>Volver al inicio</button>
           </div>
         </section>

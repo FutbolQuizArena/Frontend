@@ -1,8 +1,9 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
-import { Link as Enlace, useParams as usarParametros } from 'react-router-dom'
+import { Link as Enlace, useNavigate as usarNavegacion, useParams as usarParametros } from 'react-router-dom'
 import CruceTorneo from '../componentes/CruceTorneo.jsx'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
-import { obtenerCuadroTorneo } from '../servicios/servicioTorneos.js'
+import { iniciarDueloCruce, obtenerCuadroTorneo } from '../servicios/servicioTorneos.js'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 import '../estilos/estilosCuadroTorneo.css'
 
@@ -91,7 +92,11 @@ function TorneoFinalizado({ torneo }) {
 
 export default function PaginaCuadroTorneo() {
   const { idTorneo } = usarParametros()
+  const navegar = usarNavegacion()
   const [torneo, establecerTorneo] = usarEstado(null)
+  const [perfil, establecerPerfil] = usarEstado(null)
+  const [iniciando, establecerIniciando] = usarEstado(false)
+  const [mensajeAccion, establecerMensajeAccion] = usarEstado('')
   const [cargando, establecerCargando] = usarEstado(true)
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [codigoError, establecerCodigoError] = usarEstado('')
@@ -114,8 +119,33 @@ export default function PaginaCuadroTorneo() {
       })
       .finally(() => { if (vigente) establecerCargando(false) })
 
+    obtenerPerfil()
+      .then((resultado) => { if (vigente) establecerPerfil(resultado) })
+      .catch(() => { if (vigente) establecerPerfil(null) })
+
     return () => { vigente = false }
   }, [idTorneo, intentoCarga])
+
+  const crucePropio = torneo?.rondas.flatMap((ronda) => ronda.cruces).find((cruce) =>
+    cruce.estado !== 'FINALIZADO' && cruce.jugadorA.usuarioId != null && cruce.jugadorB.usuarioId != null &&
+    (Number(cruce.jugadorA.usuarioId) === Number(perfil?.id) || Number(cruce.jugadorB.usuarioId) === Number(perfil?.id))
+  )
+  let textoBotonDuelo = 'Jugar duelo'
+  if (iniciando) textoBotonDuelo = 'Abriendo duelo…'
+  else if (crucePropio?.dueloId) textoBotonDuelo = 'Continuar duelo'
+
+  async function jugarCruce() {
+    if (!crucePropio || !perfil || iniciando) return
+    establecerIniciando(true)
+    establecerMensajeAccion('')
+    try {
+      await iniciarDueloCruce(idTorneo, crucePropio.id, perfil)
+      await Promise.resolve(navegar('/duelo/juegan'))
+    } catch (error) {
+      establecerMensajeAccion(error.message || 'No pudimos iniciar el duelo. Intentá de nuevo.')
+      establecerIniciando(false)
+    }
+  }
 
   if (cargando) {
     return <MarcoTorneo tituloMovil="Cuadro del torneo" subtituloMovil={`Torneo #${idTorneo}`}><section className="estado-pantalla-torneo" aria-live="polite"><span className="estado-pantalla-torneo__carga" /><p>Cargando cuadro…</p></section></MarcoTorneo>
@@ -155,12 +185,16 @@ export default function PaginaCuadroTorneo() {
           </header>
           <dl className="cuadro-torneo__resumen">
             <div><dt>Ronda actual</dt><dd>{torneo.rondaActual}</dd></div>
-            <div><dt>Próxima partida</dt><dd>No disponible</dd></div>
+            <div><dt>Próxima partida</dt><dd>{crucePropio ? `${crucePropio.jugadorA.nombre} vs. ${crucePropio.jugadorB.nombre}` : 'Por definir'}</dd></div>
             <div><dt>Premio</dt><dd>Pendiente</dd></div>
           </dl>
           <h2 className="cuadro-torneo__camino">Tu camino a la final</h2>
           <CuadroLlaves torneo={torneo} />
-          <aside className="cuadro-torneo__proximo"><div><small>PRÓXIMO PARTIDO</small><strong>Las partidas del torneo estarán disponibles próximamente</strong></div></aside>
+          <aside className="cuadro-torneo__proximo">
+            <div><small>TU CRUCE</small><strong>{crucePropio ? `${crucePropio.jugadorA.nombre} vs. ${crucePropio.jugadorB.nombre}` : 'Todavía no tenés un cruce disponible'}</strong></div>
+            {crucePropio && <button type="button" onClick={() => { void jugarCruce() }} disabled={iniciando}>{textoBotonDuelo}</button>}
+          </aside>
+          {mensajeAccion && <p className="mensaje mensaje--error" role="alert">{mensajeAccion}</p>}
         </div>
       )}
     </MarcoTorneo>

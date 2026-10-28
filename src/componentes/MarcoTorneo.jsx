@@ -5,7 +5,7 @@ import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil
 
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/partida-individual', titulo: 'Jugar', simbolo: '▶' },
+  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
   { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
   { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
