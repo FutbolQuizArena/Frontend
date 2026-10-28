@@ -11,6 +11,13 @@ function formatearPuntos(puntos) {
   return new Intl.NumberFormat('es-AR').format(puntos)
 }
 
+function obtenerCrucePropio(torneo, usuarioId) {
+  return torneo?.rondas.flatMap((ronda) => ronda.cruces).find((cruce) =>
+    cruce.estado !== 'FINALIZADO' && cruce.jugadorA.usuarioId != null && cruce.jugadorB.usuarioId != null &&
+    (Number(cruce.jugadorA.usuarioId) === Number(usuarioId) || Number(cruce.jugadorB.usuarioId) === Number(usuarioId))
+  )
+}
+
 function CuadroLlaves({ torneo, completo = false }) {
   const indiceRondaActual = Math.max(0, torneo.rondas.findIndex((ronda) => ronda.nombre === torneo.rondaActual))
   const numeroCampeon = String(torneo.rondas.length + 1).padStart(2, '0')
@@ -126,10 +133,7 @@ export default function PaginaCuadroTorneo() {
     return () => { vigente = false }
   }, [idTorneo, intentoCarga])
 
-  const crucePropio = torneo?.rondas.flatMap((ronda) => ronda.cruces).find((cruce) =>
-    cruce.estado !== 'FINALIZADO' && cruce.jugadorA.usuarioId != null && cruce.jugadorB.usuarioId != null &&
-    (Number(cruce.jugadorA.usuarioId) === Number(perfil?.id) || Number(cruce.jugadorB.usuarioId) === Number(perfil?.id))
-  )
+  const crucePropio = obtenerCrucePropio(torneo, perfil?.id)
   let textoBotonDuelo = 'Jugar duelo'
   if (iniciando) textoBotonDuelo = 'Abriendo duelo…'
   else if (crucePropio?.dueloId) textoBotonDuelo = 'Continuar duelo'

@@ -88,6 +88,21 @@ function iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado, esTo
   return intervalo
 }
 
+async function consultarResultadoBackend(dueloId, perfil, esTorneo, datosLocales, estaActivo, setResultado, setCargando) {
+  const datosBackend = await obtenerResultadoDuelo(dueloId, perfil, esTorneo)
+  if (!estaActivo() || !datosBackend) return null
+
+  if (estaFinalizado(datosBackend.estado)) {
+    setResultado(datosBackend)
+    setCargando(false)
+    return null
+  }
+
+  setResultado(crearResultadoEnEspera(datosBackend, esTorneo ? null : datosLocales))
+  setCargando(false)
+  return iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado, esTorneo)
+}
+
 function NavegacionResultadoDuelo({ jugadorLocal }) {
   return <aside className="inicio__lateral">
     <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
@@ -137,24 +152,10 @@ export default function PaginaResultadoDuelo() {
           return
         }
 
-        // Consultar resultado en backend para verificar si el rival ya terminó
-        const datosBackend = await obtenerResultadoDuelo(dueloId, perfil, esTorneo)
-        if (!activo) return
-
-        if (datosBackend) {
-          if (estaFinalizado(datosBackend.estado)) {
-            setResultado(datosBackend)
-            setCargando(false)
-            return
-          }
-
-          // Si el duelo sigue EN_CURSO (rival aún jugando), el ganador debe ser 'pendiente'
-          setResultado(crearResultadoEnEspera(datosBackend, esTorneo ? null : datosLocales))
-          setCargando(false)
-
-          // Polling cada 2 segundos hasta que el rival termine
-          intervaloPolling = iniciarPollingResultado(dueloId, perfil, () => activo, setResultado, esTorneo)
-        }
+        // Consultar el resultado y esperar a que el rival termine si sigue en curso.
+        intervaloPolling = await consultarResultadoBackend(
+          dueloId, perfil, esTorneo, datosLocales, () => activo, setResultado, setCargando
+        )
       } catch (error) {
         console.error('No se pudo consultar el resultado del duelo.', error)
         // Si falla la consulta, conservamos el resultado local o mostramos el estado sin resultado.
