@@ -9,7 +9,7 @@ import { obtenerTorneosDisponibles } from '../servicios/servicioTorneos.js'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
-// TODO: reemplazar las estadísticas que GET /api/usuarios/me aún no publica.
+// Las estadísticas ausentes del perfil se muestran como no disponibles.
 const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: null, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
 
 const formatearPuntaje = (puntaje) => puntaje == null ? '—' : puntaje.toLocaleString('es-AR')
