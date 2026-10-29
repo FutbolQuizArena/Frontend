@@ -5,6 +5,8 @@ import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import TarjetaModo from '../componentes/TarjetaModo.jsx'
 import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
+import { obtenerPosicionUsuarioActual } from '../servicios/servicioRanking.js'
+import { obtenerHistorialPersonal } from '../servicios/servicioHistorial.js'
 import { obtenerTorneosDisponibles } from '../servicios/servicioTorneos.js'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
@@ -21,14 +23,45 @@ export default function PaginaHome() {
   const [torneoDestacado, establecerTorneoDestacado] = usarEstado(null)
   const [cargandoTorneo, establecerCargandoTorneo] = usarEstado(true)
   const [errorTorneo, establecerErrorTorneo] = usarEstado(false)
+  const [cargandoPosicion, establecerCargandoPosicion] = usarEstado(true)
+  const [cargandoPartidas, establecerCargandoPartidas] = usarEstado(true)
 
   usarEfecto(() => {
     let vigente = true
     obtenerPerfil().then((perfil) => {
-      if (vigente) establecerUsuario((anterior) => ({ ...anterior, ...perfil }))
+      if (vigente) establecerUsuario((anterior) => ({ ...anterior, ...perfil, posicion: anterior.posicion, partidas: anterior.partidas }))
     }).catch((error) => {
       if (vigente) establecerMensajeError(error.message || 'No pudimos cargar tus datos.')
     })
+    return () => { vigente = false }
+  }, [])
+
+  usarEfecto(() => {
+    let vigente = true
+    // Cada estadística se consulta por separado para conservar la otra si una API falla.
+    obtenerPosicionUsuarioActual()
+      .then((posicion) => {
+        if (vigente) establecerUsuario((anterior) => ({ ...anterior, posicion: posicion ?? '—' }))
+      })
+      .catch(() => {
+        if (vigente) establecerUsuario((anterior) => ({ ...anterior, posicion: '—' }))
+      })
+      .finally(() => { if (vigente) establecerCargandoPosicion(false) })
+    return () => { vigente = false }
+  }, [])
+
+  usarEfecto(() => {
+    let vigente = true
+    obtenerHistorialPersonal()
+      .then((historial) => {
+        if (!vigente) return
+        const total = Number(historial?.estadisticasGenerales?.partidasJugadas)
+        establecerUsuario((anterior) => ({ ...anterior, partidas: Number.isFinite(total) && total >= 0 ? total : '—' }))
+      })
+      .catch(() => {
+        if (vigente) establecerUsuario((anterior) => ({ ...anterior, partidas: '—' }))
+      })
+      .finally(() => { if (vigente) establecerCargandoPartidas(false) })
     return () => { vigente = false }
   }, [])
 
@@ -70,8 +103,8 @@ export default function PaginaHome() {
           <h2 className="inicio__solo-movil">TU RENDIMIENTO</h2>
           <dl className="inicio__metricas">
             <div><dt>PUNTOS</dt><dd>{formatearPuntaje(usuario.puntajeTotal)}</dd></div>
-            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">{usuario.posicion === '—' ? '—' : `#${usuario.posicion}`}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
-            <div><dt><span className="inicio__solo-escritorio">PARTIDAS</span><span className="inicio__solo-movil">TORNEOS</span></dt><dd><span className="inicio__solo-escritorio">{usuario.partidas}</span><span className="inicio__solo-movil">{usuario.torneos}</span></dd></div>
+            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">{cargandoPosicion ? 'Cargando…' : usuario.posicion === '—' ? '—' : `#${usuario.posicion}`}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
+            <div><dt><span className="inicio__solo-escritorio">PARTIDAS</span><span className="inicio__solo-movil">TORNEOS</span></dt><dd><span className="inicio__solo-escritorio">{cargandoPartidas ? 'Cargando…' : usuario.partidas}</span><span className="inicio__solo-movil">{usuario.torneos}</span></dd></div>
           </dl>
           <p>— indica que el dato todavía no está disponible.</p>
         </section>
