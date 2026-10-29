@@ -153,8 +153,8 @@ export default function PaginaPartidaIndividual() {
     let respuestaApi
     try {
       respuestaApi = await registrarRespuestaPartida(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
-    } catch (fallo) {
-      setError(fallo.message || 'No pudimos guardar la respuesta. Intentá de nuevo.')
+    } catch (error_) {
+      setError(error_.message || 'No pudimos guardar la respuesta. Intentá de nuevo.')
       setTiempoRestante(parametros.segundosPorPregunta || 15)
       setBloqueado(false)
       return
@@ -202,8 +202,8 @@ export default function PaginaPartidaIndividual() {
         }
         sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
         navegarConManejo(navegar, '/partida/resultado')
-      } catch (fallo) {
-        setError(fallo.message || 'No pudimos cerrar la partida. Intentá de nuevo.')
+      } catch (error_) {
+        setError(error_.message || 'No pudimos cerrar la partida. Intentá de nuevo.')
       } finally {
         setFinalizando(false)
       }
