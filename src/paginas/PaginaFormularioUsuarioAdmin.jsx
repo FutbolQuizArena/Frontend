@@ -12,6 +12,12 @@ import '../estilos/estilosUsuariosAdmin.css'
 
 const datosIniciales = { nombre: '', email: '', rol: 'JUGADOR', password: '' }
 
+function obtenerTextoBotonUsuario(guardando, idUsuario) {
+  if (guardando) return 'Guardando…'
+  if (idUsuario) return 'Guardar cambios'
+  return 'Crear usuario'
+}
+
 export default function PaginaFormularioUsuarioAdmin() {
   const { idUsuario } = useParams()
   const [parametros] = useSearchParams()
@@ -88,7 +94,7 @@ export default function PaginaFormularioUsuarioAdmin() {
         {esCuentaPropia && <p>Tu propio rol de administrador no se puede cambiar desde esta pantalla.</p>}
         {errorFormulario && <p className="admin-formulario__error" role="alert">{errorFormulario}</p>}
         {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}
-        <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{guardando ? 'Guardando…' : idUsuario ? 'Guardar cambios' : 'Crear usuario'}</button></div>
+        <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{obtenerTextoBotonUsuario(guardando, idUsuario)}</button></div>
       </form>}
     </div>
   </MarcoTorneo>
