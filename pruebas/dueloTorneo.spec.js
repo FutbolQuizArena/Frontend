@@ -89,6 +89,7 @@ prueba('desde un cruce inicia el duelo y vuelve al cuadro al terminar', async ({
   await esperar(pagina.getByRole('button', { name: 'A', exact: true })).toBeEnabled()
   await pagina.getByRole('button', { name: 'A', exact: true }).click()
 
+  await pagina.getByRole('button', { name: 'Siguiente', exact: true }).click()
   await esperar(pagina).toHaveURL(/\/duelo\/77\/resultado$/)
   await esperar(pagina.getByRole('link', { name: 'Volver al cuadro' })).toBeVisible()
   esperar(contarRespuestas()).toBe(2)

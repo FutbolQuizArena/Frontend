@@ -91,7 +91,7 @@ export default function PaginaEsperandoRival() {
     return () => window.clearInterval(temporizador)
   }, [])
 
-  // Emparejamiento y polling en segundo plano
+  // Inicia la búsqueda y consulta periódicamente al servidor hasta encontrar rival.
   usarEfecto(() => {
     montadoRef.current = true
 
@@ -133,12 +133,23 @@ export default function PaginaEsperandoRival() {
           return
         }
 
-        // Si quedamos en PENDIENTE_RIVAL, consultamos cada 1.5s hasta que se sume el rival
+        // Si ambos jugadores crearon una espera a la vez, un nuevo POST puede unirlos.
+        // Primero consultamos el duelo actual para no abrir otra búsqueda si ya fue emparejado.
         if (!intervaloPollingRef.current && !emparejadoRef.current) {
+          let dueloVigente = duelo
+          let ultimoReintento = Date.now()
+          let consultando = false
           intervaloPollingRef.current = window.setInterval(() => {
+            if (consultando) return
+            consultando = true
             void (async () => {
               try {
-              const estadoActual = await consultarEstadoDuelo(duelo.id, perfilActual)
+              let estadoActual = await consultarEstadoDuelo(dueloVigente.id, perfilActual)
+              if (estadoActual?.estado === 'PENDIENTE_RIVAL' && Date.now() - ultimoReintento >= 6000) {
+                ultimoReintento = Date.now()
+                dueloVigente = await buscarRivalDuelo(perfilActual)
+                estadoActual = dueloVigente
+              }
               if (!montadoRef.current || canceladoRef.current || emparejadoRef.current) return
 
               const rivalListo = estadoActual &&
@@ -155,7 +166,7 @@ export default function PaginaEsperandoRival() {
                 const guardado = JSON.parse(window.sessionStorage.getItem('dueloActual') || '{}')
                 window.sessionStorage.setItem('dueloActual', JSON.stringify({
                   ...guardado,
-                  id: estadoActual.id || duelo.id,
+                  id: estadoActual.id || dueloVigente.id,
                   estado: estadoActual.estado,
                   categoriaNombre: estadoActual.categoriaNombre || guardado.categoriaNombre || duelo.categoriaNombre || 'Fútbol',
                   jugadorLocal: estadoActual.jugadorLocal || guardado.jugadorLocal,
@@ -168,7 +179,9 @@ export default function PaginaEsperandoRival() {
                 programarEntradaALaPartida(montadoRef, canceladoRef, navegar)
               }
             } catch {
-              // Continúa reintentando en la siguiente iteración si falla una petición puntual
+              // Si la consulta falla, se vuelve a intentar en el siguiente intervalo.
+            } finally {
+              consultando = false
             }
             })()
           }, 1500)
@@ -191,6 +204,7 @@ export default function PaginaEsperandoRival() {
     }
   }, [navegar])
 
+  // Detiene las consultas de esta pantalla, limpia los datos locales y vuelve al menú.
   const manejarCancelarBusqueda = () => {
     canceladoRef.current = true
     emparejadoRef.current = true

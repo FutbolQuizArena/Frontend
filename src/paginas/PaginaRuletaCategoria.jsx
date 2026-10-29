@@ -4,22 +4,21 @@ import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteRuleta from '../componentes/ComponenteRuleta.jsx'
-import { categoriasPartidas, obtenerCategoriaAleatoria, obtenerCategoriasDisponibles } from '../servicios/servicioPartidas.js'
+import { obtenerCategoriaAleatoria, obtenerCategoriasDisponibles } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosRuleta.css'
 
 
 
-const categoriasBase = categoriasPartidas.map((nombre) => ({ nombre }))
-
 export default function PaginaRuletaCategoria() {
   const navegar = usarNavegacion()
   const ruletaReferencial = useRef(null)
-  const [categoriasDisponibles, setCategoriasDisponibles] = useState(categoriasBase)
+  const [categoriasDisponibles, setCategoriasDisponibles] = useState([])
   const [categoriaElegida, setCategoriaElegida] = useState(null)
   const [categoriaSiguiente, setCategoriaSiguiente] = useState(null)
   const [giroActivo, setGiroActivo] = useState(false)
   const [mensajeError, setMensajeError] = useState('')
 
+  // Carga las categorías de la API; si falla, muestra el error y deja el giro deshabilitado.
   useEffect(() => {
     let cancelado = false
 
@@ -29,9 +28,9 @@ export default function PaginaRuletaCategoria() {
           setCategoriasDisponibles(categorias)
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (!cancelado) {
-          setCategoriasDisponibles(categoriasBase)
+          setMensajeError(error.message || 'No pudimos cargar las categorías. Recargá la página para reintentar.')
         }
       })
 
@@ -40,7 +39,9 @@ export default function PaginaRuletaCategoria() {
     }
   }, [])
 
+  // Elige una categoría de la lista y le indica a la animación dónde debe detenerse.
   const manejarGiro = () => {
+    if (categoriasDisponibles.length === 0) return
     const siguienteCategoria = obtenerCategoriaAleatoria(categoriasDisponibles)
     setCategoriaElegida(null)
     setCategoriaSiguiente(siguienteCategoria)
@@ -51,6 +52,8 @@ export default function PaginaRuletaCategoria() {
     }
   }
 
+  // Guarda el nombre elegido para mostrarlo al abrir la partida.
+  // La categoría definitiva de las preguntas la asigna el backend al crear la partida.
   const manejarFinalGiro = (categoriaSeleccionada) => {
     setCategoriaElegida(categoriaSeleccionada)
     setGiroActivo(false)
@@ -103,13 +106,14 @@ export default function PaginaRuletaCategoria() {
               categorias={categoriasDisponibles}
               resultadoSeleccionado={categoriaSiguiente}
               alFinalizarGiro={manejarFinalGiro}
-              deshabilitado={giroActivo}
+              deshabilitado={giroActivo || categoriasDisponibles.length === 0}
             />
 
             <div className="ruleta-categoria__acciones">
-              <Boton alHacerClic={manejarGiro} deshabilitado={giroActivo}>
+              <Boton alHacerClic={manejarGiro} deshabilitado={giroActivo || categoriasDisponibles.length === 0}>
                 Girar Ruleta
               </Boton>
+              {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
 
               {categoriaElegida && (
                 <dialog open className="ruleta-categoria__resultado" aria-labelledby="categoria-resultante">
@@ -118,7 +122,6 @@ export default function PaginaRuletaCategoria() {
                   <Boton alHacerClic={manejarContinuar}>
                     Continuar a la Partida
                   </Boton>
-                  {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
                 </dialog>
               )}
             </div>

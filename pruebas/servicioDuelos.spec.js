@@ -50,7 +50,7 @@ prueba('normaliza la búsqueda exitosa para ambos formatos de respuesta', async 
           puntaje_jugador2: 70,
           preguntas: [{ id: 12, orden: 1, enunciado: 'Pregunta de prueba', opcion_a: 'A' }],
         }
-      : { id: 82, estado: 'pendiente_rival', categoriaNombre: 'Copa', preguntas: null }
+      : { id: 82, estado: 'pendiente_rival', categoriaNombre: 'Copa', preguntas: [{ id: 13, orden: 1, enunciado: 'Pregunta pendiente', opcion_a: 'A', opcion_b: 'B', opcion_c: 'C', opcion_d: 'D' }] }
 
     return ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(respuesta) })
   })
@@ -67,17 +67,15 @@ prueba('normaliza la búsqueda exitosa para ambos formatos de respuesta', async 
   esperar(await pagina.evaluate(() => JSON.parse(sessionStorage.getItem('dueloActual')).id)).toBe(82)
 })
 
-prueba('usa el duelo de demostración si falla la búsqueda y permite cancelar', async ({ page: pagina }) => {
+prueba('propaga el fallo de búsqueda y permite limpiar los datos locales', async ({ page: pagina }) => {
   await pagina.route('https://api.futbolquiz.test/api/duelos/online', (ruta) => ruta.fulfill({
     status: 503,
     contentType: 'application/json',
     body: JSON.stringify({ message: 'No disponible' }),
   }))
 
-  const duelo = await llamarServicio(pagina, 'buscarRivalDuelo')
-  esperar(duelo).toMatchObject({ estado: 'PENDIENTE_RIVAL', modalidad: 'online', categoriaNombre: 'Fútbol', rival: null })
-  esperar(duelo.preguntas).toHaveLength(1)
-  esperar(await pagina.evaluate(() => JSON.parse(sessionStorage.getItem('dueloActual')).estado)).toBe('PENDIENTE_RIVAL')
+  await esperar(llamarServicio(pagina, 'buscarRivalDuelo')).rejects.toThrow()
+  esperar(await pagina.evaluate(() => sessionStorage.getItem('dueloActual'))).toBeNull()
 
   esperar(await llamarServicio(pagina, 'cancelarBusquedaDuelo')).toBe(true)
   esperar(await pagina.evaluate(() => sessionStorage.getItem('dueloActual'))).toBeNull()
@@ -109,8 +107,7 @@ prueba('calcula resultados pendientes, empate y ganadores desde cada jugador', a
 
   await pagina.unroute('https://api.futbolquiz.test/api/duelos/*')
   await pagina.route('https://api.futbolquiz.test/api/duelos/5', (ruta) => ruta.fulfill({ status: 503, body: '{}' }))
-  const fallback = await llamarServicio(pagina, 'obtenerResultadoDuelo', [5, { nombre: 'Lucas' }])
-  esperar(fallback).toMatchObject({ estado: 'PENDIENTE', ganador: 'local', resultadoTexto: 'PENDIENTE', jugadorLocal: { nombre: 'Lucas' } })
+  await esperar(llamarServicio(pagina, 'obtenerResultadoDuelo', [5, { nombre: 'Lucas' }])).rejects.toThrow()
 })
 
 prueba('consulta el estado sin id, pendiente, en curso y ante error', async ({ page: pagina }) => {
@@ -136,7 +133,7 @@ prueba('consulta el estado sin id, pendiente, en curso y ante error', async ({ p
   esperar(error).toBeNull()
 })
 
-prueba('solicita revancha con respuesta y conserva el id si la API falla', async ({ page: pagina }) => {
+prueba('solicita revancha y propaga el error si la API falla', async ({ page: pagina }) => {
   let llamada = 0
   await pagina.route('https://api.futbolquiz.test/api/duelos/online', (ruta) => {
     llamada += 1
@@ -146,27 +143,27 @@ prueba('solicita revancha con respuesta y conserva el id si la API falla', async
   })
 
   esperar(await llamarServicio(pagina, 'solicitarRevanchaDuelo', [10])).toMatchObject({ idDuelo: 91, solicitudEnviada: true, destino: '/duelo/esperando' })
-  esperar(await llamarServicio(pagina, 'solicitarRevanchaDuelo', [11])).toMatchObject({ idDuelo: 11, solicitudEnviada: true, mensaje: 'Se está buscando un rival nuevo.' })
+  await esperar(llamarServicio(pagina, 'solicitarRevanchaDuelo', [11])).rejects.toThrow()
 })
 
-prueba('recupera preguntas guardadas y usa preguntas base ante datos inválidos', async ({ page: pagina }) => {
+prueba('recupera preguntas guardadas y devuelve una lista vacía ante datos inválidos', async ({ page: pagina }) => {
   await pagina.evaluate(() => sessionStorage.setItem('dueloActual', JSON.stringify({
     categoria_nombre: 'Copa',
-    preguntas: [{ categoria: 'Aleatoria' }, { id: 99, categoria: 'Historia' }],
+    preguntas: [{ id: 98, categoria: 'Aleatoria' }, { id: 99, categoria: 'Historia' }],
   })))
   const guardadas = await llamarServicio(pagina, 'obtenerPreguntasDuelo', [44])
-  esperar(guardadas[0]).toMatchObject({ id: '44-1', categoria: 'Copa' })
+  esperar(guardadas[0]).toMatchObject({ id: '98', categoria: 'Copa' })
   esperar(guardadas[1]).toMatchObject({ id: '99', categoria: 'Historia' })
 
   await pagina.evaluate(() => sessionStorage.setItem('dueloActual', '{ JSON inválido'))
   const corruptas = await llamarServicio(pagina, 'obtenerPreguntasDuelo', [44])
-  esperar(corruptas[0]).toMatchObject({ id: 'duelo-historia-1-44-0', categoria: 'Fútbol' })
+  esperar(corruptas).toEqual([])
 
   await pagina.evaluate(() => sessionStorage.setItem('dueloActual', JSON.stringify({ preguntas: [] })))
-  esperar(await llamarServicio(pagina, 'obtenerPreguntasDuelo', [44])).toHaveLength(1)
+  esperar(await llamarServicio(pagina, 'obtenerPreguntasDuelo', [44])).toEqual([])
 })
 
-prueba('registra respuestas locales, exitosas y con fallback correcto o incorrecto', async ({ page: pagina }) => {
+prueba('registra respuestas confirmadas y rechaza identificadores inválidos o fallos de API', async ({ page: pagina }) => {
   let llamada = 0
   await pagina.route('https://api.futbolquiz.test/api/duelos/preguntas/*/respuesta', (ruta) => {
     llamada += 1
@@ -175,13 +172,8 @@ prueba('registra respuestas locales, exitosas y con fallback correcto o incorrec
       : { status: 503, body: '{}' })
   })
 
-  const local = await llamarServicio(pagina, 'registrarRespuestaDuelo', [7, 'no-id', 'a', 'sin-tiempo'])
+  await esperar(llamarServicio(pagina, 'registrarRespuestaDuelo', [7, 'no-id', 'a', 0])).rejects.toThrow('No se pudo identificar')
   const exitosa = await llamarServicio(pagina, 'registrarRespuestaDuelo', [7, 15, 'b', 8])
-  const fallbackCorrecta = await llamarServicio(pagina, 'registrarRespuestaDuelo', [7, 1, 'a', 4])
-  const fallbackIncorrecta = await llamarServicio(pagina, 'registrarRespuestaDuelo', [7, 1, 'd', 4])
-
-  esperar(local).toMatchObject({ opcionSeleccionada: 'A', tiempoEmpleado: 0, registrado: true, esCorrecta: true, puntajeObtenido: 0 })
   esperar(exitosa).toMatchObject({ opcionSeleccionada: 'B', tiempoEmpleado: 8, esCorrecta: true, puntajeObtenido: 120 })
-  esperar(fallbackCorrecta).toMatchObject({ esCorrecta: true, puntajeObtenido: 100 })
-  esperar(fallbackIncorrecta).toMatchObject({ esCorrecta: false, puntajeObtenido: 0 })
+  await esperar(llamarServicio(pagina, 'registrarRespuestaDuelo', [7, 15, 'a', 4])).rejects.toThrow()
 })

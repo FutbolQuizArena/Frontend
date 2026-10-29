@@ -3,7 +3,7 @@ import { solicitarApi } from '../src/servicios/clienteApi.js'
 import {
   buscarRivalDuelo, cancelarBusquedaDuelo, consultarEstadoDuelo,
   generarAlias, generarAvatar, obtenerPreguntasDuelo, obtenerResultadoDuelo,
-  registrarRespuestaDuelo, simularRespuestaRival, solicitarRevanchaDuelo,
+  registrarRespuestaDuelo, solicitarRevanchaDuelo,
 } from '../src/servicios/servicioDuelos.js'
 
 vi.mock('../src/servicios/clienteApi.js', () => ({ solicitarApi: vi.fn() }))
@@ -52,17 +52,17 @@ describe('duelos online', () => {
   })
 
   it('deja rival nulo si la partida todavía está pendiente', async () => {
-    vi.mocked(solicitarApi).mockResolvedValue({ id: 8, estado: 'PENDIENTE_RIVAL' })
+    vi.mocked(solicitarApi).mockResolvedValue({ ...duelo, id: 8, estado: 'PENDIENTE_RIVAL' })
     const resultado = await buscarRivalDuelo({ id: 3, nombre: 'Ana' })
     expect(resultado.rival).toBeNull()
     expect(resultado.preguntas).toHaveLength(1)
   })
 
-  it('crea un duelo de respaldo si falla la búsqueda y permite cancelarlo', async () => {
+  it('propaga el error de búsqueda y permite limpiar una espera guardada', async () => {
     vi.mocked(solicitarApi).mockRejectedValue(new Error('sin servidor'))
-    const resultado = await buscarRivalDuelo()
-    expect(resultado).toMatchObject({ estado: 'PENDIENTE_RIVAL', modalidad: 'online', rival: null })
-    expect(window.sessionStorage.getItem('dueloActual')).not.toBeNull()
+    await expect(buscarRivalDuelo()).rejects.toThrow('sin servidor')
+    expect(window.sessionStorage.getItem('dueloActual')).toBeNull()
+    window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
     expect(cancelarBusquedaDuelo()).toBe(true)
     expect(window.sessionStorage.getItem('dueloActual')).toBeNull()
   })
@@ -96,29 +96,27 @@ describe('duelos online', () => {
     expect((await obtenerResultadoDuelo(12, { id: 3 })).ganador).toBe('pendiente')
   })
 
-  it('entrega un resultado de respaldo si falla la consulta', async () => {
+  it('propaga el error al consultar un resultado', async () => {
     vi.mocked(solicitarApi).mockRejectedValue(new Error('sin servidor'))
-    await expect(obtenerResultadoDuelo(12, { nombre: 'Ana' })).resolves.toMatchObject({
-      idPartida: 12, estado: 'PENDIENTE', jugadorLocal: { nombre: 'Ana' }, resultadoTexto: 'PENDIENTE',
-    })
+    await expect(obtenerResultadoDuelo(12, { nombre: 'Ana' })).rejects.toThrow('sin servidor')
   })
 
-  it('solicita una nueva búsqueda aun si el backend falla', async () => {
+  it('confirma la revancha únicamente cuando responde el servidor', async () => {
     vi.mocked(solicitarApi).mockResolvedValueOnce({ id: 15 }).mockRejectedValueOnce(new Error('sin servidor'))
     await expect(solicitarRevanchaDuelo(12)).resolves.toMatchObject({ idDuelo: 15, solicitudEnviada: true })
-    await expect(solicitarRevanchaDuelo(12)).resolves.toMatchObject({ idDuelo: 12, solicitudEnviada: true })
+    await expect(solicitarRevanchaDuelo(12)).rejects.toThrow('sin servidor')
   })
 
   it('recupera las preguntas guardadas y reemplaza una categoría genérica', () => {
     window.sessionStorage.setItem('dueloActual', JSON.stringify({
-      categoriaNombre: 'Historia', preguntas: [{ enunciado: 'Pregunta', categoria: 'Aleatoria' }],
+      categoriaNombre: 'Historia', preguntas: [{ id: 6, enunciado: 'Pregunta', categoria: 'Aleatoria' }],
     }))
-    expect(obtenerPreguntasDuelo(12)[0]).toMatchObject({ id: '12-1', categoria: 'Historia' })
+    expect(obtenerPreguntasDuelo(12)[0]).toMatchObject({ id: '6', categoria: 'Historia' })
     window.sessionStorage.setItem('dueloActual', 'JSON inválido')
-    expect(obtenerPreguntasDuelo(12)[0]).toMatchObject({ categoria: 'Fútbol' })
+    expect(obtenerPreguntasDuelo()).toEqual([])
   })
 
-  it('normaliza respuestas del backend y usa un resultado local si falla', async () => {
+  it('normaliza respuestas del backend y propaga los errores de envío', async () => {
     vi.mocked(solicitarApi).mockResolvedValueOnce({ es_correcta: true, puntaje_obtenido: '80' })
       .mockRejectedValueOnce(new Error('sin servidor'))
     await expect(registrarRespuestaDuelo(12, 6, 'b', '4')).resolves.toMatchObject({
@@ -127,12 +125,13 @@ describe('duelos online', () => {
     expect(solicitarApi).toHaveBeenCalledWith('/api/duelos/preguntas/6/respuesta', {
       metodo: 'POST', datos: { opcion_seleccionada: 'B', tiempo_respuesta_segundos: 4 },
     })
-    await expect(registrarRespuestaDuelo(12, 6, 'A', 5)).resolves.toMatchObject({ esCorrecta: true, puntajeObtenido: 100 })
-    expect(registrarRespuestaDuelo(12, 'demo', 'D', 0)).toMatchObject({ registrado: true, puntajeObtenido: 0 })
+    await expect(registrarRespuestaDuelo(12, 6, 'A', 5)).rejects.toThrow('sin servidor')
+    await expect(registrarRespuestaDuelo(12, 'demo', 'D', 0)).rejects.toThrow('No se pudo identificar la pregunta')
   })
 
-  it('simula respuestas de rival con valores controlados', () => {
-    vi.spyOn(Math, 'random').mockReturnValueOnce(0.9).mockReturnValueOnce(0.2)
-    expect(simularRespuestaRival(6)).toEqual({ idPregunta: 6, correcta: true, opcionSeleccionada: 'A', tiempoEmpleado: 8 })
+  it('rechaza un duelo sin preguntas asignadas por el servidor', async () => {
+    vi.mocked(solicitarApi).mockResolvedValue({ id: 12, preguntas: [] })
+    await expect(buscarRivalDuelo()).rejects.toThrow('El servidor no devolvió un duelo con preguntas')
+    expect(window.sessionStorage.getItem('dueloActual')).toBeNull()
   })
 })

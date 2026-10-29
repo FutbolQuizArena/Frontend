@@ -25,7 +25,7 @@ prueba('muestra el resultado individual con la barra lateral y los datos del par
   await prepararSesion(pagina)
   await pagina.evaluate(() => {
     sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify({
-      puntaje: 1270,
+      puntaje_final: 1270,
       respuestasCorrectas: 8,
       totalRespuestas: 10,
       finalizada: true,

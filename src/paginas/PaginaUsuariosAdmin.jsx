@@ -26,6 +26,7 @@ export default function PaginaUsuariosAdmin() {
   const datosEjemplo = import.meta.env.DEV && (vistaPrevia || esSesionAdminPrueba(obtenerToken()))
   const [rolActual, setRolActual] = useState(null)
   const [usuarios, setUsuarios] = useState([])
+  const [textoBusqueda, setTextoBusqueda] = useState('')
   const [buscar, setBuscar] = useState('')
   const [rol, setRol] = useState('')
   const [estado, setEstado] = useState('')
@@ -61,6 +62,13 @@ export default function PaginaUsuariosAdmin() {
       dialogo.current.showModal?.()
     }
   }, [usuarioSeleccionado])
+
+  // El texto escrito se aplica al listado cuando se envía el formulario con Buscar o Enter.
+  function enviarBusqueda(evento) {
+    evento.preventDefault()
+    setBuscar(textoBusqueda.trim())
+    setPagina(1)
+  }
 
   async function confirmarCambioEstado() {
     if (!usuarioSeleccionado || guardandoEstado) return
@@ -99,7 +107,7 @@ export default function PaginaUsuariosAdmin() {
         {datosEjemplo && <p className="admin-preguntas__aviso"><output>Datos de ejemplo para probar el panel en desarrollo.</output></p>}
         <NavegacionAdmin vistaPrevia={vistaPrevia} />
         <div className="admin-preguntas__titulo"><div><h2 id="titulo-usuarios-admin">Gestión de usuarios</h2><p>{datosEjemplo ? 'Listado de ejemplo' : 'Listado del backend'}</p></div></div>
-        <div className="admin-preguntas__filtros"><label>Buscar usuario<input type="search" value={buscar} onChange={(evento) => cambiarFiltro(setBuscar, evento.target.value)} placeholder="Nombre o correo" /></label><label>Rol<select value={rol} onChange={(evento) => cambiarFiltro(setRol, evento.target.value)}><option value="">Todos los roles</option><option value="JUGADOR">Jugador</option><option value="ADMINISTRADOR">Administrador</option></select></label><label>Estado<select value={estado} onChange={(evento) => cambiarFiltro(setEstado, evento.target.value)}><option value="">Todos los estados</option><option value="true">Habilitado</option><option value="false">Deshabilitado</option></select></label></div>
+        <form className="admin-preguntas__filtros" onSubmit={enviarBusqueda}><div className="admin-usuarios__busqueda"><label>Buscar usuario<input type="search" value={textoBusqueda} onChange={(evento) => setTextoBusqueda(evento.target.value)} placeholder="Nombre o correo" /></label><button type="submit" className="admin-usuarios__boton-accion">Buscar</button></div><label>Rol<select value={rol} onChange={(evento) => cambiarFiltro(setRol, evento.target.value)}><option value="">Todos los roles</option><option value="JUGADOR">Jugador</option><option value="ADMINISTRADOR">Administrador</option></select></label><label>Estado<select value={estado} onChange={(evento) => cambiarFiltro(setEstado, evento.target.value)}><option value="">Todos los estados</option><option value="true">Habilitado</option><option value="false">Deshabilitado</option></select></label></form>
         <p className="admin-preguntas__cantidad"><output>{usuarios.length} {usuarios.length === 1 ? 'usuario' : 'usuarios'}</output></p>
         {visibles.length ? <div className="admin-preguntas__tabla admin-usuarios__tabla"><div className="admin-preguntas__cabecera" aria-hidden="true"><span>Nombre</span><span>Correo</span><span>Rol</span><span>Estado</span><span>Acciones</span></div><ul>{visibles.map((usuario) => <li key={usuario.id}><strong>{usuario.nombre}</strong><span data-etiqueta="Correo">{usuario.email}</span><span data-etiqueta="Rol">{usuario.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'}</span><span className={`admin-categorias__estado${usuario.esta_habilitado ? '' : ' admin-categorias__estado--borrador'}`}>{usuario.esta_habilitado ? 'HABILITADO' : 'DESHABILITADO'}</span><div className="admin-usuarios__acciones"><Link className="admin-usuarios__boton-accion" to={`/admin/usuarios/${usuario.id}/editar${sufijo}`}>Editar</Link><button type="button" className={`admin-usuarios__boton-accion${usuario.esta_habilitado ? ' admin-usuarios__boton-accion--deshabilitar' : ' admin-usuarios__boton-accion--habilitar'}`} onClick={() => { setUsuarioSeleccionado(usuario); setErrorEstado('') }} aria-label={`${usuario.esta_habilitado ? 'Deshabilitar' : 'Habilitar'} usuario: ${usuario.nombre}`}>{usuario.esta_habilitado ? 'Deshabilitar' : 'Habilitar'}</button></div></li>)}</ul></div> : <p className="admin-preguntas__vacio">No hay usuarios que coincidan con los filtros.</p>}
         {totalPaginas > 1 && <nav className="admin-preguntas__paginacion" aria-label="Páginas de usuarios"><span>Página {pagina} de {totalPaginas}</span><div><button type="button" disabled={pagina === 1} onClick={() => setPagina((actual) => actual - 1)}>Anterior</button><button type="button" disabled={pagina === totalPaginas} onClick={() => setPagina((actual) => actual + 1)}>Siguiente</button></div></nav>}

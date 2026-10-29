@@ -3,11 +3,12 @@ import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
 import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
-import { obtenerResultadoPartida } from '../servicios/servicioPartidas.js'
+import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosResultadoIndividual.css'
 
 
 
+// Estas etiquetas describen el puntaje de la partida; no representan la posición en el ranking.
 function obtenerPosicion(puntaje) {
   if (puntaje >= 1400) return 'Elite'
   if (puntaje >= 900) return 'Pro'
@@ -22,58 +23,32 @@ function obtenerNivelLogro(puntaje) {
 
 export default function PaginaResultadoIndividual() {
   const navegar = usarNavegacion()
+  // Lee una vez el resultado que se guardó después de la confirmación del servidor.
   const resultadoGuardado = useMemo(() => {
     const valor = sessionStorage.getItem('resultadoPartidaIndividual')
     return valor ? JSON.parse(valor) : null
   }, [])
-  const [resultado, setResultado] = useState(resultadoGuardado)
+  const [perfil, setPerfil] = useState(null)
 
   useEffect(() => {
-    const partidaId = Number(resultadoGuardado?.partidaId ?? resultadoGuardado?.partida_id ?? 0)
-    if (!partidaId) {
-      return undefined
-    }
+    let vigente = true
+    obtenerPerfil().then((datos) => {
+      if (vigente) setPerfil(datos)
+    }).catch((error_) => {
+      console.error('No se pudo cargar el perfil para el resultado.', error_)
+    })
+    return () => { vigente = false }
+  }, [])
 
-    let cancelado = false
+  // El endpoint de resultado finaliza la partida: la pantalla usa la confirmación ya guardada.
+  if (!resultadoGuardado?.finalizada) {
+    return <main className="resultado-individual__contenido"><p role="alert">No hay un resultado confirmado para mostrar.</p><Enlace to="/jugar">Volver a jugar</Enlace></main>
+  }
 
-    obtenerResultadoPartida(partidaId)
-      .then((resultadoApi) => {
-        if (cancelado) {
-          return
-        }
-
-        const puntajeApi = Number(resultadoApi?.puntajeFinal ?? 0)
-        const puntajePersistido = Number(resultadoGuardado?.puntaje_final ?? resultadoGuardado?.puntaje ?? 0)
-        const puntajeFinal = puntajeApi > 0 ? puntajeApi : puntajePersistido
-
-        const siguienteResultado = {
-          ...resultadoGuardado,
-          partidaId: Number(resultadoApi?.partidaId ?? resultadoGuardado?.partidaId ?? partidaId),
-          puntaje: puntajeFinal,
-          puntaje_final: puntajeFinal,
-          totalRespuestas: Number(resultadoGuardado?.totalRespuestas ?? 10),
-          respuestasCorrectas: Number(resultadoGuardado?.respuestasCorrectas ?? 0),
-          finalizada: true,
-          fecha_fin: resultadoApi?.fechaFin ?? resultadoGuardado?.fecha_fin ?? null,
-        }
-
-        sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(siguienteResultado))
-        setResultado(siguienteResultado)
-      })
-      .catch(() => {
-        if (!cancelado) {
-          setResultado(resultadoGuardado)
-        }
-      })
-
-    return () => {
-      cancelado = true
-    }
-  }, [resultadoGuardado])
-
-  const puntaje = Number(resultado?.puntaje_final ?? resultado?.puntaje ?? 0)
-  const respuestasCorrectas = Number(resultado?.respuestasCorrectas ?? 0)
-  const totalRespuestas = Number(resultado?.totalRespuestas ?? 10)
+  const puntaje = Number(resultadoGuardado.puntaje_final)
+  const respuestasCorrectas = Number(resultadoGuardado.respuestasCorrectas ?? 0)
+  const totalRespuestas = Number(resultadoGuardado.totalRespuestas ?? 0)
+  // La precisión es la proporción de respuestas correctas sobre las preguntas respondidas.
   const porcentaje = totalRespuestas ? Math.round((respuestasCorrectas / totalRespuestas) * 100) : 0
   const posicion = obtenerPosicion(puntaje)
   const nivelLogro = obtenerNivelLogro(puntaje)
@@ -89,17 +64,17 @@ export default function PaginaResultadoIndividual() {
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · 2.450 pts</span>
+          <span>{perfil ? `${perfil.nombre} · ${perfil.puntajeTotal} pts` : 'Cargando perfil...'}</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera resultado-individual__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, Lucas</strong>
+          <strong>Hola, {perfil?.nombre || 'Jugador'}</strong>
           <span>Cuenta de jugador</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'JQ'}</Enlace>
         <BotonCerrarSesion />
       </header>
 
@@ -129,7 +104,7 @@ export default function PaginaResultadoIndividual() {
               <strong>{porcentaje}%</strong>
             </div>
             <div className="resultado-individual__tarjeta-estadistica">
-              <span>Partidas</span>
+              <span>Preguntas respondidas</span>
               <strong>{totalRespuestas}</strong>
             </div>
           </div>

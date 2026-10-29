@@ -1,6 +1,24 @@
 # Changelog
 
-Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 28/10/2026.
+Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 29/10/2026.
+
+## 29/10 [en revisión] Partidas, duelos y edición de preguntas
+
+Correcciones pendientes de prueba manual y análisis de Sonar antes de su integración en `develop`.
+
+- **Partida individual:** las preguntas, respuestas y el resultado se obtienen del backend; los fallos de la API se muestran sin reemplazarlos por datos de ejemplo. Se evita crear dos partidas cuando React vuelve a ejecutar el efecto en desarrollo y se muestran los datos reales del perfil.
+- **Duelos:** la búsqueda vuelve a consultar el emparejamiento si varios jugadores quedan esperando al mismo tiempo. Las respuestas del torneo avanzan mediante «Siguiente» después de la confirmación del servidor. Se quitaron respuestas y resultados de reemplazo de los recorridos de juego.
+- **Administración:** la dificultad de una pregunta se puede elegir al crearla o editarla y se envía con el resto de los datos.
+- **Búsqueda de usuarios:** el texto se envía al pulsar «Buscar» o Enter, para permitir escribir el nombre o correo completo sin recargar el listado con cada letra.
+- **Pruebas:** se actualizaron los casos unitarios y E2E para comprobar el avance con «Siguiente», el envío explícito del buscador, el reintento al buscar rival y el rechazo de partidas o resultados sin confirmación. Las respuestas HTTP simuladas se definen en las pruebas con el contrato de la API.
+
+## 28/10 [5.2, 6.1] Gestión de usuarios y eliminación de categorías
+
+Integrado en `develop` mediante PR #77 (`f06a246`).
+
+- **Usuarios:** el panel permite crear y editar cuentas con el backend, además de consultar y cambiar su estado. Se añadieron el formulario y las rutas administrativas correspondientes.
+- **Categorías:** el formulario permite solicitar la eliminación de una categoría. Si tiene preguntas asociadas, el backend rechaza la operación y la pantalla muestra el motivo.
+- **Calidad y ayuda:** se corrigieron observaciones de Sonar en el formulario y los estilos, se ampliaron pruebas unitarias de administración y se aclaró en la ayuda el acceso a la edición del perfil.
 
 ## 28/10 [2.2.8, 3.3.5, 6.1] Acceso a jugar y duelos de torneo
 
@@ -8,13 +26,20 @@ Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los com
 - **Cruces:** el cuadro permite iniciar o retomar el duelo asignado al usuario mediante el endpoint del backend. La partida recupera preguntas pendientes y muestra el resultado real cuando ambos jugadores terminan. Los errores de la API se muestran sin inventar respuestas del torneo.
 - **Pruebas:** se agregaron casos de Playwright con respuestas HTTP simuladas para comprobar navegación, inicio, reanudación y errores. Estas simulaciones pertenecen a las pruebas; jugar un duelo de torneo en la aplicación requiere el backend actualizado.
 
+## 27/10 [6.3] Pruebas unitarias y correcciones finales de Sonar
+
+Integrado mediante PR #74 (`6575940`) y PR #75 (`e1880a1`).
+
+- **Pruebas unitarias:** se incorporaron Vitest y React Testing Library para servicios, contexto, componentes y páginas. El workflow genera un reporte LCOV unitario separado del reporte E2E; SonarQube Cloud recibe ambos.
+- **Correcciones:** se atendieron observaciones restantes en Inicio, partida individual e historial, sin cambiar los recorridos de juego previstos.
+
 ## 27/10 [6.3] Observaciones Low de SonarQube Cloud
 
-Cambios publicados en `fix/observaciones-bajas-sonar` para el PR #71, todavía pendiente de merge a `develop`.
+Cambios integrados en `develop` mediante PR #71 (`8ff189c`).
 
 - **Estado de React:** se renombraron los setters de `useState` en seis archivos de administración para resolver 52 avisos de la misma regla. Las llamadas conservan los mismos valores y efectos.
 - **Código y errores:** se corrigieron 20 avisos adicionales: nombres de parámetros `catch`, imports sin uso, explicación de tres salidas alternativas ante errores, una condición con encadenamiento opcional y una transición CSS limitada al fondo y al borde.
-- **Cobertura:** se agregaron pruebas de los estados de error de categorías, preguntas administrativas, ranking, historial y duelo local. El análisis disponible del PR mostró 0 Low abiertos, 81,8 % de cobertura de código nuevo y Quality Gate aprobado después de los primeros cinco casos nuevos; el último caso, agregado en `bbda15f`, quedó pendiente de reanálisis al redactar esta entrada.
+- **Cobertura:** se agregaron pruebas de los estados de error de categorías, preguntas administrativas, ranking, historial y duelo local. El análisis del PR aprobó el Quality Gate; los casos quedaron integrados en `develop`.
 - **Referencias:** `bb14013`, `4fd69cf`, `574ca9b`, `9cb1dab` y `bbda15f`. El detalle de los 72 avisos agrupados por regla está en la documentación local de Sonar, que no se publica en GitHub.
 
 ## 26–27/10 [1.2.3, 6.1] Mi perfil, historial y ranking
@@ -48,7 +73,7 @@ PR #29 (`ab787b5`) configuró el análisis; PR #33 (`f84b420`) incorporó la cob
 
 - **Workflow:** GitHub Actions instala dependencias, compila el frontend, ejecuta las pruebas de Playwright, genera LCOV y envía el reporte a SonarQube Cloud en los eventos configurados.
 - **Calidad del código:** se atendieron promesas de navegación, expresiones regulares, ternarios anidados y avisos de mantenibilidad. Las correcciones se hicieron en el código; los cinco usos no criptográficos de `Math.random()` se revisaron y aceptaron en Sonar.
-- **Cobertura:** se añadieron casos para servicios y componentes con baja cobertura. La cobertura E2E enviada a Sonar y la cobertura unitaria local son mediciones distintas; las pruebas unitarias aún no forman parte de esta rama publicada.
+- **Cobertura:** se añadieron casos para servicios y componentes con baja cobertura. En esa etapa Sonar recibía solo el reporte E2E; el reporte unitario se incorporó después mediante PR #74.
 
 ## 26/9 [1.2.3, 2.2.8, 6.1] Home, duelos y cierre de sesión
 

@@ -9,79 +9,7 @@ export const categoriasPartidas = [
   'Tácticas',
 ]
 
-const preguntasDemoBase = [
-  {
-    enunciado: '¿Qué selección ganó la Copa Mundial de 2018?',
-    opcionCorrectaId: 'A',
-    opciones: [
-      { id: 'A', texto: 'Francia' },
-      { id: 'B', texto: 'Alemania' },
-      { id: 'C', texto: 'Brasil' },
-      { id: 'D', texto: 'Argentina' },
-    ],
-  },
-  {
-    enunciado: '¿Cuál selección fue campeona del Mundial 2022?',
-    opcionCorrectaId: 'B',
-    opciones: [
-      { id: 'A', texto: 'Francia' },
-      { id: 'B', texto: 'Argentina' },
-      { id: 'C', texto: 'Brasil' },
-      { id: 'D', texto: 'Alemania' },
-    ],
-  },
-  {
-    enunciado: '¿Qué club es conocido como “Los Blancos”?',
-    opcionCorrectaId: 'B',
-    opciones: [
-      { id: 'A', texto: 'Barcelona' },
-      { id: 'B', texto: 'Real Madrid' },
-      { id: 'C', texto: 'Juventus' },
-      { id: 'D', texto: 'Bayern' },
-    ],
-  },
-  {
-    enunciado: '¿Quién ganó el Balón de Oro 2023?',
-    opcionCorrectaId: 'C',
-    opciones: [
-      { id: 'A', texto: 'Kylian Mbappé' },
-      { id: 'B', texto: 'Erling Haaland' },
-      { id: 'C', texto: 'Lionel Messi' },
-      { id: 'D', texto: 'Kevin De Bruyne' },
-    ],
-  },
-  {
-    enunciado: '¿Cuántos jugadores puede haber en el campo por equipo al inicio del partido?',
-    opcionCorrectaId: 'C',
-    opciones: [
-      { id: 'A', texto: '9' },
-      { id: 'B', texto: '10' },
-      { id: 'C', texto: '11' },
-      { id: 'D', texto: '12' },
-    ],
-  },
-]
-
-function generarPreguntasDemo(cantidad = 10, categoria = 'Aleatoria') {
-  return Array.from({ length: Math.max(1, Number(cantidad) || 1) }, (_, indice) => {
-    const base = preguntasDemoBase[indice % preguntasDemoBase.length]
-    return {
-      id: String(indice + 1),
-      orden: indice + 1,
-      categoria,
-      enunciado: base.enunciado,
-      opcionCorrectaId: base.opcionCorrectaId,
-      opciones: base.opciones.map((opcion) => ({ ...opcion })),
-    }
-  })
-}
-
-function obtenerRespuestaCorrectaDemo(idPregunta) {
-  const indice = Number(idPregunta) || 0
-  const base = preguntasDemoBase[indice % preguntasDemoBase.length]
-  return base?.opcionCorrectaId ?? 'A'
-}
-
+// Adapta los campos de cada categoría al formato que utiliza la ruleta.
 function normalizarCategoriaBackend(categoria) {
   if (!categoria) {
     return null
@@ -105,30 +33,16 @@ function obtenerCategoriasDeRespuesta(respuesta) {
   return []
 }
 
+// Consulta las categorías jugables y propaga los errores para que la pantalla pueda mostrarlos.
 export async function obtenerCategoriasDisponibles() {
-  const rutasPosibles = ['/api/categorias', '/api/partidas/categorias']
-
-  for (const ruta of rutasPosibles) {
-    try {
-      const respuesta = await solicitarApi(ruta, { metodo: 'GET' })
-      const categorias = obtenerCategoriasDeRespuesta(respuesta)
-
-      const categoriasNormalizadas = categorias
-        .map(normalizarCategoriaBackend)
-        .filter(Boolean)
-
-      if (categoriasNormalizadas.length > 0) {
-        return categoriasNormalizadas
-      }
-    } catch {
-      // El backend actual no expone categorías; se usa fallback local.
-    }
-  }
-
-  return categoriasPartidas.map((nombre) => ({ nombre }))
+  const respuesta = await solicitarApi('/api/partidas/categorias')
+  const categorias = obtenerCategoriasDeRespuesta(respuesta).map(normalizarCategoriaBackend).filter(Boolean)
+  if (categorias.length === 0) throw new Error('No hay categorías disponibles para jugar.')
+  return categorias
 }
 
-function mapearPreguntaBackend(pregunta) {
+// Convierte las cuatro opciones del backend en la lista que renderiza la tarjeta de pregunta.
+function mapearPreguntaBackend(pregunta, categoria) {
   const opciones = [
     { id: 'A', texto: pregunta.opcion_a },
     { id: 'B', texto: pregunta.opcion_b },
@@ -139,7 +53,7 @@ function mapearPreguntaBackend(pregunta) {
   return {
     id: String(pregunta.id),
     orden: pregunta.orden,
-    categoria: 'Aleatoria',
+    categoria,
     enunciado: pregunta.enunciado,
     opciones,
   }
@@ -159,84 +73,58 @@ export function obtenerPreguntasPorCategoria(categoriaId, cantidad = 10) {
   return []
 }
 
-export async function iniciarPartidaIndividual(cantidadPreguntas = 10, categoria = 'Aleatoria') {
-  try {
-    const respuesta = await solicitarApi('/api/partidas/individual', { metodo: 'POST', datos: {} })
-
-    return {
-      id: Number(respuesta.id),
-      categoriaId: respuesta.categoria_id,
-      estado: respuesta.estado,
-      preguntas: Array.isArray(respuesta.preguntas)
-        ? respuesta.preguntas.map(mapearPreguntaBackend)
-        : generarPreguntasDemo(cantidadPreguntas, categoria),
-    }
-  } catch {
-    return {
-      id: Date.now(),
-      categoriaId: null,
-      estado: 'fallback',
-      preguntas: generarPreguntasDemo(cantidadPreguntas, categoria),
-    }
+// Crea una partida y comprueba que el servidor haya devuelto su ID y sus preguntas.
+export async function iniciarPartidaIndividual() {
+  const respuesta = await solicitarApi('/api/partidas/individual', { metodo: 'POST' })
+  if (!Number.isInteger(respuesta?.id) || !Array.isArray(respuesta.preguntas) || respuesta.preguntas.length === 0) {
+    throw new Error('El servidor no devolvió una partida con preguntas.')
+  }
+  // El servidor elige la categoría y entrega los ID de las preguntas de esta partida.
+  const categoria = respuesta.categoria_nombre || 'Categoría del partido'
+  return {
+    id: respuesta.id,
+    categoriaId: respuesta.categoria_id,
+    categoriaNombre: categoria,
+    estado: respuesta.estado,
+    preguntas: respuesta.preguntas.map((pregunta) => mapearPreguntaBackend(pregunta, categoria)),
   }
 }
 
+// Envía la opción elegida y el tiempo utilizado; el servidor determina los aciertos y puntos.
+// Una opción nula representa una pregunta cuyo tiempo se agotó.
 export async function registrarRespuestaPartida(idPartida, idPregunta, opcionSeleccionada, tiempoEmpleado) {
   const opcionNormalizada = String(opcionSeleccionada ?? '').trim().toUpperCase()
 
-  try {
-    const respuesta = await solicitarApi(`/api/partidas/preguntas/${encodeURIComponent(idPregunta)}/respuesta`, {
-      metodo: 'POST',
-      datos: {
-        opcion_seleccionada: opcionNormalizada,
-        tiempo_respuesta_segundos: Number(tiempoEmpleado) || 0,
-      },
-    })
-
-    return {
-      idPartida,
-      idPregunta,
-      opcionSeleccionada: opcionNormalizada,
-      tiempoEmpleado: Number(tiempoEmpleado) || 0,
-      registrado: true,
-      esCorrecta: Boolean(respuesta.es_correcta),
-      puntajeObtenido: Number(respuesta.puntaje_obtenido ?? 0),
-    }
-  } catch {
-    const esCorrecta = opcionNormalizada === obtenerRespuestaCorrectaDemo(idPregunta)
-
-    return {
-      idPartida,
-      idPregunta,
-      opcionSeleccionada: opcionNormalizada,
-      tiempoEmpleado: Number(tiempoEmpleado) || 0,
-      registrado: true,
-      esCorrecta,
-      puntajeObtenido: esCorrecta ? 100 : 0,
-    }
+  const respuesta = await solicitarApi(`/api/partidas/preguntas/${encodeURIComponent(idPregunta)}/respuesta`, {
+    metodo: 'POST',
+    datos: {
+      opcion_seleccionada: opcionNormalizada || null,
+      tiempo_respuesta_segundos: Number(tiempoEmpleado) || 0,
+    },
+  })
+  return {
+    idPartida,
+    idPregunta,
+    opcionSeleccionada: opcionNormalizada || null,
+    tiempoEmpleado: Number(tiempoEmpleado) || 0,
+    registrado: true,
+    esCorrecta: Boolean(respuesta.es_correcta),
+    puntajeObtenido: Number(respuesta.puntaje_obtenido ?? 0),
   }
 }
 
+// Este endpoint finaliza la partida individual y devuelve su puntaje definitivo.
 export async function obtenerResultadoPartida(partidaId) {
-  try {
-    const respuesta = await solicitarApi(`/api/partidas/${encodeURIComponent(partidaId)}/resultado`)
-
-    return {
-      partidaId: Number(respuesta.partida_id ?? partidaId),
-      puntajeFinal: Number(respuesta.puntaje_final ?? 0),
-      fechaFin: respuesta.fecha_fin,
-      finalizada: true,
-    }
-  } catch {
-    return {
-      partidaId: Number(partidaId),
-      puntajeFinal: 0,
-      fechaFin: new Date().toISOString(),
-      finalizada: true,
-    }
+  const respuesta = await solicitarApi(`/api/partidas/${encodeURIComponent(partidaId)}/resultado`)
+  return {
+    partidaId: Number(respuesta.partida_id ?? partidaId),
+    puntajeFinal: Number(respuesta.puntaje_final ?? 0),
+    fechaFin: respuesta.fecha_fin,
+    finalizada: true,
   }
 }
 
+// Resume respuestas en memoria; esta función no guarda ni finaliza una partida en el servidor.
 export function finalizarPartidaIndividual(idPartida, respuestas = []) {
   const puntaje = respuestas.reduce((acumulado, respuesta) => {
     const fueCorrecta = respuesta.esCorrecta === true
