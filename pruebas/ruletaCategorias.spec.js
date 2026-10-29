@@ -3,6 +3,9 @@ import { prepararSesion } from './datosSesion.js'
 
 prueba.beforeEach(async ({ page: pagina }) => {
   await prepararSesion(pagina)
+  await pagina.route('**/api/partidas/categorias', (ruta) => ruta.fulfill({ json: [
+    { id: 1, nombre: 'Historia' }, { id: 2, nombre: 'Mundiales' }, { id: 3, nombre: 'Clubes' },
+  ] }))
 })
 
 prueba('la ruleta gira y habilita la opción de continuar', async ({ page: pagina }) => {

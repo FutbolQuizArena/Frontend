@@ -36,6 +36,8 @@ describe('usuarios del panel', () => {
     await waitFor(() => expect(screen.getByText('Ana')).toBeTruthy())
     expect(screen.getByText('Leo')).toBeTruthy()
     fireEvent.change(screen.getByRole('searchbox', { name: 'Buscar usuario' }), { target: { value: 'Leo' } })
+    expect(obtenerUsuariosAdmin).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Buscar', exact: true }))
     await waitFor(() => expect(obtenerUsuariosAdmin).toHaveBeenLastCalledWith(
       { buscar: 'Leo', rol: '', estaHabilitado: '' }, { vistaPrevia: false },
     ))

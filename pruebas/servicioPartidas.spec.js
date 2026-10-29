@@ -12,94 +12,31 @@ async function llamarServicio(pagina, nombre, argumentos = []) {
   }, { nombreFuncion: nombre, argumentosFuncion: argumentos })
 }
 
-prueba('normaliza categorias de varias respuestas y usa el respaldo local', async ({ page: pagina }) => {
-  let llamadasCategorias = 0
-  let llamadasAlternativas = 0
-
-  await pagina.route('https://api.futbolquiz.test/api/categorias', (ruta) => {
-    llamadasCategorias += 1
-
-    if (llamadasCategorias === 1) {
-      return ruta.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([
-          null,
-          'Historia',
-          { id: 1, nombre: 'Mundiales', color: 'azul' },
-          { categoria_id: 2, titulo: 'Clubes' },
-          { slug: 'reglas', descripcion: 'Reglas' },
-          {},
-        ]),
-      })
-    }
-
-    if (llamadasCategorias === 2) {
-      return ruta.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ items: [] }),
-      })
-    }
-
-    if (llamadasCategorias === 3) {
-      return ruta.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ items: [{ id: 3, nombre: 'Reglas' }] }),
-      })
-    }
-
-    if (llamadasCategorias === 4) {
-      return ruta.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ items: [] }),
-      })
-    }
-
-    return ruta.fulfill({ status: 503, contentType: 'application/json', body: '{}' })
+prueba('normaliza categorías del servidor y rechaza respuestas vacías o fallidas', async ({ page: pagina }) => {
+  const respuestas = [
+    [null, 'Historia', { id: 1, nombre: 'Mundiales', color: 'azul' }, { categoria_id: 2, titulo: 'Clubes' }, { slug: 'reglas', descripcion: 'Reglas' }, {}],
+    { categorias: [{ id: 4, nombre: 'Alternativa' }] },
+    { items: [{ id: 3, nombre: 'Reglas' }] },
+    { items: [] },
+  ]
+  let llamada = 0
+  await pagina.route('**/api/partidas/categorias', (ruta) => {
+    const respuesta = respuestas[llamada++]
+    return respuesta ? ruta.fulfill({ json: respuesta }) : ruta.fulfill({ status: 503, json: { message: 'No disponible' } })
   })
-
-  await pagina.route('https://api.futbolquiz.test/api/partidas/categorias', (ruta) => {
-    llamadasAlternativas += 1
-
-    if (llamadasAlternativas === 1) {
-      return ruta.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ categorias: [{ id: 4, nombre: 'Alternativa' }] }),
-      })
-    }
-
-    return ruta.fulfill({ status: 503, contentType: 'application/json', body: '{}' })
-  })
-
-  const categoriasDirectas = await llamarServicio(pagina, 'obtenerCategoriasDisponibles')
-  esperar(categoriasDirectas.slice(0, 4)).toEqual([
-    { nombre: 'Historia' },
-    { id: 1, nombre: 'Mundiales', color: 'azul' },
-    { id: 2, nombre: 'Clubes', color: null },
-    { id: 'reglas', nombre: 'Reglas', color: null },
+  const categorias = await llamarServicio(pagina, 'obtenerCategoriasDisponibles')
+  esperar(categorias.slice(0, 4)).toEqual([
+    { nombre: 'Historia' }, { id: 1, nombre: 'Mundiales', color: 'azul' },
+    { id: 2, nombre: 'Clubes', color: null }, { id: 'reglas', nombre: 'Reglas', color: null },
   ])
-  esperar(categoriasDirectas[4]).toMatchObject({ id: null, color: null })
-  esperar(categoriasDirectas[4].nombre).toBeTruthy()
-
-  esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toEqual([
-    { id: 4, nombre: 'Alternativa', color: null },
-  ])
-  esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toEqual([
-    { id: 3, nombre: 'Reglas', color: null },
-  ])
-
-  const categoriasLocales = await llamarServicio(pagina, 'obtenerCategoriasDisponibles')
-  esperar(categoriasLocales).toHaveLength(6)
-  esperar(categoriasLocales[0]).toEqual({ nombre: 'Historia' })
-  esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toHaveLength(6)
-  esperar(await llamarServicio(pagina, 'obtenerPreguntasPorCategoria', ['Historia', 3])).toEqual([])
+  esperar(categorias[4]).toMatchObject({ id: null, color: null })
+  esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toEqual([{ id: 4, nombre: 'Alternativa', color: null }])
+  esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toEqual([{ id: 3, nombre: 'Reglas', color: null }])
+  await esperar(llamarServicio(pagina, 'obtenerCategoriasDisponibles')).rejects.toThrow('No hay categorías disponibles')
+  await esperar(llamarServicio(pagina, 'obtenerCategoriasDisponibles')).rejects.toThrow()
 })
 
-prueba('inicia partidas con preguntas del backend o preguntas de demostracion', async ({ page: pagina }) => {
+prueba('inicia partidas con preguntas del backend y rechaza respuestas incompletas', async ({ page: pagina }) => {
   let llamadas = 0
 
   await pagina.route('https://api.futbolquiz.test/api/partidas/individual', (ruta) => {
@@ -110,7 +47,8 @@ prueba('inicia partidas con preguntas del backend o preguntas de demostracion', 
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          id: '15',
+          id: 15,
+          categoria_nombre: 'Historia',
           categoria_id: 3,
           estado: 'en_curso',
           preguntas: [{
@@ -145,19 +83,15 @@ prueba('inicia partidas con preguntas del backend o preguntas de demostracion', 
     preguntas: [{
       id: '7',
       orden: 1,
-      categoria: 'Aleatoria',
+      categoria: 'Historia',
       enunciado: 'Pregunta de prueba',
       opciones: [{ id: 'A', texto: 'A' }, { id: 'B', texto: 'B' }, { id: 'C', texto: 'C' }, { id: 'D', texto: 'D' }],
     }],
   })
 
-  const partidaSinPreguntas = await llamarServicio(pagina, 'iniciarPartidaIndividual', [2, 'Clubes'])
-  esperar(partidaSinPreguntas.preguntas).toHaveLength(2)
-  esperar(partidaSinPreguntas.preguntas[0]).toMatchObject({ id: '1', categoria: 'Clubes' })
+  await esperar(llamarServicio(pagina, 'iniciarPartidaIndividual')).rejects.toThrow('El servidor no devolvió una partida con preguntas')
+  await esperar(llamarServicio(pagina, 'iniciarPartidaIndividual')).rejects.toThrow()
 
-  const partidaDeRespaldo = await llamarServicio(pagina, 'iniciarPartidaIndividual', [0, 'Historia'])
-  esperar(partidaDeRespaldo).toMatchObject({ categoriaId: null, estado: 'fallback' })
-  esperar(partidaDeRespaldo.preguntas).toHaveLength(1)
 })
 
 prueba('registra respuestas, obtiene resultados y calcula el resumen final', async ({ page: pagina }) => {
@@ -202,10 +136,8 @@ prueba('registra respuestas, obtiene resultados y calcula el resumen final', asy
   esperar(datosRespuesta).toEqual({ opcion_seleccionada: 'B', tiempo_respuesta_segundos: 3 })
   esperar(respuestaApi).toMatchObject({ opcionSeleccionada: 'B', registrado: true, esCorrecta: true, puntajeObtenido: 50 })
 
-  esperar(await llamarServicio(pagina, 'registrarRespuestaPartida', [8, 0, 'A', 2]))
-    .toMatchObject({ esCorrecta: true, puntajeObtenido: 100 })
-  esperar(await llamarServicio(pagina, 'registrarRespuestaPartida', [8, 0, 'B', 2]))
-    .toMatchObject({ esCorrecta: false, puntajeObtenido: 0 })
+  await esperar(llamarServicio(pagina, 'registrarRespuestaPartida', [8, 7, 'A', 2])).rejects.toThrow()
+  await esperar(llamarServicio(pagina, 'registrarRespuestaPartida', [8, 7, 'B', 2])).rejects.toThrow()
 
   esperar(await llamarServicio(pagina, 'obtenerResultadoPartida', [8])).toMatchObject({
     partidaId: 8,
@@ -218,11 +150,7 @@ prueba('registra respuestas, obtiene resultados y calcula el resumen final', asy
     puntajeFinal: 0,
     finalizada: true,
   })
-  esperar(await llamarServicio(pagina, 'obtenerResultadoPartida', [10])).toMatchObject({
-    partidaId: 10,
-    puntajeFinal: 0,
-    finalizada: true,
-  })
+  await esperar(llamarServicio(pagina, 'obtenerResultadoPartida', [10])).rejects.toThrow()
 
   esperar(await llamarServicio(pagina, 'finalizarPartidaIndividual', [8, [
     { esCorrecta: true, puntajeObtenido: 40 },
