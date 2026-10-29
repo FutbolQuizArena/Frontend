@@ -1,4 +1,5 @@
 import { solicitarApi } from './clienteApi.js'
+import { normalizarDueloOnline } from './servicioDuelos.js'
 
 function normalizarCodigo(codigo) {
   return codigo.trim().replace(/\s+/g, '').toUpperCase()
@@ -122,6 +123,12 @@ function nombreRonda(numero, capacidad) {
   return 'Octavos de final'
 }
 
+function estadoVisibleCruce(cruce) {
+  if (cruce.estado === 'JUGADO') return 'FINALIZADO'
+  if (cruce.duelo_id) return 'EN_CURSO'
+  return 'PENDIENTE'
+}
+
 function adaptarCuadro(torneo) {
   const cruces = torneo.cuadro || []
   const rondas = [...new Set(cruces.map((cruce) => cruce.ronda))].sort((a, b) => a - b).map((numero) => ({
@@ -129,10 +136,11 @@ function adaptarCuadro(torneo) {
     nombre: nombreRonda(numero, torneo.cantidad_participantes),
     cruces: cruces.filter((cruce) => cruce.ronda === numero).map((cruce) => ({
       id: cruce.id,
-      jugadorA: { id: cruce.jugador_a_id ?? cruce.jugador_a?.id, nombre: cruce.jugador_a?.nombre || 'Por definir', puntaje: null },
-      jugadorB: { id: cruce.jugador_b_id ?? cruce.jugador_b?.id, nombre: cruce.jugador_b?.nombre || 'Por definir', puntaje: null },
+      dueloId: cruce.duelo_id ?? null,
+      jugadorA: { id: cruce.jugador_a_id ?? cruce.jugador_a?.id, usuarioId: cruce.jugador_a?.usuario_id, nombre: cruce.jugador_a?.nombre || 'Por definir', puntaje: null },
+      jugadorB: { id: cruce.jugador_b_id ?? cruce.jugador_b?.id, usuarioId: cruce.jugador_b?.usuario_id, nombre: cruce.jugador_b?.nombre || 'Por definir', puntaje: null },
       ganadorId: cruce.ganador_id ?? cruce.ganador?.id,
-      estado: cruce.estado === 'JUGADO' ? 'FINALIZADO' : 'PENDIENTE',
+      estado: estadoVisibleCruce(cruce),
     })),
   }))
   const final = rondas.at(-1)?.cruces[0]
@@ -183,4 +191,18 @@ export async function obtenerDetalleTorneo(idTorneo) {
 
 export async function obtenerCuadroTorneo(idTorneo) {
   return adaptarCuadro(await obtenerTorneo(idTorneo))
+}
+
+export async function iniciarDueloCruce(idTorneo, idCruce, usuarioActual) {
+  const respuesta = await solicitarApi(`/api/torneos/${encodeURIComponent(idTorneo)}/cruces/${encodeURIComponent(idCruce)}/iniciar-duelo`, {
+    metodo: 'POST',
+  })
+  const duelo = normalizarDueloOnline(respuesta.duelo, usuarioActual)
+  if (!duelo.id || duelo.preguntas.length === 0) {
+    throw new Error('El servidor no devolvió las preguntas del duelo.')
+  }
+  const dueloTorneo = { ...duelo, torneoId: Number(idTorneo), cruceId: Number(idCruce) }
+  window.sessionStorage.setItem('dueloActual', JSON.stringify(dueloTorneo))
+  window.sessionStorage.removeItem('resultadoDuelo')
+  return dueloTorneo
 }

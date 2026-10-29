@@ -1,4 +1,4 @@
-import { Link as Enlace, Route as Ruta, Routes as Rutas } from 'react-router-dom'
+import { Link as Enlace, Navigate as Redireccion, Route as Ruta, Routes as Rutas } from 'react-router-dom'
 import PaginaLogin from './paginas/PaginaLogin.jsx'
 import PaginaRegistro from './paginas/PaginaRegistro.jsx'
 import PaginaHome from './paginas/PaginaHome.jsx'
@@ -44,7 +44,7 @@ export default function Aplicacion() {
         <Ruta path="/home" element={<PaginaHome />} />
         <Ruta path="/jugar" element={<PaginaSeleccionModo />} />
         <Ruta path="/juegos/modos" element={<PaginaSeleccionModo />} />
-        <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/partida-individual" element={<Redireccion to="/jugar" replace />} />
         <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/duelo/esperando" textoAccion="Ir a la espera" />} />
         <Ruta path="/duelo/esperando" element={<PaginaEsperandoRival />} />
         <Ruta path="/duelo/modo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />

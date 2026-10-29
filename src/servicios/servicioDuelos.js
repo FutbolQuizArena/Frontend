@@ -37,6 +37,7 @@ function mapearPreguntaDuelo(pregunta, categoriaPorDefecto = 'Fútbol') {
     opciones,
     opcionCorrectaId: obtenerOpcionCorrectaDemo(idPregunta || pregunta?.orden || 1),
     orden: Number(pregunta?.orden ?? 1),
+    estaRespondida: Boolean(pregunta?.esta_respondida),
   }
 }
 
@@ -52,7 +53,7 @@ export function generarAlias(nombre) {
   return String(nombre).trim().split(/\s+/)[0]
 }
 
-function normalizarDueloOnline(respuesta, usuarioActual = null) {
+export function normalizarDueloOnline(respuesta, usuarioActual = null) {
   const categoriaNombre = respuesta?.categoria_nombre || respuesta?.categoriaNombre || 'Fútbol'
 
   const preguntas = Array.isArray(respuesta?.preguntas)
@@ -141,7 +142,7 @@ function obtenerGanadorResultado(estaFinalizado, empate, ganadorNumero, esJugado
   }
 }
 
-export function obtenerResultadoDuelo(idDuelo, usuarioActual = null) {
+export function obtenerResultadoDuelo(idDuelo, usuarioActual = null, estricto = false) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
     .then((respuesta) => {
       const idUsuarioActual = usuarioActual?.id ? Number(usuarioActual.id) : null
@@ -186,7 +187,8 @@ export function obtenerResultadoDuelo(idDuelo, usuarioActual = null) {
         resultadoTexto: resultadoGanador.resultadoTexto,
       }
     })
-    .catch(() => {
+    .catch((error) => {
+      if (estricto) throw error
       const nombreUsuario = usuarioActual?.nombre || 'Tú'
       return {
         idPartida: idDuelo ?? 'duelo-demo',
@@ -354,11 +356,12 @@ export function obtenerPreguntasDuelo(idDuelo) {
   }))
 }
 
-export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada, tiempoEmpleado) {
+export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada, tiempoEmpleado, estricto = false) {
   const preguntaId = Number(idPregunta)
   const opcionNormalizada = String(opcionSeleccionada ?? '').toUpperCase()
 
   if (!Number.isFinite(preguntaId) || preguntaId <= 0) {
+    if (estricto) return Promise.reject(new Error('No se pudo identificar la pregunta del torneo.'))
     return {
       idDuelo,
       idPregunta,
@@ -384,15 +387,18 @@ export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada,
     registrado: true,
     esCorrecta: Boolean(respuesta?.es_correcta),
     puntajeObtenido: Number(respuesta?.puntaje_obtenido ?? 0),
-  })).catch(() => ({
-    idDuelo,
-    idPregunta,
-    opcionSeleccionada: opcionNormalizada,
-    tiempoEmpleado: Number(tiempoEmpleado) || 0,
-    registrado: true,
-    esCorrecta: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId),
-    puntajeObtenido: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId) ? 100 : 0,
-  }))
+  })).catch((error) => {
+    if (estricto) throw error
+    return {
+      idDuelo,
+      idPregunta,
+      opcionSeleccionada: opcionNormalizada,
+      tiempoEmpleado: Number(tiempoEmpleado) || 0,
+      registrado: true,
+      esCorrecta: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId),
+      puntajeObtenido: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId) ? 100 : 0,
+    }
+  })
 }
 
 export function simularRespuestaRival(idPregunta) {

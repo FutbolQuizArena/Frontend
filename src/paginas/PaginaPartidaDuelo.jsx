@@ -14,9 +14,9 @@ import '../estilos/estilosPartidaDuelo.css'
 const obtenerTiempoBase = () => 15
 
 function restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCategoriaDuelo) {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return null
   const guardado = window.sessionStorage.getItem('dueloActual')
-  if (!guardado) return
+  if (!guardado) return null
 
   try {
     const duelo = JSON.parse(guardado)
@@ -26,9 +26,30 @@ function restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCate
     if (duelo.categoriaNombre || duelo.categoria_nombre) {
       setCategoriaDuelo(duelo.categoriaNombre || duelo.categoria_nombre)
     }
+    return duelo
   } catch {
     // Si los datos guardados no son válidos, se conservan los valores iniciales.
+    return null
   }
+}
+
+function guardarPreguntaRespondida(idPregunta) {
+  const guardado = window.sessionStorage.getItem('dueloActual')
+  if (!guardado) return
+  try {
+    const duelo = JSON.parse(guardado)
+    duelo.preguntas = duelo.preguntas.map((pregunta) =>
+      String(pregunta.id) === String(idPregunta) ? { ...pregunta, estaRespondida: true } : pregunta
+    )
+    window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
+  } catch {
+    // El servidor conserva las respuestas; al volver al cuadro se recupera el estado real.
+  }
+}
+
+function siguientePreguntaPendiente(preguntas, indiceActual) {
+  const siguiente = preguntas.findIndex((pregunta, indice) => indice > indiceActual && !pregunta.estaRespondida)
+  return siguiente === -1 ? preguntas.length : siguiente
 }
 
 function avanzarPreguntaDuelo({ siguienteIndice, preguntas, partidaId, jugadorLocal, rival, puntajeLocalRef, aciertosLocalRef, navegar, setIndicePregunta, setRespuestaSeleccionada, setEstadoFeedback, setBloqueado, setTiempoRestante, setEstadoRival }) {
@@ -79,13 +100,24 @@ function avanzarPreguntaDuelo({ siguienteIndice, preguntas, partidaId, jugadorLo
   setEstadoRival('Respondiendo...')
 }
 
-async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, preguntaActual, bloqueado, tiempoRestante, partidaId, setBloqueado, setRespuestaSeleccionada, setEstadoFeedback, setEstadoRival, puntajeLocalRef, aciertosLocalRef, setPuntajeLocal, setAciertosLocal, avanzarPregunta }) {
+async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, preguntaActual, bloqueado, tiempoRestante, partidaId, esTorneo, setBloqueado, setRespuestaSeleccionada, setEstadoFeedback, setEstadoRival, setMensajeError, setTiempoRestante, puntajeLocalRef, aciertosLocalRef, setPuntajeLocal, setAciertosLocal, avanzarPregunta }) {
   if (!preguntaActual || bloqueado) return
 
   setBloqueado(true)
   setRespuestaSeleccionada(opcionSeleccionada)
+  setMensajeError('')
   const tiempoUsado = tiempoAgotado ? obtenerTiempoBase() : Math.max(1, obtenerTiempoBase() - tiempoRestante)
-  const resultadoApi = await registrarRespuestaDuelo(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
+  let resultadoApi
+  try {
+    resultadoApi = await registrarRespuestaDuelo(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado, esTorneo)
+  } catch (error) {
+    setMensajeError(error.message || 'No pudimos guardar la respuesta. Intentá de nuevo.')
+    setRespuestaSeleccionada(null)
+    setTiempoRestante(obtenerTiempoBase())
+    setBloqueado(false)
+    return
+  }
+  if (esTorneo) guardarPreguntaRespondida(preguntaActual.id)
   const acerto = Boolean(resultadoApi?.esCorrecta)
   const puntosGanados = Number(resultadoApi?.puntajeObtenido ?? 0)
 
@@ -127,6 +159,8 @@ export default function PaginaPartidaDuelo() {
   const [aciertosRival] = usarEstado(0)
   const [estadoRival, setEstadoRival] = usarEstado('Respondiendo...')
   const [categoriaDuelo, setCategoriaDuelo] = usarEstado('Fútbol')
+  const [esTorneo, setEsTorneo] = usarEstado(false)
+  const [mensajeError, setMensajeError] = usarEstado('')
 
   const puntajeLocalRef = usarReferencia(0)
   const aciertosLocalRef = usarReferencia(0)
@@ -139,7 +173,8 @@ export default function PaginaPartidaDuelo() {
   usarEfecto(() => {
     let activo = true
 
-    restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCategoriaDuelo)
+    const dueloGuardado = restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCategoriaDuelo)
+    setEsTorneo(Boolean(dueloGuardado?.torneoId))
 
     // Cargar perfil real si faltan datos del usuario local
     obtenerPerfil()
@@ -159,6 +194,14 @@ export default function PaginaPartidaDuelo() {
 
     const preguntasCargadas = obtenerPreguntasDuelo(partidaId)
     setPreguntas(preguntasCargadas)
+    if (dueloGuardado?.torneoId) {
+      const primeraPendiente = preguntasCargadas.findIndex((pregunta) => !pregunta.estaRespondida)
+      if (primeraPendiente === -1) {
+        navegarConManejo(navegar, `/duelo/${dueloGuardado.id}/resultado`)
+      } else {
+        setIndicePregunta(primeraPendiente)
+      }
+    }
 
     return () => {
       activo = false
@@ -190,7 +233,7 @@ export default function PaginaPartidaDuelo() {
   }, [bloqueado, estadoFeedback, preguntaActual, tiempoRestante])
 
   const avanzarPregunta = () => avanzarPreguntaDuelo({
-    siguienteIndice: indicePregunta + 1,
+    siguienteIndice: esTorneo ? siguientePreguntaPendiente(preguntas, indicePregunta) : indicePregunta + 1,
     preguntas,
     partidaId,
     jugadorLocal,
@@ -213,10 +256,13 @@ export default function PaginaPartidaDuelo() {
     bloqueado,
     tiempoRestante,
     partidaId,
+    esTorneo,
     setBloqueado,
     setRespuestaSeleccionada,
     setEstadoFeedback,
     setEstadoRival,
+    setMensajeError,
+    setTiempoRestante,
     puntajeLocalRef,
     aciertosLocalRef,
     setPuntajeLocal,
@@ -256,7 +302,7 @@ export default function PaginaPartidaDuelo() {
       <main className="partida-duelo__contenido">
         <header className="partida-duelo__cabecera">
           <p className="sobretitulo">PARTIDA DE DUELO</p>
-          <h1>Partida 1v1</h1>
+          <h1>{esTorneo ? 'Duelo de torneo' : 'Partida 1v1'}</h1>
         </header>
 
         <section className="partida-duelo__marcadores" aria-label="Marcadores del duelo">
@@ -327,6 +373,7 @@ export default function PaginaPartidaDuelo() {
               {' '}El rival también está resolviendo la pregunta.
             </div>
           )}
+          {mensajeError && <p className="partida-duelo__feedback" role="alert">{mensajeError}</p>}
         </section>
       </main>
     </div>
