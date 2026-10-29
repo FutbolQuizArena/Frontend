@@ -8,6 +8,7 @@ import { obtenerResultadoPartida } from '../src/servicios/servicioPartidas.js'
 vi.mock('../src/servicios/servicioPartidas.js', () => ({ obtenerResultadoPartida: vi.fn() }))
 vi.mock('../src/servicios/servicioPerfil.js', () => ({
   obtenerPerfil: vi.fn(async () => ({ nombre: 'Ana', iniciales: 'A', puntajeTotal: 2000, rol: 'JUGADOR' })),
+  obtenerPerfilEnCache: vi.fn(() => null),
 }))
 vi.mock('../src/componentes/BotonCerrarSesion.jsx', () => ({ default: () => <button>Cerrar sesión</button> }))
 

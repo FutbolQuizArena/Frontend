@@ -64,7 +64,7 @@ describe('partida individual', () => {
     expect(screen.getByRole('heading', { name: 'Pregunta 1 de 2' })).toBeTruthy()
     expect(screen.getByText('Primera pregunta')).toBeTruthy()
     expect(iniciarPartidaIndividual).toHaveBeenCalledWith()
-    expect(screen.getByText('Clubes')).toBeTruthy()
+    expect(screen.getAllByText('Clubes').length).toBeGreaterThan(0)
   })
 
   it('registra una respuesta y avanza a la pregunta siguiente', async () => {
