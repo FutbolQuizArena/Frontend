@@ -69,3 +69,18 @@ export async function actualizarCategoriaAdmin(idCategoria, datos, opciones = {}
   categoriasEjemplo = categoriasEjemplo.map((elemento) => elemento.id === id ? categoria : elemento)
   return { ...categoria }
 }
+
+export async function eliminarCategoriaAdmin(idCategoria, opciones = {}) {
+  if (!usarEjemplos(opciones)) {
+    await solicitarApi(`/api/admin/categorias/${idCategoria}`, { metodo: 'DELETE' })
+    return
+  }
+  const id = Number(idCategoria)
+  const categoria = categoriasEjemplo.find((elemento) => elemento.id === id)
+  if (!categoria) throw new Error('No encontramos esa categoría.')
+  const preguntas = await obtenerPreguntasAdmin(opciones)
+  if (preguntas.some((pregunta) => pregunta.categoria === categoria.nombre)) {
+    throw new Error('La categoría tiene preguntas asociadas y no se puede eliminar.')
+  }
+  categoriasEjemplo = categoriasEjemplo.filter((elemento) => elemento.id !== id)
+}
