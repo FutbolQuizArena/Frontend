@@ -1,26 +1,5 @@
 import { solicitarApi } from './clienteApi.js'
 
-const preguntasDueloBase = [
-  {
-    id: 'duelo-historia-1',
-    categoria: 'Historia',
-    enunciado: '¿Qué selección ganó la Copa Mundial de 2018?',
-    opciones: [
-      { id: 'A', texto: 'Francia' },
-      { id: 'B', texto: 'Alemania' },
-      { id: 'C', texto: 'Brasil' },
-      { id: 'D', texto: 'Argentina' },
-    ],
-    opcionCorrectaId: 'A',
-  },
-]
-
-function obtenerOpcionCorrectaDemo(idPregunta) {
-  const indice = Number(idPregunta) || 0
-  const pregunta = preguntasDueloBase[indice % preguntasDueloBase.length]
-  return pregunta?.opcionCorrectaId ?? 'A'
-}
-
 function mapearPreguntaDuelo(pregunta, categoriaPorDefecto = 'Fútbol') {
   const idPregunta = Number(pregunta?.id ?? 0)
   const opciones = [
@@ -35,7 +14,6 @@ function mapearPreguntaDuelo(pregunta, categoriaPorDefecto = 'Fútbol') {
     categoria: pregunta?.categoria || categoriaPorDefecto || 'Fútbol',
     enunciado: pregunta?.enunciado ?? 'Pregunta del duelo',
     opciones,
-    opcionCorrectaId: obtenerOpcionCorrectaDemo(idPregunta || pregunta?.orden || 1),
     orden: Number(pregunta?.orden ?? 1),
     estaRespondida: Boolean(pregunta?.esta_respondida),
   }
@@ -53,16 +31,13 @@ export function generarAlias(nombre) {
   return String(nombre).trim().split(/\s+/)[0]
 }
 
+// Identifica al usuario conectado entre los dos jugadores y adapta sus preguntas y rival.
 export function normalizarDueloOnline(respuesta, usuarioActual = null) {
   const categoriaNombre = respuesta?.categoria_nombre || respuesta?.categoriaNombre || 'Fútbol'
 
   const preguntas = Array.isArray(respuesta?.preguntas)
     ? respuesta.preguntas.map((pregunta) => mapearPreguntaDuelo(pregunta, categoriaNombre))
-    : preguntasDueloBase.map((pregunta, indice) => ({
-        ...pregunta,
-        id: `${pregunta.id}-${indice}`,
-        categoria: categoriaNombre,
-      }))
+    : []
 
   const estado = String(respuesta?.estado ?? 'PENDIENTE_RIVAL').toUpperCase()
   const estaEnCurso = estado === 'EN_CURSO' || estado === 'FINALIZADA' || estado === 'FINALIZADO'
@@ -142,7 +117,8 @@ function obtenerGanadorResultado(estaFinalizado, empate, ganadorNumero, esJugado
   }
 }
 
-export function obtenerResultadoDuelo(idDuelo, usuarioActual = null, estricto = false) {
+// Consulta los puntos de ambos jugadores y determina el ganador según el estado del backend.
+export function obtenerResultadoDuelo(idDuelo, usuarioActual = null) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
     .then((respuesta) => {
       const idUsuarioActual = usuarioActual?.id ? Number(usuarioActual.id) : null
@@ -187,39 +163,6 @@ export function obtenerResultadoDuelo(idDuelo, usuarioActual = null, estricto = 
         resultadoTexto: resultadoGanador.resultadoTexto,
       }
     })
-    .catch((error) => {
-      if (estricto) throw error
-      const nombreUsuario = usuarioActual?.nombre || 'Tú'
-      return {
-        idPartida: idDuelo ?? 'duelo-demo',
-        estado: 'PENDIENTE',
-        ganador: 'local',
-        jugadorLocal: {
-          nombre: nombreUsuario,
-          alias: generarAlias(nombreUsuario),
-          avatar: generarAvatar(nombreUsuario),
-          puntaje: 0,
-          aciertos: 0,
-          totalPreguntas: 10,
-          tiempoPromedio: 0,
-        },
-        oponente: {
-          nombre: 'Rival',
-          alias: 'Oponente',
-          avatar: 'RV',
-          puntaje: 0,
-          aciertos: 0,
-          totalPreguntas: 10,
-          tiempoPromedio: 0,
-        },
-        resumen: {
-          diferencia: 0,
-          porcentajeLocal: 0,
-          porcentajeOponente: 0,
-        },
-        resultadoTexto: 'PENDIENTE',
-      }
-    })
 }
 
 export function solicitarRevanchaDuelo(idDuelo) {
@@ -230,14 +173,9 @@ export function solicitarRevanchaDuelo(idDuelo) {
       destino: '/duelo/esperando',
       mensaje: 'Se está buscando un rival nuevo.',
     }))
-    .catch(() => ({
-      idDuelo,
-      solicitudEnviada: true,
-      destino: '/duelo/esperando',
-      mensaje: 'Se está buscando un rival nuevo.',
-    }))
 }
 
+// Recupera el estado del emparejamiento y los datos del rival para actualizar la espera.
 export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
   if (!idDuelo) return Promise.resolve(null)
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
@@ -294,34 +232,20 @@ export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
     .catch(() => null)
 }
 
+// Solicita un rival y guarda el duelo recibido en sessionStorage para abrir la partida.
 export function buscarRivalDuelo(usuarioActual = null) {
   return solicitarApi('/api/duelos/online', { metodo: 'POST', datos: {} })
     .then((respuesta) => {
       const duelo = normalizarDueloOnline(respuesta, usuarioActual)
+      if (!duelo.id || duelo.preguntas.length === 0) throw new Error('El servidor no devolvió un duelo con preguntas.')
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
       }
       return duelo
     })
-    .catch(() => {
-      const fallback = {
-        id: Date.now(),
-        estado: 'PENDIENTE_RIVAL',
-        modalidad: 'online',
-        categoriaId: null,
-        categoriaNombre: 'Fútbol',
-        preguntas: preguntasDueloBase.map((pregunta) => ({ ...pregunta, id: String(pregunta.id), categoria: 'Fútbol' })),
-        rival: null,
-      }
-
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem('dueloActual', JSON.stringify(fallback))
-      }
-
-      return fallback
-    })
 }
 
+// Borra el duelo guardado en esta pestaña; esta función no cancela la espera en el backend.
 export function cancelarBusquedaDuelo() {
   if (typeof window !== 'undefined') {
     window.sessionStorage.removeItem('dueloActual')
@@ -329,48 +253,39 @@ export function cancelarBusquedaDuelo() {
   return true
 }
 
-export function obtenerPreguntasDuelo(idDuelo) {
+// Recupera las preguntas guardadas y comprueba que tengan identificadores numéricos válidos.
+export function obtenerPreguntasDuelo() {
   if (typeof window !== 'undefined') {
     const dueloGuardado = window.sessionStorage.getItem('dueloActual')
     if (dueloGuardado) {
       try {
         const duelo = JSON.parse(dueloGuardado)
         const categoriaPredeterminada = duelo?.categoriaNombre || duelo?.categoria_nombre || 'Fútbol'
-        if (Array.isArray(duelo?.preguntas) && duelo.preguntas.length > 0) {
-          return duelo.preguntas.map((pregunta, indice) => ({
+        if (Array.isArray(duelo?.preguntas) && duelo.preguntas.length > 0 &&
+          duelo.preguntas.every((pregunta) => Number.isInteger(Number(pregunta.id)) && Number(pregunta.id) > 0)) {
+          return duelo.preguntas.map((pregunta) => ({
             ...pregunta,
-            id: String(pregunta.id ?? `${idDuelo ?? 'duelo-demo'}-${indice + 1}`),
+            id: String(pregunta.id),
             categoria: (pregunta.categoria && pregunta.categoria !== 'Aleatoria') ? pregunta.categoria : categoriaPredeterminada,
           }))
         }
       } catch {
-        // ignora fallback
+        return []
       }
     }
   }
 
-  return preguntasDueloBase.map((pregunta, indice) => ({
-    ...pregunta,
-    id: `${pregunta.id}-${idDuelo ?? 'duelo-demo'}-${indice}`,
-    categoria: 'Fútbol',
-  }))
+  // La partida solo puede usar preguntas asignadas por el servidor al jugador.
+  return []
 }
 
-export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada, tiempoEmpleado, estricto = false) {
+// Envía la respuesta al servidor y devuelve su confirmación con los puntos obtenidos.
+export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada, tiempoEmpleado) {
   const preguntaId = Number(idPregunta)
   const opcionNormalizada = String(opcionSeleccionada ?? '').toUpperCase()
 
   if (!Number.isFinite(preguntaId) || preguntaId <= 0) {
-    if (estricto) return Promise.reject(new Error('No se pudo identificar la pregunta del torneo.'))
-    return {
-      idDuelo,
-      idPregunta,
-      opcionSeleccionada: opcionNormalizada,
-      tiempoEmpleado: Number(tiempoEmpleado) || 0,
-      registrado: true,
-      esCorrecta: opcionNormalizada === obtenerOpcionCorrectaDemo(1),
-      puntajeObtenido: 0,
-    }
+    return Promise.reject(new Error('No se pudo identificar la pregunta del duelo.'))
   }
 
   return solicitarApi(`/api/duelos/preguntas/${encodeURIComponent(preguntaId)}/respuesta`, {
@@ -387,29 +302,7 @@ export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada,
     registrado: true,
     esCorrecta: Boolean(respuesta?.es_correcta),
     puntajeObtenido: Number(respuesta?.puntaje_obtenido ?? 0),
-  })).catch((error) => {
-    if (estricto) throw error
-    return {
-      idDuelo,
-      idPregunta,
-      opcionSeleccionada: opcionNormalizada,
-      tiempoEmpleado: Number(tiempoEmpleado) || 0,
-      registrado: true,
-      esCorrecta: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId),
-      puntajeObtenido: opcionNormalizada === obtenerOpcionCorrectaDemo(preguntaId) ? 100 : 0,
-    }
-  })
-}
-
-export function simularRespuestaRival(idPregunta) {
-  const correcta = Math.random() > 0.45
-
-  return {
-    idPregunta,
-    correcta,
-    opcionSeleccionada: correcta ? 'A' : 'D',
-    tiempoEmpleado: 7 + Math.floor(Math.random() * 5),
-  }
+  }))
 }
 
 export default {
@@ -420,5 +313,4 @@ export default {
   solicitarRevanchaDuelo,
   obtenerPreguntasDuelo,
   registrarRespuestaDuelo,
-  simularRespuestaRival,
 }
