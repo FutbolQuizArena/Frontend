@@ -58,13 +58,30 @@ describe('duelos online', () => {
     expect(resultado.preguntas).toHaveLength(1)
   })
 
-  it('propaga el error de búsqueda y permite limpiar una espera guardada', async () => {
+  it('propaga el error de búsqueda sin guardar un duelo inexistente', async () => {
     vi.mocked(solicitarApi).mockRejectedValue(new Error('sin servidor'))
     await expect(buscarRivalDuelo()).rejects.toThrow('sin servidor')
     expect(window.sessionStorage.getItem('dueloActual')).toBeNull()
+  })
+
+  it('confirma la cancelación en el servidor antes de limpiar la espera', async () => {
     window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
-    expect(cancelarBusquedaDuelo()).toBe(true)
+    vi.mocked(solicitarApi).mockResolvedValue({ id: 12, estado: 'FINALIZADA' })
+
+    // La búsqueda local se elimina únicamente después de recibir la confirmación.
+    await expect(cancelarBusquedaDuelo(12)).resolves.toMatchObject({ id: 12, estado: 'FINALIZADA' })
+    expect(solicitarApi).toHaveBeenCalledWith('/api/duelos/12/cancelar', { metodo: 'POST' })
     expect(window.sessionStorage.getItem('dueloActual')).toBeNull()
+  })
+
+  it('conserva el duelo si la cancelación falla o falta su identificador', async () => {
+    window.sessionStorage.setItem('dueloActual', JSON.stringify(duelo))
+    vi.mocked(solicitarApi).mockRejectedValue(new Error('Ya se encontró rival'))
+
+    // El ID guardado permite consultar el duelo cuando la API rechaza la cancelación.
+    await expect(cancelarBusquedaDuelo(12)).rejects.toThrow('Ya se encontró rival')
+    expect(window.sessionStorage.getItem('dueloActual')).not.toBeNull()
+    await expect(cancelarBusquedaDuelo()).rejects.toThrow('No se pudo identificar la búsqueda')
   })
 
   it('consulta el estado desde los dos puntos de vista', async () => {

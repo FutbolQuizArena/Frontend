@@ -67,7 +67,7 @@ prueba('normaliza la búsqueda exitosa para ambos formatos de respuesta', async 
   esperar(await pagina.evaluate(() => JSON.parse(sessionStorage.getItem('dueloActual')).id)).toBe(82)
 })
 
-prueba('propaga el fallo de búsqueda y permite limpiar los datos locales', async ({ page: pagina }) => {
+prueba('propaga el fallo de búsqueda sin inventar un duelo', async ({ page: pagina }) => {
   await pagina.route('https://api.futbolquiz.test/api/duelos/online', (ruta) => ruta.fulfill({
     status: 503,
     contentType: 'application/json',
@@ -76,9 +76,32 @@ prueba('propaga el fallo de búsqueda y permite limpiar los datos locales', asyn
 
   await esperar(llamarServicio(pagina, 'buscarRivalDuelo')).rejects.toThrow()
   esperar(await pagina.evaluate(() => sessionStorage.getItem('dueloActual'))).toBeNull()
+})
 
-  esperar(await llamarServicio(pagina, 'cancelarBusquedaDuelo')).toBe(true)
+prueba('cancela en el servidor antes de limpiar el duelo local', async ({ page: pagina }) => {
+  await pagina.evaluate(() => sessionStorage.setItem('dueloActual', JSON.stringify({ id: 82 })))
+  let metodoRecibido = ''
+  await pagina.route('https://api.futbolquiz.test/api/duelos/82/cancelar', (ruta) => {
+    metodoRecibido = ruta.request().method()
+    return ruta.fulfill({ json: { id: 82, estado: 'FINALIZADA' } })
+  })
+
+  // Solo una respuesta exitosa del endpoint permite quitar el duelo de la sesión.
+  esperar(await llamarServicio(pagina, 'cancelarBusquedaDuelo', [82])).toEqual({ id: 82, estado: 'FINALIZADA' })
+  esperar(metodoRecibido).toBe('POST')
   esperar(await pagina.evaluate(() => sessionStorage.getItem('dueloActual'))).toBeNull()
+})
+
+prueba('conserva el duelo local si el servidor rechaza la cancelación', async ({ page: pagina }) => {
+  await pagina.evaluate(() => sessionStorage.setItem('dueloActual', JSON.stringify({ id: 83 })))
+  await pagina.route('https://api.futbolquiz.test/api/duelos/83/cancelar', (ruta) => ruta.fulfill({
+    status: 409,
+    json: { code: 'BUSQUEDA_YA_EMPAREJADA', message: 'Ya existe un rival.' },
+  }))
+
+  // El identificador se conserva para consultar el duelo que ya fue emparejado.
+  await esperar(llamarServicio(pagina, 'cancelarBusquedaDuelo', [83])).rejects.toThrow()
+  esperar(await pagina.evaluate(() => JSON.parse(sessionStorage.getItem('dueloActual')).id)).toBe(83)
 })
 
 prueba('calcula resultados pendientes, empate y ganadores desde cada jugador', async ({ page: pagina }) => {
