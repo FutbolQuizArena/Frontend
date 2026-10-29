@@ -24,6 +24,11 @@ function obtenerTextoBotonDuelo(iniciando, dueloId) {
   return 'Jugar duelo'
 }
 
+function obtenerDescripcionCruce(cruce, alternativa) {
+  if (!cruce) return alternativa
+  return `${cruce.jugadorA.nombre} vs. ${cruce.jugadorB.nombre}`
+}
+
 function CuadroLlaves({ torneo, completo = false }) {
   const indiceRondaActual = Math.max(0, torneo.rondas.findIndex((ronda) => ronda.nombre === torneo.rondaActual))
   const numeroCampeon = String(torneo.rondas.length + 1).padStart(2, '0')
@@ -193,13 +198,13 @@ export default function PaginaCuadroTorneo() {
           </header>
           <dl className="cuadro-torneo__resumen">
             <div><dt>Ronda actual</dt><dd>{torneo.rondaActual}</dd></div>
-            <div><dt>Próxima partida</dt><dd>{crucePropio ? `${crucePropio.jugadorA.nombre} vs. ${crucePropio.jugadorB.nombre}` : 'Por definir'}</dd></div>
+            <div><dt>Próxima partida</dt><dd>{obtenerDescripcionCruce(crucePropio, 'Por definir')}</dd></div>
             <div><dt>Premio</dt><dd>Pendiente</dd></div>
           </dl>
           <h2 className="cuadro-torneo__camino">Tu camino a la final</h2>
           <CuadroLlaves torneo={torneo} />
           <aside className="cuadro-torneo__proximo">
-            <div><small>TU CRUCE</small><strong>{crucePropio ? `${crucePropio.jugadorA.nombre} vs. ${crucePropio.jugadorB.nombre}` : 'Todavía no tenés un cruce disponible'}</strong></div>
+            <div><small>TU CRUCE</small><strong>{obtenerDescripcionCruce(crucePropio, 'Todavía no tenés un cruce disponible')}</strong></div>
             {crucePropio && <button type="button" onClick={() => { void jugarCruce() }} disabled={iniciando}>{textoBotonDuelo}</button>}
           </aside>
           {mensajeAccion && <p className="mensaje mensaje--error" role="alert">{mensajeAccion}</p>}
