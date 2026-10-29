@@ -62,7 +62,8 @@ export function normalizarDueloOnline(respuesta, usuarioActual = null) {
   }
 
   const rivalTextoNombre = rivalNombre || 'Rival'
-  const rival = estaEnCurso
+  // Un duelo vencido puede estar FINALIZADA sin que exista un segundo jugador.
+  const rival = estaEnCurso && respuesta?.jugador2_id != null
     ? {
         id: rivalId ?? 'rival-online',
         nombre: rivalTextoNombre,
@@ -76,6 +77,8 @@ export function normalizarDueloOnline(respuesta, usuarioActual = null) {
   return {
     id: Number(respuesta?.id ?? 0),
     estado,
+    jugador2Id: respuesta?.jugador2_id ?? null,
+    busquedaExpiraEn: respuesta?.busqueda_expira_en ?? null,
     modalidad: respuesta?.modalidad ?? 'online',
     categoriaId: respuesta?.categoria_id ?? null,
     categoriaNombre,
@@ -181,7 +184,8 @@ export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
   return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}`)
     .then((respuesta) => {
       const estado = String(respuesta?.estado ?? '').toUpperCase()
-      const tieneRival = estado === 'EN_CURSO' || estado === 'FINALIZADA' || estado === 'FINALIZADO'
+      // El estado final por vencimiento no implica que se haya emparejado otro jugador.
+      const tieneRival = respuesta?.jugador2_id != null && (estado === 'EN_CURSO' || estado === 'FINALIZADA' || estado === 'FINALIZADO')
 
       const idUsuarioActual = usuarioActual?.id ? Number(usuarioActual.id) : null
       const esJugador1 = idUsuarioActual !== null ? Number(respuesta?.jugador1_id) === idUsuarioActual : true
@@ -223,6 +227,8 @@ export function consultarEstadoDuelo(idDuelo, usuarioActual = null) {
       return {
         id: Number(respuesta?.id ?? idDuelo),
         estado,
+        jugador2Id: respuesta?.jugador2_id ?? null,
+        busquedaExpiraEn: respuesta?.busqueda_expira_en ?? null,
         categoriaNombre: respuesta?.categoria_nombre || respuesta?.categoriaNombre || 'Fútbol',
         jugadorLocal,
         rival,
@@ -245,12 +251,16 @@ export function buscarRivalDuelo(usuarioActual = null) {
     })
 }
 
-// Borra el duelo guardado en esta pestaña; esta función no cancela la espera en el backend.
-export function cancelarBusquedaDuelo() {
+// Confirma la cancelación en el servidor antes de borrar los datos de esta pestaña.
+export async function cancelarBusquedaDuelo(idDuelo) {
+  if (!Number.isInteger(Number(idDuelo)) || Number(idDuelo) <= 0) {
+    throw new Error('No se pudo identificar la búsqueda para cancelarla.')
+  }
+  const respuesta = await solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}/cancelar`, { metodo: 'POST' })
   if (typeof window !== 'undefined') {
     window.sessionStorage.removeItem('dueloActual')
   }
-  return true
+  return respuesta
 }
 
 // Recupera las preguntas guardadas y comprueba que tengan identificadores numéricos válidos.
