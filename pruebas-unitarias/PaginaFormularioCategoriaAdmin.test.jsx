@@ -3,11 +3,11 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import PaginaFormularioCategoriaAdmin from '../src/paginas/PaginaFormularioCategoriaAdmin.jsx'
 import { obtenerPerfil } from '../src/servicios/servicioPerfil.js'
-import { actualizarCategoriaAdmin, crearCategoriaAdmin, obtenerCategoriaAdmin } from '../src/servicios/servicioCategoriasAdmin.js'
+import { actualizarCategoriaAdmin, crearCategoriaAdmin, eliminarCategoriaAdmin, obtenerCategoriaAdmin } from '../src/servicios/servicioCategoriasAdmin.js'
 
 vi.mock('../src/servicios/servicioPerfil.js', () => ({ obtenerPerfil: vi.fn() }))
 vi.mock('../src/servicios/servicioCategoriasAdmin.js', () => ({
-  actualizarCategoriaAdmin: vi.fn(), crearCategoriaAdmin: vi.fn(), obtenerCategoriaAdmin: vi.fn(),
+  actualizarCategoriaAdmin: vi.fn(), crearCategoriaAdmin: vi.fn(), eliminarCategoriaAdmin: vi.fn(), obtenerCategoriaAdmin: vi.fn(),
 }))
 vi.mock('../src/servicios/servicioSesion.js', () => ({ obtenerToken: vi.fn(), esSesionAdminPrueba: vi.fn(() => false) }))
 vi.mock('../src/componentes/MarcoTorneo.jsx', () => ({ default: ({ children }) => <main>{children}</main> }))
@@ -27,8 +27,9 @@ beforeEach(() => {
   vi.mocked(obtenerCategoriaAdmin).mockResolvedValue({ nombre: 'Historia', estado: 'ACTIVA' })
   vi.mocked(crearCategoriaAdmin).mockResolvedValue({ id: 3 })
   vi.mocked(actualizarCategoriaAdmin).mockResolvedValue({ id: 3 })
+  vi.mocked(eliminarCategoriaAdmin).mockResolvedValue(undefined)
 })
-afterEach(cleanup)
+afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
 describe('formulario de categoría', () => {
   it('valida el nombre y crea una categoría', async () => {
@@ -68,5 +69,26 @@ describe('formulario de categoría', () => {
     fireEvent.change(screen.getByLabelText('Nombre de la categoría'), { target: { value: 'Historia' } })
     fireEvent.click(screen.getByRole('button', { name: 'Crear categoría' }))
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('nombre repetido'))
+  })
+
+  it('confirma y elimina una categoría existente', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    mostrarPagina('/admin/categorias/3/editar')
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Eliminar categoría' })).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar categoría' }))
+    await waitFor(() => expect(eliminarCategoriaAdmin).toHaveBeenCalledWith('3', { vistaPrevia: false }))
+    await waitFor(() => expect(screen.getByTestId('ruta').textContent).toBe('/admin/categorias'))
+  })
+
+  it('respeta la cancelación y muestra errores al eliminar', async () => {
+    const confirmar = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    mostrarPagina('/admin/categorias/3/editar')
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Eliminar categoría' })).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar categoría' }))
+    expect(eliminarCategoriaAdmin).not.toHaveBeenCalled()
+    confirmar.mockReturnValue(true)
+    vi.mocked(eliminarCategoriaAdmin).mockRejectedValue(new Error('tiene preguntas asociadas'))
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar categoría' }))
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('tiene preguntas asociadas'))
   })
 })
