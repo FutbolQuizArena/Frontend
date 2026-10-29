@@ -9,6 +9,7 @@ Correcciones pendientes de prueba manual y análisis de Sonar antes de su integr
 - **Partida individual:** las preguntas, respuestas y el resultado se obtienen del backend; los fallos de la API se muestran sin reemplazarlos por datos de ejemplo. Se evita crear dos partidas cuando React vuelve a ejecutar el efecto en desarrollo y se muestran los datos reales del perfil.
 - **Duelos:** la búsqueda vuelve a consultar el emparejamiento si varios jugadores quedan esperando al mismo tiempo. Las respuestas del torneo avanzan mediante «Siguiente» después de la confirmación del servidor. Se quitaron respuestas y resultados de reemplazo de los recorridos de juego.
 - **Administración:** la dificultad de una pregunta se puede elegir al crearla o editarla y se envía con el resto de los datos.
+- **Búsqueda de usuarios:** el texto se envía al pulsar «Buscar» o Enter, para permitir escribir el nombre o correo completo sin recargar el listado con cada letra.
 
 ## 28/10 [5.2, 6.1] Gestión de usuarios y eliminación de categorías
 
