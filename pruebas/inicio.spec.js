@@ -1,14 +1,22 @@
 import { test as prueba, expect as esperar } from './fixturesCobertura.js'
 import { prepararSesion } from './datosSesion.js'
 
+const categoriasPartida = [
+  { id: 1, nombre: 'Historia' }, { id: 2, nombre: 'Mundiales' }, { id: 3, nombre: 'Clubes' },
+]
+
 prueba.beforeEach(async ({ page: pagina }) => {
   await prepararSesion(pagina)
+  await pagina.route('**/api/partidas/categorias', (ruta) => ruta.fulfill({ json: categoriasPartida }))
 })
 
 prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina }) => {
   const solicitudes = []
   await pagina.route('**/api/**', (ruta) => {
     solicitudes.push(ruta.request().url())
+    if (ruta.request().url().endsWith('/api/partidas/categorias')) {
+      return ruta.fulfill({ json: categoriasPartida })
+    }
     if (ruta.request().url().endsWith('/api/usuarios/me')) {
       return ruta.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 1, nombre: 'Lucas', email: 'lucas@futbolquiz.com', rol: 'JUGADOR', puntaje_total: 2450 }) })
     }
@@ -41,7 +49,7 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
 
   await pagina.getByRole('link', { name: 'Ir a Duelo' }).click()
   await esperar(pagina).toHaveURL(/\/duelo\/esperando$/)
-  await esperar(pagina.getByRole('heading', { name: 'Buscando rival...' })).toBeVisible()
+  await esperar(pagina.getByRole('heading', { name: 'Error al buscar rival' })).toBeVisible()
   await esperar(pagina.getByRole('button', { name: 'Cancelar Búsqueda' })).toBeVisible()
   await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
   await esperar(pagina.getByText('Consultá las posiciones y tu lugar en el ranking.')).toBeVisible()
