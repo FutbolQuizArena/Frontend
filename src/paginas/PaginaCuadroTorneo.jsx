@@ -18,6 +18,12 @@ function obtenerCrucePropio(torneo, usuarioId) {
   )
 }
 
+function obtenerTextoBotonDuelo(iniciando, dueloId) {
+  if (iniciando) return 'Abriendo duelo…'
+  if (dueloId) return 'Continuar duelo'
+  return 'Jugar duelo'
+}
+
 function CuadroLlaves({ torneo, completo = false }) {
   const indiceRondaActual = Math.max(0, torneo.rondas.findIndex((ronda) => ronda.nombre === torneo.rondaActual))
   const numeroCampeon = String(torneo.rondas.length + 1).padStart(2, '0')
@@ -134,9 +140,7 @@ export default function PaginaCuadroTorneo() {
   }, [idTorneo, intentoCarga])
 
   const crucePropio = obtenerCrucePropio(torneo, perfil?.id)
-  let textoBotonDuelo = 'Jugar duelo'
-  if (iniciando) textoBotonDuelo = 'Abriendo duelo…'
-  else if (crucePropio?.dueloId) textoBotonDuelo = 'Continuar duelo'
+  const textoBotonDuelo = obtenerTextoBotonDuelo(iniciando, crucePropio?.dueloId)
 
   async function jugarCruce() {
     if (!crucePropio || !perfil || iniciando) return
