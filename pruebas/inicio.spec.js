@@ -50,7 +50,8 @@ prueba('la Home consulta el usuario y permite navegar', async ({ page: pagina })
   await pagina.getByRole('link', { name: 'Ir a Duelo' }).click()
   await esperar(pagina).toHaveURL(/\/duelo\/esperando$/)
   await esperar(pagina.getByRole('heading', { name: 'Error al buscar rival' })).toBeVisible()
-  await esperar(pagina.getByRole('button', { name: 'Cancelar Búsqueda' })).toBeVisible()
+  // Sin una búsqueda creada en el servidor, la pantalla permite volver al menú.
+  await esperar(pagina.getByRole('button', { name: 'Volver al menú' }).last()).toBeVisible()
   await pagina.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link', { name: 'Inicio' }).click()
   await esperar(pagina.getByText('Consultá las posiciones y tu lugar en el ranking.')).toBeVisible()
   for (const [nombre, destino, titulo] of [
