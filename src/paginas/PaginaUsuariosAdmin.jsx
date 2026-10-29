@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import NavegacionAdmin from '../componentes/NavegacionAdmin.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
@@ -20,7 +20,9 @@ function obtenerTextoBotonCambioEstado(guardando, usuario) {
 
 export default function PaginaUsuariosAdmin() {
   const [parametros] = useSearchParams()
+  const ubicacion = useLocation()
   const vistaPrevia = import.meta.env.DEV && parametros.get('vistaPrevia') === '1'
+  const sufijo = vistaPrevia ? '?vistaPrevia=1' : ''
   const datosEjemplo = import.meta.env.DEV && (vistaPrevia || esSesionAdminPrueba(obtenerToken()))
   const [rolActual, setRolActual] = useState(null)
   const [usuarios, setUsuarios] = useState([])
@@ -86,20 +88,20 @@ export default function PaginaUsuariosAdmin() {
   const visibles = usuarios.slice((pagina - 1) * tamanioPagina, pagina * tamanioPagina)
   function cambiarFiltro(establecer, valor) { establecer(valor); setPagina(1) }
 
-  return <MarcoTorneo administrador sufijoAdmin={vistaPrevia ? '?vistaPrevia=1' : ''} tituloMovil="Administración" subtituloMovil="Usuarios">
+  return <MarcoTorneo administrador sufijoAdmin={sufijo} tituloMovil="Administración" subtituloMovil="Usuarios">
     <div className="admin-preguntas admin-usuarios">
-      <header className="admin-preguntas__encabezado"><div><h1>Usuarios</h1><p>Consultá las cuentas registradas y su estado.</p></div></header>
+      <header className="admin-preguntas__encabezado"><div><h1>Usuarios</h1><p>Consultá y gestioná las cuentas registradas.</p></div>{!cargando && !error && rolActual === 'ADMINISTRADOR' && <Link className="admin-listado__nuevo" to={`/admin/usuarios/nuevo${sufijo}`}>Nuevo usuario</Link>}</header>
       {cargando && <p className="admin-preguntas__estado"><output>Cargando usuarios…</output></p>}
       {!cargando && error && <div className="admin-preguntas__estado" role="alert"><p>{error}</p><button type="button" onClick={() => setIntento((actual) => actual + 1)}>Reintentar</button></div>}
       {!cargando && !error && rolActual !== 'ADMINISTRADOR' && <div className="admin-preguntas__estado" role="alert"><p>Solo los administradores pueden consultar usuarios.</p><Link to="/home">Volver al inicio</Link></div>}
       {!cargando && !error && rolActual === 'ADMINISTRADOR' && <section className="admin-preguntas__panel" aria-labelledby="titulo-usuarios-admin">
-        {aviso && <p className="admin-preguntas__aviso"><output>{aviso}</output></p>}
+        {(aviso || ubicacion.state?.avisoUsuario) && <p className="admin-preguntas__aviso"><output>{aviso || ubicacion.state?.avisoUsuario}</output></p>}
         {datosEjemplo && <p className="admin-preguntas__aviso"><output>Datos de ejemplo para probar el panel en desarrollo.</output></p>}
         <NavegacionAdmin vistaPrevia={vistaPrevia} />
         <div className="admin-preguntas__titulo"><div><h2 id="titulo-usuarios-admin">Gestión de usuarios</h2><p>{datosEjemplo ? 'Listado de ejemplo' : 'Listado del backend'}</p></div></div>
         <div className="admin-preguntas__filtros"><label>Buscar usuario<input type="search" value={buscar} onChange={(evento) => cambiarFiltro(setBuscar, evento.target.value)} placeholder="Nombre o correo" /></label><label>Rol<select value={rol} onChange={(evento) => cambiarFiltro(setRol, evento.target.value)}><option value="">Todos los roles</option><option value="JUGADOR">Jugador</option><option value="ADMINISTRADOR">Administrador</option></select></label><label>Estado<select value={estado} onChange={(evento) => cambiarFiltro(setEstado, evento.target.value)}><option value="">Todos los estados</option><option value="true">Habilitado</option><option value="false">Deshabilitado</option></select></label></div>
         <p className="admin-preguntas__cantidad"><output>{usuarios.length} {usuarios.length === 1 ? 'usuario' : 'usuarios'}</output></p>
-        {visibles.length ? <div className="admin-preguntas__tabla admin-usuarios__tabla"><div className="admin-preguntas__cabecera" aria-hidden="true"><span>Nombre</span><span>Correo</span><span>Rol</span><span>Estado</span><span>Acciones</span></div><ul>{visibles.map((usuario) => <li key={usuario.id}><strong>{usuario.nombre}</strong><span data-etiqueta="Correo">{usuario.email}</span><span data-etiqueta="Rol">{usuario.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'}</span><span className={`admin-categorias__estado${usuario.esta_habilitado ? '' : ' admin-categorias__estado--borrador'}`}>{usuario.esta_habilitado ? 'HABILITADO' : 'DESHABILITADO'}</span><button type="button" className={`admin-usuarios__boton-accion${usuario.esta_habilitado ? ' admin-usuarios__boton-accion--deshabilitar' : ' admin-usuarios__boton-accion--habilitar'}`} onClick={() => { setUsuarioSeleccionado(usuario); setErrorEstado('') }} aria-label={`${usuario.esta_habilitado ? 'Deshabilitar' : 'Habilitar'} usuario: ${usuario.nombre}`}>{usuario.esta_habilitado ? 'Deshabilitar' : 'Habilitar'}</button></li>)}</ul></div> : <p className="admin-preguntas__vacio">No hay usuarios que coincidan con los filtros.</p>}
+        {visibles.length ? <div className="admin-preguntas__tabla admin-usuarios__tabla"><div className="admin-preguntas__cabecera" aria-hidden="true"><span>Nombre</span><span>Correo</span><span>Rol</span><span>Estado</span><span>Acciones</span></div><ul>{visibles.map((usuario) => <li key={usuario.id}><strong>{usuario.nombre}</strong><span data-etiqueta="Correo">{usuario.email}</span><span data-etiqueta="Rol">{usuario.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'}</span><span className={`admin-categorias__estado${usuario.esta_habilitado ? '' : ' admin-categorias__estado--borrador'}`}>{usuario.esta_habilitado ? 'HABILITADO' : 'DESHABILITADO'}</span><div className="admin-usuarios__acciones"><Link className="admin-usuarios__boton-accion" to={`/admin/usuarios/${usuario.id}/editar${sufijo}`}>Editar</Link><button type="button" className={`admin-usuarios__boton-accion${usuario.esta_habilitado ? ' admin-usuarios__boton-accion--deshabilitar' : ' admin-usuarios__boton-accion--habilitar'}`} onClick={() => { setUsuarioSeleccionado(usuario); setErrorEstado('') }} aria-label={`${usuario.esta_habilitado ? 'Deshabilitar' : 'Habilitar'} usuario: ${usuario.nombre}`}>{usuario.esta_habilitado ? 'Deshabilitar' : 'Habilitar'}</button></div></li>)}</ul></div> : <p className="admin-preguntas__vacio">No hay usuarios que coincidan con los filtros.</p>}
         {totalPaginas > 1 && <nav className="admin-preguntas__paginacion" aria-label="Páginas de usuarios"><span>Página {pagina} de {totalPaginas}</span><div><button type="button" disabled={pagina === 1} onClick={() => setPagina((actual) => actual - 1)}>Anterior</button><button type="button" disabled={pagina === totalPaginas} onClick={() => setPagina((actual) => actual + 1)}>Siguiente</button></div></nav>}
       </section>}
       {usuarioSeleccionado && <dialog ref={dialogo} className="admin-preguntas__confirmacion" onCancel={(evento) => { evento.preventDefault(); if (!guardandoEstado) setUsuarioSeleccionado(null) }} role="alertdialog" aria-modal="true" aria-labelledby="titulo-estado-usuario" aria-describedby="detalle-estado-usuario" onKeyDown={(evento) => {

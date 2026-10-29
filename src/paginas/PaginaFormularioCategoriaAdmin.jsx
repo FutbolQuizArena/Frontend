@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { esSesionAdminPrueba, obtenerToken } from '../servicios/servicioSesion.js'
-import { actualizarCategoriaAdmin, crearCategoriaAdmin, obtenerCategoriaAdmin } from '../servicios/servicioCategoriasAdmin.js'
+import { actualizarCategoriaAdmin, crearCategoriaAdmin, eliminarCategoriaAdmin, obtenerCategoriaAdmin } from '../servicios/servicioCategoriasAdmin.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 import '../estilos/estilosPreguntasAdmin.css'
 import '../estilos/estilosMarcoAdmin.css'
@@ -73,6 +73,20 @@ export default function PaginaFormularioCategoriaAdmin() {
     }
   }
 
+  async function eliminar() {
+    if (!window.confirm('¿Eliminar esta categoría? Esta acción no se puede deshacer.')) return
+    setErrorFormulario('')
+    setGuardando(true)
+    try {
+      await eliminarCategoriaAdmin(idCategoria, { vistaPrevia })
+      navegarConManejo(navegar, regreso, { state: { avisoCategoria: datosEjemplo ? 'Categoría eliminada temporalmente.' : 'Categoría eliminada.' } })
+    } catch (error_) {
+      setErrorFormulario(error_.message || 'No pudimos eliminar la categoría.')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
   const titulo = idCategoria ? 'Editar categoría' : 'Nueva categoría'
   return <MarcoTorneo administrador sufijoAdmin={sufijo} tituloMovil={titulo} subtituloMovil="Gestión de contenido">
     <div className="admin-preguntas admin-formulario admin-formulario-categoria">
@@ -86,7 +100,7 @@ export default function PaginaFormularioCategoriaAdmin() {
         <label>Estado<select value={datos.estado} onChange={(evento) => setDatos({ ...datos, estado: evento.target.value })}><option value="ACTIVA">Activa</option><option value="BORRADOR">Borrador</option></select></label>
         {errorFormulario && <p className="admin-formulario__error" role="alert">{errorFormulario}</p>}
         {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}
-        <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link><button type="submit" disabled={guardando}>{obtenerTextoBotonCategoria(guardando, idCategoria)}</button></div>
+        <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link>{idCategoria && <button type="button" disabled={guardando} onClick={() => { void eliminar() }}>Eliminar categoría</button>}<button type="submit" disabled={guardando}>{obtenerTextoBotonCategoria(guardando, idCategoria)}</button></div>
       </form>}
     </div>
   </MarcoTorneo>

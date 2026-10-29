@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { solicitarApi } from '../src/servicios/clienteApi.js'
 import { obtenerPreguntasAdmin, renombrarCategoriaPreguntasAdmin } from '../src/servicios/servicioPreguntasAdmin.js'
 import {
-  actualizarCategoriaAdmin, crearCategoriaAdmin, obtenerCategoriaAdmin, obtenerCategoriasAdmin,
+  actualizarCategoriaAdmin, crearCategoriaAdmin, eliminarCategoriaAdmin, obtenerCategoriaAdmin, obtenerCategoriasAdmin,
 } from '../src/servicios/servicioCategoriasAdmin.js'
 
 vi.mock('../src/servicios/clienteApi.js', () => ({ solicitarApi: vi.fn() }))
@@ -56,5 +56,19 @@ describe('categorías de administración', () => {
     const actualizada = await actualizarCategoriaAdmin(3, { nombre: 'Nueva', estado: 'ACTIVA' }, { vistaPrevia: true })
     expect(actualizada.nombre).toBe('Nueva')
     expect(renombrarCategoriaPreguntasAdmin).toHaveBeenCalledWith('Copa Libertadores', 'Nueva')
+  })
+
+  it('elimina categorías por API y en vista previa solo cuando no tienen preguntas', async () => {
+    await eliminarCategoriaAdmin(3)
+    expect(solicitarApi).toHaveBeenCalledWith('/api/admin/categorias/3', { metodo: 'DELETE' })
+    const opciones = { vistaPrevia: true }
+    const temporal = await crearCategoriaAdmin({ nombre: 'Temporal', estado: 'ACTIVA' }, opciones)
+    vi.mocked(obtenerPreguntasAdmin).mockResolvedValue([])
+    await eliminarCategoriaAdmin(temporal.id, opciones)
+    await expect(obtenerCategoriaAdmin(temporal.id, opciones)).rejects.toThrow('No encontramos esa categoría')
+    await expect(eliminarCategoriaAdmin(temporal.id, opciones)).rejects.toThrow('No encontramos esa categoría')
+    const bloqueada = await crearCategoriaAdmin({ nombre: 'Bloqueada', estado: 'ACTIVA' }, opciones)
+    vi.mocked(obtenerPreguntasAdmin).mockResolvedValue([{ categoria: 'Bloqueada' }])
+    await expect(eliminarCategoriaAdmin(bloqueada.id, opciones)).rejects.toThrow('preguntas asociadas')
   })
 })

@@ -28,7 +28,7 @@
       {
         "pregunta": "¿Cómo actualizo mi nombre, correo o contraseña?",
         "respuesta": [
-          "Entrá en Perfil y cambiá tu nombre o correo.",
+          "Entrá en Perfil y elegí Editar perfil para cambiar tu nombre o correo.",
           "Para cambiar la contraseña, completá Contraseña actual y Nueva contraseña.",
           "Pulsá Guardar cambios."
         ]
