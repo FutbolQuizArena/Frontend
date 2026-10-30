@@ -18,6 +18,7 @@ function obtenerTextoBotonCambioEstado(guardando, usuario) {
   return 'Sí, habilitar'
 }
 
+/** Busca y filtra usuarios y permite cambiar su estado desde el listado. */
 export default function PaginaUsuariosAdmin() {
   const [parametros] = useSearchParams()
   const ubicacion = useLocation()
@@ -64,12 +65,14 @@ export default function PaginaUsuariosAdmin() {
   }, [usuarioSeleccionado])
 
   // El texto escrito se aplica al listado cuando se envía el formulario con Buscar o Enter.
+  // Aplica el texto al enviar, para evitar consultas por cada carácter.
   function enviarBusqueda(evento) {
     evento.preventDefault()
     setBuscar(textoBusqueda.trim())
     setPagina(1)
   }
 
+  // Actualiza el estado visual cuando la API confirma la habilitación.
   async function confirmarCambioEstado() {
     if (!usuarioSeleccionado || guardandoEstado) return
     setGuardandoEstado(true)
@@ -94,6 +97,7 @@ export default function PaginaUsuariosAdmin() {
 
   const totalPaginas = Math.max(1, Math.ceil(usuarios.length / tamanioPagina))
   const visibles = usuarios.slice((pagina - 1) * tamanioPagina, pagina * tamanioPagina)
+  // Cada filtro nuevo vuelve a la primera página.
   function cambiarFiltro(establecer, valor) { establecer(valor); setPagina(1) }
 
   return <MarcoTorneo administrador sufijoAdmin={sufijo} tituloMovil="Administración" subtituloMovil="Usuarios">

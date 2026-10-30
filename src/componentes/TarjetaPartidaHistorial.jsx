@@ -14,6 +14,7 @@ function obtenerTextoResultado(partida) {
   return partida.resultado || 'Completada'
 }
 
+/** Resume una partida del historial y abre su detalle cuando se solicita. */
 export default function TarjetaPartidaHistorial({ partida, alVerDetalle: manejarVerDetalle }) {
   const textoResultado = obtenerTextoResultado(partida)
   let tonoResultado = 'neutral'

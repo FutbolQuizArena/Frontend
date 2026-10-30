@@ -1,3 +1,4 @@
+/* Diferencia pestañas, lista y detalle del historial personal. */
 .historial { padding-top: 7px; }
 .historial__introduccion h1 { margin: 0; font-size: 34px; font-weight: 750; line-height: 1.2; letter-spacing: -.025em; }
 .historial__introduccion p { margin: 7px 0 43px; color: var(--color-secundario); font-size: 16px; line-height: 1.4; }

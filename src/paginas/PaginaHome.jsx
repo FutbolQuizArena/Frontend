@@ -16,6 +16,7 @@ const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', pun
 
 const formatearPuntaje = (puntaje) => puntaje == null ? '—' : puntaje.toLocaleString('es-AR')
 
+/** Carga el perfil y las métricas del inicio sin inventar valores cuando falta una respuesta. */
 export default function PaginaHome() {
   const navegar = usarNavegacion()
   const [usuario, establecerUsuario] = usarEstado(() => ({ ...usuarioInicial, ...obtenerPerfilEnCache() }))

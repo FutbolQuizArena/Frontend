@@ -15,6 +15,7 @@ function FilaJugador({ jugador, esGanador }) {
   )
 }
 
+/** Muestra los dos participantes y el estado de un cruce del cuadro. */
 export default function CruceTorneo({ cruce, destacado = false }) {
   const enCurso = cruce.estado === 'EN_CURSO'
 

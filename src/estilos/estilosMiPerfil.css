@@ -1,3 +1,4 @@
+/* Presenta los datos y accesos de la pantalla Mi perfil. */
 .mi-perfil__contenido { max-width: 1280px; }
 .mi-perfil__introduccion { margin-bottom: 42px; }
 .mi-perfil__introduccion h1 { margin: 0; font-size: 34px; }

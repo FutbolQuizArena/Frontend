@@ -19,6 +19,7 @@ function obtenerTextoBotonPregunta(guardando, idPregunta) {
   return 'Guardar pregunta'
 }
 
+/** Edita o crea una pregunta con sus opciones, respuesta correcta, categoría y dificultad. */
 export default function PaginaFormularioPreguntaAdmin() {
   const { idPregunta } = useParams()
   const [parametros] = useSearchParams()
@@ -60,12 +61,14 @@ export default function PaginaFormularioPreguntaAdmin() {
   }, [idPregunta, vistaPrevia])
 
   // Crea una copia de las opciones y reemplaza únicamente la que se está escribiendo.
+  // Actualiza una opción sin perder las otras tres respuestas.
   function cambiarOpcion(indice, valor) {
     setDatos((actual) => ({ ...actual, opciones: actual.opciones.map((opcion, posicion) => posicion === indice ? valor : opcion) }))
   }
 
   // Valida las cuatro opciones y envía la pregunta completa, incluida su dificultad.
   // La presencia de idPregunta determina si se crea una pregunta o se actualiza una existente.
+  // Envía la pregunta completa y vuelve al listado al confirmarse.
   async function guardar(evento) {
     evento.preventDefault()
     const enunciado = datos.enunciado.trim()

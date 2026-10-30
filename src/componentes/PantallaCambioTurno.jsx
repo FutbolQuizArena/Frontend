@@ -1,3 +1,4 @@
+/** Oculta la siguiente pregunta mientras se pasa el dispositivo al próximo jugador. */
 export default function PantallaCambioTurno({ jugador, onListo }) {
   const nombreJugador = jugador?.trim() || 'Siguiente jugador'
   const iniciales = nombreJugador

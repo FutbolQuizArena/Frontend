@@ -1,3 +1,4 @@
+/** Aplica la comprobación básica de formato y espacios del correo. */
 export function esCorreoValido(correo) {
   const indiceArroba = correo.indexOf('@')
   if (indiceArroba <= 0 || indiceArroba !== correo.lastIndexOf('@') || indiceArroba === correo.length - 1) return false
@@ -11,6 +12,7 @@ export function esCorreoValido(correo) {
   return indicePunto > 0 && indicePunto < dominio.length - 1
 }
 
+/** Devuelve errores por campo para no enviar credenciales incompletas. */
 export function validarInicioSesion({ correo, contrasena }) {
   const errores = {}
 
@@ -27,6 +29,7 @@ export function validarInicioSesion({ correo, contrasena }) {
   return errores
 }
 
+/** Reutiliza las reglas de ingreso y añade nombre y confirmación. */
 export function validarRegistro(datos) {
   const errores = validarInicioSesion(datos)
 

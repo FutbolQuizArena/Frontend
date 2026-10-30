@@ -10,6 +10,7 @@ import Aplicacion from './Aplicacion.jsx'
 import { ProveedorSesion } from './contextos/ContextoSesion.jsx'
 import './estilos/estilos.css'
 
+// El router y la sesión envuelven todas las pantallas desde la raíz de React.
 crearRaiz(document.getElementById('raiz')).render(
   <ModoEstricto>
     <Enrutador>

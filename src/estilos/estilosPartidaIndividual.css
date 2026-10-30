@@ -1,3 +1,4 @@
+/* Organiza pregunta, temporizador y resumen de la partida individual. */
 .partida-individual__pagina {
   min-height: 100svh;
   padding-left: 240px;
@@ -341,6 +342,7 @@
   font-size: 1.05rem;
 }
 
+/* El resumen deja la columna derecha cuando falta espacio horizontal. */
 @media (max-width: 1100px) {
   .partida-individual__pagina {
     padding-left: 190px;

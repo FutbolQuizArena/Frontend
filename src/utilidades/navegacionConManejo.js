@@ -1,3 +1,4 @@
+/** Registra fallos inmediatos y rechazos asíncronos de la navegación. */
 export function navegarConManejo(navegar, destino, opciones) {
   const registrarError = (error) => {
     console.error(`No se pudo navegar a ${destino}.`, error)

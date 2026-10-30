@@ -1,3 +1,4 @@
+/** Destaca a uno de los primeros puestos del ranking. */
 export default function TarjetaPodio({ usuario, puesto, destacada = false }) {
   // En el podio se muestra el nombre corto; la etiqueta accesible conserva el nombre completo.
   const nombre = usuario.nombre.split(/\s+/)[0]

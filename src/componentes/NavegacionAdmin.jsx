@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
+/** Construye los accesos del panel administrativo y señala la sección activa. */
 export default function NavegacionAdmin({ vistaPrevia = false }) {
   const sufijo = vistaPrevia ? '?vistaPrevia=1' : ''
   return <nav className="admin-preguntas__navegacion" aria-label="Secciones de administración">

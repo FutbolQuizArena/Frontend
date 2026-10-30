@@ -17,6 +17,7 @@ function obtenerTextoBotonCategoria(guardando, idCategoria) {
   return 'Crear categoría'
 }
 
+/** Comparte el formulario de alta y edición de categorías y presenta los errores de guardado. */
 export default function PaginaFormularioCategoriaAdmin() {
   const { idCategoria } = useParams()
   const [parametros] = useSearchParams()
@@ -54,6 +55,7 @@ export default function PaginaFormularioCategoriaAdmin() {
     return () => { vigente = false }
   }, [idCategoria, vistaPrevia])
 
+  // Usa el mismo formulario para crear o editar según exista un ID en la ruta.
   async function guardar(evento) {
     evento.preventDefault()
     if (!datos.nombre.trim()) {
@@ -73,6 +75,7 @@ export default function PaginaFormularioCategoriaAdmin() {
     }
   }
 
+  // Muestra el rechazo de la API si hay preguntas asociadas a la categoría.
   async function eliminar() {
     if (!window.confirm('¿Eliminar esta categoría? Esta acción no se puede deshacer.')) return
     setErrorFormulario('')

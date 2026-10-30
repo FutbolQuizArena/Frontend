@@ -1,3 +1,4 @@
+/* Diseña la guía de ayuda y sus preguntas desplegables. */
 .ayuda { min-height: 100svh; background: var(--color-fondo); }
 .ayuda__cabecera { min-height: 80px; padding: 18px clamp(20px, 5vw, 72px); display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--color-borde); background: #07100c; }
 .ayuda__marca { color: var(--color-texto); text-decoration: none; }

@@ -1,3 +1,4 @@
+/* Ubica la ruleta de categorías y sus controles en cada ancho de pantalla. */
 .ruleta-categoria__pagina {
   min-height: 100svh;
   padding-left: 240px;

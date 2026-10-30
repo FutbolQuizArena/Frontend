@@ -53,6 +53,7 @@ function obtenerTituloListado(seccionActiva) {
   return 'TORNEOS DISPONIBLES'
 }
 
+/** Carga los listados de torneos por sección y conserva el estado de cada consulta. */
 export default function PaginaTorneos() {
   const [seccionActiva, establecerSeccionActiva] = usarEstado('propios')
   const [torneos, establecerTorneos] = usarEstado([])
@@ -101,6 +102,7 @@ export default function PaginaTorneos() {
     return () => { vigente = false }
   }, [seccion])
 
+  // Repite la consulta de la sección activa después de un error.
   function reintentarCarga() {
     establecerCargando(true)
     establecerMensajeError('')

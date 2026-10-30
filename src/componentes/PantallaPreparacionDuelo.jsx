@@ -1,3 +1,4 @@
+/** Recoge los nombres de ambos jugadores antes de crear el duelo local. */
 export default function PantallaPreparacionDuelo({ nombres, onChange, onIniciar, cargando = false, error = '' }) {
   return (
     <div className="duelo-local__panel duelo-local__panel--preparacion">

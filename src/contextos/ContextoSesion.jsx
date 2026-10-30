@@ -3,6 +3,7 @@ import { borrarSesion, claveToken, guardarSesion, obtenerDatosToken, obtenerToke
 
 const ContextoSesion = crearContexto(null)
 
+/** Expone la sesión y la sincroniza con almacenamiento y vencimiento. */
 export function ProveedorSesion({ children: contenido }) {
   const [token, establecerToken] = usarEstado(obtenerToken)
 
@@ -15,12 +16,14 @@ export function ProveedorSesion({ children: contenido }) {
     establecerToken(null)
   }, [establecerToken])
 
+  // Actualiza el estado si otra pestaña cambia el token o vuelve el foco.
   const sincronizarSesion = usarCallback((evento) => {
     if (evento.type !== 'storage' || evento.key === claveToken || evento.key === null) {
       establecerToken(obtenerToken())
     }
   }, [establecerToken])
 
+  // Programa la salida al vencer el token y limpia los listeners al cambiar la sesión.
   usarEfecto(() => {
     let temporizador
     const vencimiento = obtenerDatosToken(token)?.exp
@@ -60,6 +63,7 @@ export function ProveedorSesion({ children: contenido }) {
   )
 }
 
+/** Entrega el contexto y detecta componentes fuera del proveedor. */
 export function usarSesion() {
   const sesion = usarContexto(ContextoSesion)
   if (!sesion) throw new Error('usarSesion debe utilizarse dentro de ProveedorSesion.')

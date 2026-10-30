@@ -7,6 +7,7 @@ import { obtenerSalaTorneo, salirDelTorneo } from '../servicios/servicioTorneos.
 import '../estilos/estilosSalaDetalleTorneo.css'
 import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 
+/** Obtiene la sala y distingue errores de carga y de acciones. */
 function usarCargaSalaTorneo(idTorneo, intentoCarga, establecerSala, establecerCargando, establecerMensajeError, establecerCodigoError) {
   usarEfecto(() => {
     let vigente = true
@@ -29,6 +30,7 @@ function usarCargaSalaTorneo(idTorneo, intentoCarga, establecerSala, establecerC
   }, [idTorneo, intentoCarga, establecerSala, establecerCargando, establecerMensajeError, establecerCodigoError])
 }
 
+/** Actualiza periódicamente la sala mientras espera participantes. */
 function usarActualizacionSalaTorneo(idTorneo, estadoSala, establecerSala) {
   usarEfecto(() => {
     if (estadoSala !== 'ESPERANDO JUGADORES') return undefined
@@ -89,6 +91,7 @@ function EstadoInicialSalaTorneo({ cargando, mensajeError, codigoError, sala, id
   )
 }
 
+/** Muestra participantes y código de la sala mientras el torneo espera jugadores. */
 export default function PaginaSalaTorneo() {
   const { idTorneo } = usarParametros()
   const navegar = usarNavegacion()
@@ -118,6 +121,7 @@ export default function PaginaSalaTorneo() {
     />
   }
 
+  // Con el cupo completo se pueden mostrar los cruces generados.
   const participantesCompletos = sala.participantes.length === sala.capacidad
   const crucesGenerados = sala.estado !== 'ESPERANDO JUGADORES'
   const lugaresFaltantes = sala.capacidad - sala.participantes.length

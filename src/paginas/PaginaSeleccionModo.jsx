@@ -9,6 +9,7 @@ import '../estilos/estilosSeleccionModo.css'
 
 
 
+/** Muestra las modalidades disponibles y sus destinos de navegación. */
 export default function PaginaSeleccionModo() {
   const [modosDisponibles, setModosDisponibles] = useState(modosJuegoBase)
   const [cargandoModos, setCargandoModos] = useState(true)

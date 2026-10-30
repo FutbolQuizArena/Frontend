@@ -45,6 +45,7 @@ function estaFinalizado(estado) {
   return estado === 'FINALIZADA' || estado === 'FINALIZADO'
 }
 
+/** Conserva el marcador conocido mientras falta que termine el rival. */
 function crearResultadoEnEspera(datosBackend) {
   return {
     ...datosBackend,
@@ -54,6 +55,7 @@ function crearResultadoEnEspera(datosBackend) {
 }
 
 // Consulta el resultado cada dos segundos y detiene las consultas cuando finaliza el duelo.
+/** Reconsulta hasta que el servidor dé el duelo por terminado. */
 function iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado) {
   let intervalo
   intervalo = window.setInterval(async () => {
@@ -101,6 +103,7 @@ function NavegacionResultadoDuelo({ jugadorLocal }) {
   </aside>
 }
 
+/** Consulta el cierre del duelo y mantiene la espera si el rival todavía no terminó. */
 export default function PaginaResultadoDuelo() {
   const navegar = usarNavegacion()
   const { idDuelo } = usarParametros()

@@ -6,6 +6,7 @@ import CampoEntrada from '../componentes/CampoEntrada.jsx'
 import { crearTorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosCrearTorneo.css'
 
+// El formulario limita los cupos a los tamaños que ofrece la competencia.
 const cantidadesPermitidas = [4, 8, 16]
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
@@ -15,6 +16,7 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
+/** Devuelve errores por campo para mostrar junto a cada dato antes de llamar a la API. */
 function validarTorneo(datosTorneo) {
   const errores = {}
 
@@ -26,14 +28,18 @@ function validarTorneo(datosTorneo) {
   return errores
 }
 
+/** Coordina el formulario, la creación en el servidor y el acceso a la sala nueva. */
 export default function PaginaCrearTorneo() {
   const navegar = usarNavegacion()
+  // Separamos errores de campo, errores del servidor y estado de envío para mostrarlos donde corresponde.
   const [datos, establecerDatos] = usarEstado({ nombre: '', cantidadParticipantes: 8, contrasena: '' })
   const [errores, establecerErrores] = usarEstado({})
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [creando, establecerCreando] = usarEstado(false)
+  // La referencia bloquea un segundo envío inmediatamente, antes de que React actualice `creando`.
   const solicitudEnCurso = usarReferencia(false)
 
+  /** Actualiza el campo editado y retira el error anterior para permitir una nueva validación. */
   function manejarCambio(evento) {
     const { name: nombre, value: valor } = evento.target
     establecerDatos((anteriores) => ({ ...anteriores, [nombre]: valor }))
@@ -41,12 +47,14 @@ export default function PaginaCrearTorneo() {
     establecerMensajeError('')
   }
 
+  /** Guarda el cupo elegido con el mismo tratamiento de errores que los campos de texto. */
   function seleccionarCantidad(cantidadParticipantes) {
     establecerDatos((anteriores) => ({ ...anteriores, cantidadParticipantes }))
     establecerErrores((anteriores) => ({ ...anteriores, cantidadParticipantes: '' }))
     establecerMensajeError('')
   }
 
+  /** Valida, crea el torneo una sola vez y abre la sala que devuelve el servidor. */
   async function manejarEnvio(evento) {
     evento.preventDefault()
     if (solicitudEnCurso.current) return
@@ -56,6 +64,7 @@ export default function PaginaCrearTorneo() {
     establecerMensajeError('')
 
     if (Object.keys(nuevosErrores).length) {
+      // Si falta el nombre, devolvemos el foco al primer campo que requiere corrección.
       if (nuevosErrores.nombre) evento.currentTarget.elements.namedItem('nombre')?.focus()
       return
     }
@@ -69,11 +78,13 @@ export default function PaginaCrearTorneo() {
         cantidadParticipantes: datos.cantidadParticipantes,
         contrasena: datos.contrasena,
       })
+      // La sala depende del ID real; sin él no podemos construir una ruta válida.
       if (!resultado.idTorneo) throw new Error('El servidor no devolvió el ID del torneo creado.')
       await navegar(`/torneos/${resultado.idTorneo}/sala`, { replace: true })
     } catch (error) {
       establecerMensajeError(error.message || 'No pudimos crear el torneo. Intentá de nuevo.')
     } finally {
+      // Se habilita otro intento tanto después de un error como al terminar correctamente.
       solicitudEnCurso.current = false
       establecerCreando(false)
     }

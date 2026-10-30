@@ -1,3 +1,4 @@
+/** Presenta el tiempo restante y el progreso visual de una pregunta. */
 export default function ComponenteTemporizador({ tiempoRestante = 0, tiempoTotal = 15, enCurso = true }) {
   const progreso = Math.max(0, Math.min(100, (tiempoRestante / tiempoTotal) * 100))
   const color = tiempoRestante <= 5 ? '#e45454' : '#35c466'

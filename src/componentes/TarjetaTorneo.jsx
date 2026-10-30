@@ -13,6 +13,7 @@ function obtenerTextoDetalleFinalizado(torneo) {
   return `${textoPosicion} · ${torneo.victorias} victorias`
 }
 
+/** Adapta la tarjeta al estado del torneo y su tipo de listado. */
 export default function TarjetaTorneo({ torneo, tipo }) {
   const esFinalizado = tipo === 'finalizados'
   const esDisponible = tipo === 'disponibles'

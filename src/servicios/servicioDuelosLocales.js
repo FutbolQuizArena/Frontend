@@ -23,6 +23,7 @@ function normalizarPreguntaLocal(pregunta) {
   }
 }
 
+/** Comprueba que el duelo incluya preguntas antes de abrir el primer turno. */
 function normalizarDueloLocal(respuesta) {
   if (!Array.isArray(respuesta?.preguntas) || respuesta.preguntas.length === 0) {
     throw new Error('El servidor no devolvió preguntas para este duelo local. Intentá comenzar otra vez.')

@@ -37,6 +37,7 @@ async function cargarDatosPreguntas({ vistaPrevia, datosEjemplo, pagina, busqued
   }
 }
 
+/** Mantiene el foco dentro del diálogo y permite cerrarlo con el teclado. */
 function manejarTeclasDialogoEliminar(evento, eliminando) {
   if (evento.key === 'Escape' && !eliminando) return 'cerrar'
   if (evento.key !== 'Tab') return null
@@ -49,12 +50,14 @@ function manejarTeclasDialogoEliminar(evento, eliminando) {
   return null
 }
 
+/** Aplica filtros locales a los datos de vista previa. */
 function coincideConFiltros(pregunta, consulta, categoria, estado) {
   return (!consulta || pregunta.enunciado.toLocaleLowerCase('es-AR').includes(consulta)) &&
     (categoria === 'todas' || pregunta.categoria === categoria) &&
     (estado === 'todas' || pregunta.estado === estado)
 }
 
+/** Usa paginación local en vista previa y del servidor en producción. */
 function obtenerPaginaPreguntas({ datosEjemplo, filtradas, preguntas, total, paginasServidor, pagina }) {
   if (!datosEjemplo) {
     return { cantidad: total, totalPaginas: paginasServidor, visibles: preguntas }
@@ -66,6 +69,7 @@ function obtenerPaginaPreguntas({ datosEjemplo, filtradas, preguntas, total, pag
   }
 }
 
+/** Lista, filtra y pagina preguntas; también coordina su eliminación. */
 export default function PaginaPreguntasAdmin() {
   const [parametros] = useSearchParams()
   const ubicacion = useLocation()
@@ -134,6 +138,7 @@ export default function PaginaPreguntasAdmin() {
   function cambiarCategoria(valor) { setCategoria(valor); setPagina(1) }
   function cambiarEstado(valor) { setEstado(valor); setPagina(1) }
 
+  // Refresca la lista solo si el servicio confirma la eliminación.
   async function confirmarEliminacion() {
     if (!preguntaAEliminar || eliminando) return
     setEliminando(true)

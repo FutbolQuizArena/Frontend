@@ -10,6 +10,7 @@ import '../estilos/estilosDueloLocal.css'
 
 
 
+/** Coordina los turnos de dos jugadores en un dispositivo y muestra el resultado final. */
 export default function PaginaDueloLocal() {
   const navegar = usarNavegacion()
   // El flujo avanza por preparación, pregunta, traspaso del dispositivo y resultado.

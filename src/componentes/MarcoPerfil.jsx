@@ -12,6 +12,7 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
+/** Comparte navegación y encabezado entre las vistas del perfil. */
 export default function MarcoPerfil({ tituloMovil, subtituloMovil, perfil, children }) {
   const perfilVisible = perfil ?? obtenerPerfilEnCache()
   const iniciales = perfilVisible?.iniciales || 'FQ'

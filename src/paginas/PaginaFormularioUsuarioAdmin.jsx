@@ -18,6 +18,7 @@ function obtenerTextoBotonUsuario(guardando, idUsuario) {
   return 'Crear usuario'
 }
 
+/** Reúne los campos y validaciones para crear o editar usuarios desde administración. */
 export default function PaginaFormularioUsuarioAdmin() {
   const { idUsuario } = useParams()
   const [parametros] = useSearchParams()
@@ -55,6 +56,7 @@ export default function PaginaFormularioUsuarioAdmin() {
     return () => { vigente = false }
   }, [idUsuario, vistaPrevia])
 
+  // Distingue alta y edición y muestra los errores que devuelve el servidor.
   async function guardar(evento) {
     evento.preventDefault()
     if (!datos.nombre.trim() || !datos.email.trim() || (!idUsuario && datos.password.length < 6)) {
@@ -78,6 +80,7 @@ export default function PaginaFormularioUsuarioAdmin() {
   }
 
   const titulo = idUsuario ? 'Editar usuario' : 'Nuevo usuario'
+  // Identifica la cuenta propia para restringir acciones administrativas sobre ella.
   const esCuentaPropia = idUsuario && Number(idUsuario) === Number(perfilActual?.id)
 
   return <MarcoTorneo administrador sufijoAdmin={sufijo} tituloMovil={titulo} subtituloMovil="Administración">

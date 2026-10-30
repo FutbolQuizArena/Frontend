@@ -59,6 +59,7 @@ function mapearPreguntaBackend(pregunta, categoria) {
   }
 }
 
+/** Elige una categoría disponible para el giro cuando no llega un resultado predeterminado. */
 export function obtenerCategoriaAleatoria(categorias = categoriasPartidas) {
   if (!Array.isArray(categorias) || categorias.length === 0) {
     return null
@@ -69,6 +70,7 @@ export function obtenerCategoriaAleatoria(categorias = categoriasPartidas) {
   return typeof categoriaElegida === 'string' ? { nombre: categoriaElegida } : categoriaElegida
 }
 
+/** Conserva la interfaz anterior; las preguntas llegan al crear la partida y aquí no se consultan. */
 export function obtenerPreguntasPorCategoria(categoriaId, cantidad = 10) {
   return []
 }

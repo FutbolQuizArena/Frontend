@@ -40,6 +40,7 @@ function programarEntradaALaPartida(montadoRef, canceladoRef, navegar) {
   }, 1400)
 }
 
+/** Mantiene una búsqueda online, consulta su estado y resuelve cancelación o vencimiento. */
 export default function PaginaEsperandoRival() {
   const navegar = usarNavegacion()
   const canceladoRef = usarReferencia(false)

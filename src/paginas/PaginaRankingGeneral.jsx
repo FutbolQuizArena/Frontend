@@ -7,6 +7,7 @@ import { obtenerRankingGeneral } from '../servicios/servicioRanking.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 import '../estilos/estilosRankingGeneral.css'
 
+/** Carga la clasificación general y destaca la posición del usuario conectado. */
 export default function PaginaRankingGeneral() {
   const [datosRanking, establecerDatosRanking] = usarEstado(null)
   const [error, establecerError] = usarEstado('')
@@ -25,6 +26,7 @@ export default function PaginaRankingGeneral() {
   const listaClasificacion = datosRanking?.listaClasificacion ?? []
   const podio = listaClasificacion.slice(0, 3)
   // El orden visual del podio es segundo, primero y tercero, con el ganador en el centro.
+  // Ubica al primero en el centro sin alterar el orden del ranking.
   const usuariosPodio = [podio[1], podio[0], podio[2]].filter(Boolean)
 
   return (

@@ -1,3 +1,4 @@
+/** Unifica el aspecto y los estados de carga de los botones de acción. */
 export default function Boton({
   children: contenido,
   tipo = 'button',

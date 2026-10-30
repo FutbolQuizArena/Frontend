@@ -9,6 +9,7 @@ import '../estilos/estilosSalaDetalleTorneo.css'
 import '../estilos/estilosPreguntasAdmin.css'
 import '../estilos/estilosMarcoAdmin.css'
 
+/** Carga las categorías del panel y coordina las acciones de edición y eliminación. */
 export default function PaginaCategoriasAdmin() {
   const [parametros] = useSearchParams()
   const ubicacion = useLocation()
@@ -37,6 +38,7 @@ export default function PaginaCategoriasAdmin() {
   }, [intento, vistaPrevia])
 
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
+  // Filtra por nombre sobre el listado que ya se cargó.
   const visibles = categorias.filter((categoria) => categoria.nombre.toLocaleLowerCase('es-AR').includes(consulta))
 
   return <MarcoTorneo administrador sufijoAdmin={vistaPrevia ? '?vistaPrevia=1' : ''} tituloMovil="Administración" subtituloMovil="Categorías">

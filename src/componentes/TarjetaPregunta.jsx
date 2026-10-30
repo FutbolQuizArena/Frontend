@@ -1,3 +1,4 @@
+/** Muestra opciones, bloqueo y respuesta confirmada en una pregunta. */
 export default function TarjetaPregunta({
   pregunta,
   indicePregunta,

@@ -1,3 +1,4 @@
+/* Agrupa las variables visuales del duelo local y sus pantallas de turno. */
 :root {
   --duelo-local-fondo: #07141d;
   --duelo-local-panel: #0e1f2a;
@@ -355,6 +356,7 @@
   margin-top: 18px;
 }
 
+/* Reduce espacios para que el traspaso del dispositivo funcione en pantallas pequeñas. */
 @media (max-width: 768px) {
   .duelo-local__contenido {
     padding: 18px 14px 26px;
