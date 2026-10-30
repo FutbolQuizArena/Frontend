@@ -11,9 +11,13 @@ En revisión en la rama `fix/mobile-inicio-sesion-estadisticas`.
 - **Diseño móvil:** se evita que el saludo largo desborde el encabezado y que el acceso de administración pase a una segunda fila de navegación.
 - **Pruebas:** se amplían los casos de Inicio, selección de modo y duelo local para verificar las métricas y la identidad del jugador.
 
+## 30/10 [6.1] Recarga de rutas internas en Netlify
+
+Integrado en `develop` mediante PR #83 (`9024a3f`). Netlify entrega la aplicación al recargar una ruta interna para que React resuelva la pantalla correspondiente.
+
 ## 29/10 [6.1] Comentarios de apoyo en el código
 
-En revisión en la rama `docs/comentarios-src`. Se añadieron explicaciones junto a funciones y decisiones de los 80 archivos JS/JSX de `src`, además de notas sobre la estructura y los puntos de adaptación de sus 23 hojas CSS. El cambio no modifica el comportamiento de la aplicación.
+Integrado en `develop` mediante PR #82 (`627bf86`). Se añadieron explicaciones junto a funciones y decisiones de los archivos JS/JSX de `src`, además de notas sobre la estructura y los puntos de adaptación de sus hojas CSS. El cambio no modifica el comportamiento de la aplicación.
 
 ## 29/10 [2.2.8, 6.1] Cambio de turno del duelo local
 
