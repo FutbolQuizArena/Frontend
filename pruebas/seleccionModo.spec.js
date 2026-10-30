@@ -32,7 +32,7 @@ prueba('la pantalla sigue siendo responsive y no desborda en móvil', async ({ p
 
   await esperar(pagina.getByRole('heading', { name: 'Selecciona un Modo de Juego', exact: true })).toBeVisible()
   await esperar(pagina.locator('.inicio__saludo-movil strong')).toHaveText('Hola, Ana')
-  await esperar(pagina.getByRole('link', { name: 'Ver mi perfil' })).toHaveText('AP')
+  await esperar(pagina.getByRole('link', { name: 'Ver mi perfil' })).toHaveText('A')
   await esperar(pagina.locator('.inicio__acumulado span')).toHaveText('Jugador · 1.250 pts')
   await esperar(pagina.getByRole('link', { name: /Partida Individual/ })).toBeVisible()
   esperar(await pagina.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
