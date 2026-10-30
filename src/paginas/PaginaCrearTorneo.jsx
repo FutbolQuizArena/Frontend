@@ -3,6 +3,7 @@ import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegac
 import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
 import { crearTorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosCrearTorneo.css'
 
@@ -30,6 +31,7 @@ function validarTorneo(datosTorneo) {
 
 /** Coordina el formulario, la creación en el servidor y el acceso a la sala nueva. */
 export default function PaginaCrearTorneo() {
+  const perfil = usarPerfilActual()
   const navegar = usarNavegacion()
   // Separamos errores de campo, errores del servidor y estado de envío para mostrarlos donde corresponde.
   const [datos, establecerDatos] = usarEstado({ nombre: '', cantidadParticipantes: 8, contrasena: '' })
@@ -105,13 +107,13 @@ export default function PaginaCrearTorneo() {
           ))}
           <EnlaceAdministracion claseEnlace="crear-torneo__enlace" />
         </nav>
-        <div className="crear-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>Jugador · 2.450 pts</span></div>
+        <div className="crear-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>{perfil?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span></div>
       </aside>
 
       <header className="crear-torneo__cabecera">
         <span className="crear-torneo__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="crear-torneo__titulo-movil"><strong>Crear torneo</strong><span>Configuración</span></div>
-        <Enlace className="crear-torneo__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="crear-torneo__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'FQ'}</Enlace>
       </header>
 
       <main className="crear-torneo__contenido" id="contenido-crear-torneo">

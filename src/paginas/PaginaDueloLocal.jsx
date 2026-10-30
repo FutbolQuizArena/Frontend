@@ -5,6 +5,7 @@ import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import PantallaPreparacionDuelo from '../componentes/PantallaPreparacionDuelo.jsx'
 import PantallaCambioTurno from '../componentes/PantallaCambioTurno.jsx'
 import PantallaResultadoDueloLocal from '../componentes/PantallaResultadoDueloLocal.jsx'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
 import { guardarResultadoDueloLocal, iniciarDueloLocal, obtenerResultadoDueloLocal, registrarRespuestaTurnoLocal } from '../servicios/servicioDuelosLocales.js'
 import '../estilos/estilosDueloLocal.css'
 
@@ -12,11 +13,13 @@ import '../estilos/estilosDueloLocal.css'
 
 /** Coordina los turnos de dos jugadores en un dispositivo y muestra el resultado final. */
 export default function PaginaDueloLocal() {
+  const perfil = usarPerfilActual()
+  const esAdministrador = perfil?.rol === 'ADMINISTRADOR'
   const navegar = usarNavegacion()
   // El flujo avanza por preparación, pregunta, traspaso del dispositivo y resultado.
   const [preguntas, setPreguntas] = usarEstado([])
   const [fase, setFase] = usarEstado('preparacion')
-  const [nombres, setNombres] = usarEstado({ jugador1: 'Lucas', jugador2: 'Mati' })
+  const [nombres, setNombres] = usarEstado({ jugador1: 'Jugador 1', jugador2: 'Jugador 2' })
   const [turnoActual, setTurnoActual] = usarEstado('jugador1')
   const [indicePregunta, setIndicePregunta] = usarEstado(0)
   const [proximoJugador, setProximoJugador] = usarEstado('jugador2')
@@ -177,17 +180,17 @@ export default function PaginaDueloLocal() {
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · 2.450 pts</span>
+          <span>{esAdministrador ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera duelo-local__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, Lucas</strong>
-          <span>Cuenta de jugador</span>
+          <strong>Hola, {perfil?.nombre || 'Jugador'}</strong>
+          <span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'FQ'}</Enlace>
         <BotonCerrarSesion />
       </header>
 

@@ -148,6 +148,9 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
 
 @media (max-width: 900px) {
   /* La versión móvil ajusta los colores y reemplaza la presentación lateral. */
+  /* Si aparece Administración, las seis opciones comparten la misma fila inferior. */
+  :is(.inicio__navegacion, .crear-torneo__navegacion, .unirse-torneo__navegacion, .torneos__navegacion, .marco-torneo__navegacion):has(> :nth-child(6)) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  :is(.inicio__navegacion, .crear-torneo__navegacion, .unirse-torneo__navegacion, .torneos__navegacion, .marco-torneo__navegacion):has(> :nth-child(6)) > a { min-width: 0; text-align: center; overflow-wrap: anywhere; }
   :root { --color-fondo: #07110c; --color-texto: #f5f8f4; --color-secundario: #94aa9b; --color-superficie: #11251a; --color-campo: #11251a; --color-borde: #294a37; }
   body { background: var(--color-fondo); color: var(--color-texto); }
   .cabecera, .presentacion, .texto-escritorio, .nota-seguridad, .nota-condiciones, .pie-pagina { display: none; }

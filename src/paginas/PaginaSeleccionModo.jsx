@@ -3,6 +3,7 @@ import { Link as Enlace } from 'react-router-dom'
 import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import TarjetaModoJuego from '../componentes/TarjetaModoJuego.jsx'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
 import { modosJuegoBase, obtenerModosJuego } from '../servicios/servicioModosJuego.js'
 import '../estilos/estilosHome.css'
 import '../estilos/estilosSeleccionModo.css'
@@ -11,6 +12,8 @@ import '../estilos/estilosSeleccionModo.css'
 
 /** Muestra las modalidades disponibles y sus destinos de navegación. */
 export default function PaginaSeleccionModo() {
+  const perfil = usarPerfilActual()
+  const esAdministrador = perfil?.rol === 'ADMINISTRADOR'
   const [modosDisponibles, setModosDisponibles] = useState(modosJuegoBase)
   const [cargandoModos, setCargandoModos] = useState(true)
 
@@ -54,17 +57,17 @@ export default function PaginaSeleccionModo() {
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · 2.450 pts</span>
+          <span>{esAdministrador ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera seleccion-modo__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, Lucas</strong>
-          <span>Cuenta de jugador</span>
+          <strong>Hola, {perfil?.nombre || 'Jugador'}</strong>
+          <span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'FQ'}</Enlace>
         <BotonCerrarSesion />
       </header>
 

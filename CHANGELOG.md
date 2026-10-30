@@ -1,6 +1,15 @@
 # Changelog
 
-Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 29/10/2026.
+Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 30/10/2026.
+
+## 30/10 [1.2.3, 6.1] Datos de sesión y rendimiento en móvil
+
+En revisión en la rama `fix/mobile-inicio-sesion-estadisticas`.
+
+- **Inicio:** las tres tarjetas muestran puntos, ranking y partidas tanto en escritorio como en móvil, con los valores consultados a la API.
+- **Cuenta:** Jugar, ruleta, duelo local y formularios de torneo muestran nombre, iniciales y puntaje de la sesión actual en lugar de datos de ejemplo.
+- **Diseño móvil:** se evita que el saludo largo desborde el encabezado y que el acceso de administración pase a una segunda fila de navegación.
+- **Pruebas:** se amplían los casos de Inicio, selección de modo y duelo local para verificar las métricas y la identidad del jugador.
 
 ## 29/10 [6.1] Comentarios de apoyo en el código
 

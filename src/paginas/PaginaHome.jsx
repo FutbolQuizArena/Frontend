@@ -12,7 +12,7 @@ import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
 // Las estadísticas ausentes del perfil se muestran como no disponibles.
-const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: null, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
+const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: null, posicion: '—', partidas: '—' }
 
 const formatearPuntaje = (puntaje) => puntaje == null ? '—' : puntaje.toLocaleString('es-AR')
 
@@ -105,8 +105,8 @@ export default function PaginaHome() {
           <h2 className="inicio__solo-movil">TU RENDIMIENTO</h2>
           <dl className="inicio__metricas">
             <div><dt>PUNTOS</dt><dd>{formatearPuntaje(usuario.puntajeTotal)}</dd></div>
-            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">{cargandoPosicion ? 'Cargando…' : posicionMostrada}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
-            <div><dt><span className="inicio__solo-escritorio">PARTIDAS</span><span className="inicio__solo-movil">TORNEOS</span></dt><dd><span className="inicio__solo-escritorio">{cargandoPartidas ? 'Cargando…' : usuario.partidas}</span><span className="inicio__solo-movil">{usuario.torneos}</span></dd></div>
+            <div><dt>RANKING</dt><dd>{cargandoPosicion ? <span className="inicio__metrica-cargando">Cargando…</span> : posicionMostrada}</dd></div>
+            <div><dt>PARTIDAS</dt><dd>{cargandoPartidas ? <span className="inicio__metrica-cargando">Cargando…</span> : usuario.partidas}</dd></div>
           </dl>
           <p>— indica que el dato todavía no está disponible.</p>
         </section>

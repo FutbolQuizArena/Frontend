@@ -4,6 +4,7 @@ import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteRuleta from '../componentes/ComponenteRuleta.jsx'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
 import { obtenerCategoriaAleatoria, obtenerCategoriasDisponibles } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosRuleta.css'
 
@@ -11,6 +12,8 @@ import '../estilos/estilosRuleta.css'
 
 /** Obtiene categorías jugables y controla el giro que inicia una partida. */
 export default function PaginaRuletaCategoria() {
+  const perfil = usarPerfilActual()
+  const esAdministrador = perfil?.rol === 'ADMINISTRADOR'
   const navegar = usarNavegacion()
   const ruletaReferencial = useRef(null)
   const [categoriasDisponibles, setCategoriasDisponibles] = useState([])
@@ -85,14 +88,14 @@ export default function PaginaRuletaCategoria() {
         <NavegacionInicio destinoJugar="/partida/ruleta" />
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · 2.450 pts</span>
+          <span>{esAdministrador ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
-        <div className="inicio__saludo-movil"><strong>Hola, Lucas</strong><span>Cuenta de jugador</span></div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <div className="inicio__saludo-movil"><strong>Hola, {perfil?.nombre || 'Jugador'}</strong><span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span></div>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'FQ'}</Enlace>
         <BotonCerrarSesion />
       </header>
 
