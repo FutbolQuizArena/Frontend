@@ -74,6 +74,7 @@ export default function PaginaHome() {
     return () => { vigente = false }
   }, [])
   const esAdministrador = usuario.rol === 'ADMINISTRADOR'
+  const posicionMostrada = usuario.posicion === '—' ? '—' : `#${usuario.posicion}`
 
   return (
     <div className="inicio">
@@ -103,7 +104,7 @@ export default function PaginaHome() {
           <h2 className="inicio__solo-movil">TU RENDIMIENTO</h2>
           <dl className="inicio__metricas">
             <div><dt>PUNTOS</dt><dd>{formatearPuntaje(usuario.puntajeTotal)}</dd></div>
-            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">{cargandoPosicion ? 'Cargando…' : usuario.posicion === '—' ? '—' : `#${usuario.posicion}`}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
+            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">{cargandoPosicion ? 'Cargando…' : posicionMostrada}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
             <div><dt><span className="inicio__solo-escritorio">PARTIDAS</span><span className="inicio__solo-movil">TORNEOS</span></dt><dd><span className="inicio__solo-escritorio">{cargandoPartidas ? 'Cargando…' : usuario.partidas}</span><span className="inicio__solo-movil">{usuario.torneos}</span></dd></div>
           </dl>
           <p>— indica que el dato todavía no está disponible.</p>
