@@ -1,25 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteTemporizador from '../componentes/ComponenteTemporizador.jsx'
 import TarjetaPregunta from '../componentes/TarjetaPregunta.jsx'
 import {
-  finalizarPartidaIndividual,
   iniciarPartidaIndividual,
   registrarRespuestaPartida,
   obtenerResultadoPartida,
 } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosPartidaIndividual.css'
 import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/partida/ruleta', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
+
 
 const obtenerCategoriaGuardada = () => {
   const categoriaGuardada = sessionStorage.getItem('categoriaPartidaSeleccionada')
@@ -38,9 +33,13 @@ const obtenerParametrosPartida = () => {
   }
 }
 
+/** Controla el tiempo, las respuestas y el cierre de la partida individual. */
 export default function PaginaPartidaIndividual() {
   const navegar = usarNavegacion()
+  // La referencia conserva la solicitud en curso sin provocar un renderizado.
+  const promesaInicioRef = useRef(null)
   const parametros = useMemo(() => obtenerParametrosPartida(), [])
+  const [perfil, setPerfil] = useState(obtenerPerfilEnCache)
   const [categoriaActual, setCategoriaActual] = useState(obtenerCategoriaGuardada())
   const [preguntas, setPreguntas] = useState([])
   const [indicePreguntaActual, setIndicePreguntaActual] = useState(0)
@@ -50,25 +49,43 @@ export default function PaginaPartidaIndividual() {
   const [bloqueado, setBloqueado] = useState(false)
   const [tiempoRestante, setTiempoRestante] = useState(parametros.segundosPorPregunta)
   const [puntaje, setPuntaje] = useState(0)
-  const [partidaId, setPartidaId] = useState(() => (crypto?.randomUUID ? crypto.randomUUID() : `partida-${Date.now()}`))
+  const [partidaId, setPartidaId] = useState(null)
   const [respuestas, setRespuestas] = useState([])
+  const [error, setError] = useState('')
+  const [cargando, setCargando] = useState(true)
+  const [finalizando, setFinalizando] = useState(false)
+  const [intentoCarga, setIntentoCarga] = useState(0)
 
   const preguntaActual = preguntas[indicePreguntaActual] ?? null
   const totalPreguntas = preguntas.length || parametros.totalPreguntas || 10
 
   useEffect(() => {
+    let vigente = true
+    obtenerPerfil().then((datos) => {
+      if (vigente) setPerfil(datos)
+    }).catch((error_) => {
+      console.error('No se pudo cargar el perfil de la partida.', error_)
+    })
+    return () => { vigente = false }
+  }, [])
+
+  useEffect(() => {
     let cancelado = false
 
     const cargarPartida = async () => {
+      setCargando(true)
+      setError('')
+      // Se comparte la solicitud entre los dos montajes de StrictMode para no crear dos partidas.
+      const solicitudPartida = promesaInicioRef.current ?? iniciarPartidaIndividual()
+      promesaInicioRef.current = solicitudPartida
       try {
-        const categoria = obtenerCategoriaGuardada()
-        const partida = await iniciarPartidaIndividual(parametros.totalPreguntas || 10, categoria || 'Aleatoria')
+        const partida = await solicitudPartida
 
         if (cancelado) {
           return
         }
 
-        setCategoriaActual(categoria || 'Aleatoria')
+        setCategoriaActual(partida.categoriaNombre)
         setPreguntas(partida.preguntas)
         setPartidaId(partida.id)
         setIndicePreguntaActual(0)
@@ -80,23 +97,17 @@ export default function PaginaPartidaIndividual() {
         setRespuestas([])
         setRespuestaCorrecta(null)
       } catch (error) {
+        console.error('No se pudo iniciar la partida individual.', error)
+        if (promesaInicioRef.current === solicitudPartida) promesaInicioRef.current = null
         if (cancelado) {
           return
         }
-
-        const categoria = obtenerCategoriaGuardada()
-        const preguntasTemporales = []
-        setCategoriaActual(categoria || 'Aleatoria')
-        setPreguntas(preguntasTemporales)
-        setPartidaId(`partida-fallback-${Date.now()}`)
-        setIndicePreguntaActual(0)
-        setTiempoRestante(parametros.segundosPorPregunta || 15)
-        setRespuestaSeleccionada(null)
-        setMostrarFeedback(false)
-        setBloqueado(false)
-        setPuntaje(0)
-        setRespuestas([])
-        setRespuestaCorrecta(null)
+        // Una partida sin ID ni preguntas del backend no puede guardar respuestas reales.
+        setError(error.message || 'No pudimos cargar la partida. Intentá de nuevo.')
+        setPreguntas([])
+        setPartidaId(null)
+      } finally {
+        if (!cancelado) setCargando(false)
       }
     }
 
@@ -105,15 +116,16 @@ export default function PaginaPartidaIndividual() {
     return () => {
       cancelado = true
     }
-  }, [parametros.segundosPorPregunta, parametros.totalPreguntas])
+  }, [parametros.segundosPorPregunta, intentoCarga])
 
+  // El reloj se pausa mientras se envía la respuesta o se muestra su resultado.
   useEffect(() => {
     if (!preguntaActual || bloqueado || mostrarFeedback) {
       return undefined
     }
 
     if (tiempoRestante <= 0) {
-      void manejarRespuesta(null, false, true)
+      void manejarRespuesta(null, true)
       return undefined
     }
 
@@ -130,18 +142,24 @@ export default function PaginaPartidaIndividual() {
     return () => window.clearInterval(temporizador)
   }, [bloqueado, mostrarFeedback, preguntaActual, tiempoRestante])
 
-  const manejarRespuesta = async (opcionSeleccionada, esCorrecta, tiempoAgotado = false) => {
-    if (!preguntaActual || bloqueado) {
+  // Bloquea las opciones durante el envío y muestra el acierto confirmado por la API.
+  const manejarRespuesta = async (opcionSeleccionada, tiempoAgotado = false) => {
+    if (!preguntaActual || bloqueado || !partidaId) {
       return
     }
 
+    setBloqueado(true)
+    setError('')
     const tiempoUsado = tiempoAgotado ? parametros.segundosPorPregunta || 15 : Math.max(1, (parametros.segundosPorPregunta || 15) - tiempoRestante)
-    const respuestaApi = await registrarRespuestaPartida(
-      partidaId,
-      preguntaActual.id,
-      opcionSeleccionada,
-      tiempoUsado,
-    )
+    let respuestaApi
+    try {
+      respuestaApi = await registrarRespuestaPartida(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
+    } catch (error_) {
+      setError(error_.message || 'No pudimos guardar la respuesta. Intentá de nuevo.')
+      setTiempoRestante(parametros.segundosPorPregunta || 15)
+      setBloqueado(false)
+      return
+    }
 
     const respuestaRegistrada = {
       idPartida: partidaId,
@@ -157,55 +175,54 @@ export default function PaginaPartidaIndividual() {
     setRespuestas(nuevasRespuestas)
     setRespuestaSeleccionada(opcionSeleccionada)
     setMostrarFeedback(true)
-    setBloqueado(true)
     setRespuestaCorrecta(Boolean(respuestaApi.esCorrecta))
 
     if (respuestaApi.puntajeObtenido) {
       setPuntaje((valorActual) => valorActual + Number(respuestaApi.puntajeObtenido))
     }
 
-    window.setTimeout(() => {
-      void (async () => {
-      const siguienteIndice = indicePreguntaActual + 1
-      if (siguienteIndice >= preguntas.length) {
-        try {
-          const resultadoApi = await obtenerResultadoPartida(partidaId)
-          const resultado = {
-            partidaId: resultadoApi.partidaId,
-            puntaje: Number(resultadoApi.puntajeFinal ?? puntaje + Number(respuestaApi.puntajeObtenido ?? 0)),
-            puntaje_final: Number(resultadoApi.puntajeFinal ?? puntaje + Number(respuestaApi.puntajeObtenido ?? 0)),
-            totalRespuestas: nuevasRespuestas.length,
-            respuestasCorrectas: nuevasRespuestas.filter((respuesta) => respuesta.esCorrecta).length,
-            finalizada: true,
-            fecha_fin: resultadoApi.fechaFin,
-          }
+  }
 
-          sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
-        } catch (error) {
-          const resultado = finalizarPartidaIndividual(partidaId, nuevasRespuestas)
-          sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify({
-            ...resultado,
-            puntaje_final: resultado.puntaje,
-            partidaId: partidaId,
-          }))
+  // Reinicia el tiempo para la siguiente pregunta o solicita el cierre al terminar la última.
+  const avanzarPregunta = async () => {
+    const siguienteIndice = indicePreguntaActual + 1
+    if (siguienteIndice >= preguntas.length) {
+      setFinalizando(true)
+      setError('')
+      try {
+        // El resultado se muestra solo después de que el servidor confirma el cierre.
+        const resultadoApi = await obtenerResultadoPartida(partidaId)
+        const resultado = {
+          partidaId: resultadoApi.partidaId,
+          puntaje: resultadoApi.puntajeFinal,
+          puntaje_final: resultadoApi.puntajeFinal,
+          totalRespuestas: respuestas.length,
+          respuestasCorrectas: respuestas.filter((respuesta) => respuesta.esCorrecta).length,
+          finalizada: true,
+          fecha_fin: resultadoApi.fechaFin,
         }
-
+        sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
         navegarConManejo(navegar, '/partida/resultado')
-        return
+      } catch (error_) {
+        setError(error_.message || 'No pudimos cerrar la partida. Intentá de nuevo.')
+      } finally {
+        setFinalizando(false)
       }
+      return
+    }
 
-      setIndicePreguntaActual(siguienteIndice)
-      setTiempoRestante(parametros.segundosPorPregunta || 15)
-      setRespuestaSeleccionada(null)
-      setMostrarFeedback(false)
-      setBloqueado(false)
-      setRespuestaCorrecta(null)
-      })()
-    }, 1200)
+    setIndicePreguntaActual(siguienteIndice)
+    setTiempoRestante(parametros.segundosPorPregunta || 15)
+    setRespuestaSeleccionada(null)
+    setMostrarFeedback(false)
+    setBloqueado(false)
+    setRespuestaCorrecta(null)
   }
 
   if (!preguntaActual) {
-    return <main className="partida-individual partida-individual--carga">Cargando preguntas...</main>
+    return <main className="partida-individual partida-individual--carga">
+      {cargando ? <output>Cargando preguntas...</output> : <><p role="alert">{error}</p><Boton alHacerClic={() => setIntentoCarga((actual) => actual + 1)}>Reintentar</Boton></>}
+    </main>
   }
 
   const progreso = ((indicePreguntaActual + 1) / totalPreguntas) * 100
@@ -219,29 +236,18 @@ export default function PaginaPartidaIndividual() {
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
 
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion
-              key={destino}
-              to={destino}
-              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-            >
-              <span aria-hidden="true">{simbolo}</span>
-              {titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
+        <NavegacionInicio destinoJugar="/partida/ruleta" />
 
         <div className="inicio__acumulado">
-          <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · {puntaje} pts</span>
+          <p>PUNTAJE DE LA PARTIDA</p>
+          <span>{perfil?.nombre || 'Jugador'} · {puntaje} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
-        <div className="inicio__saludo-movil"><strong>Hola, Lucas</strong><span>Cuenta de jugador</span></div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <div className="inicio__saludo-movil"><strong>Hola, {perfil?.nombre || 'Jugador'}</strong><span>Cuenta de jugador</span></div>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'JQ'}</Enlace>
         <BotonCerrarSesion />
       </header>
 
@@ -271,38 +277,16 @@ export default function PaginaPartidaIndividual() {
             mostrarFeedback={mostrarFeedback}
             bloqueado={bloqueado}
             onSeleccionar={(opcionId) => {
-              const opcionElegida = preguntaActual.opciones.find((opcion) => opcion.id === opcionId)
-              const esCorrecta = opcionElegida?.id === preguntaActual.opcionCorrectaId
-              void manejarRespuesta(opcionElegida?.id ?? null, esCorrecta, false)
+              void manejarRespuesta(opcionId)
             }}
           />
 
+          {error && <p className="tarjeta-pregunta__feedback" role="alert">{error}</p>}
+
           {mostrarFeedback && (
             <div className="partida-individual__acciones">
-              <Boton alHacerClic={() => {
-                const siguienteIndice = indicePreguntaActual + 1
-                if (siguienteIndice >= preguntas.length) {
-                  const resultado = finalizarPartidaIndividual(partidaId, [...respuestas, {
-                    idPartida: partidaId,
-                    idPregunta: preguntaActual.id,
-                    opcionSeleccionada: respuestaSeleccionada,
-                    tiempoEmpleado: (parametros.segundosPorPregunta || 15) - tiempoRestante,
-                    esCorrecta: respuestaCorrecta,
-                    tiempoAgotado: false,
-                  }])
-                  sessionStorage.setItem('resultadoPartidaIndividual', JSON.stringify(resultado))
-                  navegarConManejo(navegar, '/partida/resultado')
-                  return
-                }
-
-                setIndicePreguntaActual(siguienteIndice)
-                setTiempoRestante(parametros.segundosPorPregunta || 15)
-                setRespuestaSeleccionada(null)
-                setMostrarFeedback(false)
-                setBloqueado(false)
-                setRespuestaCorrecta(null)
-              }}>
-                Siguiente
+              <Boton alHacerClic={() => { void avanzarPregunta() }} deshabilitado={finalizando}>
+                {finalizando ? 'Guardando resultado...' : 'Siguiente'}
               </Boton>
             </div>
           )}

@@ -1,3 +1,4 @@
+/** Muestra ganador, puntajes y acciones tras terminar el duelo local. */
 export default function PantallaResultadoDueloLocal({ resultado, onRevancha, onVolver }) {
   const nombreGanador = resultado?.ganadorNombre || 'Empate'
   const titulo = resultado?.ganador === 'empate' ? '¡Empate!' : `¡Ganador: ${nombreGanador}!`

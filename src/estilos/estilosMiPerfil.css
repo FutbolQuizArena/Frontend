@@ -1,0 +1,48 @@
+/* Presenta los datos y accesos de la pantalla Mi perfil. */
+.mi-perfil__contenido { max-width: 1280px; }
+.mi-perfil__introduccion { margin-bottom: 42px; }
+.mi-perfil__introduccion h1 { margin: 0; font-size: 34px; }
+.mi-perfil__introduccion p { margin: 8px 0 0; color: var(--color-secundario); }
+.mi-perfil__estado { color: var(--color-secundario); }
+.mi-perfil__identidad { display: flex; align-items: center; gap: 34px; min-height: 220px; padding: 30px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); }
+.mi-perfil__iniciales { display: grid; width: 136px; height: 136px; flex: none; place-items: center; border-radius: 50%; background: var(--color-principal); color: #07100c; font-size: 36px; font-weight: 800; }
+.mi-perfil__datos { min-width: 0; }
+.mi-perfil__datos h2 { margin: 0 0 8px; font-size: 28px; }
+.mi-perfil__datos p { margin: 0 0 20px; overflow-wrap: anywhere; color: var(--color-secundario); }
+.mi-perfil__rol { display: inline-block; padding: 5px 12px; border: 1px solid var(--color-principal); border-radius: 999px; color: var(--color-principal); font-size: 11px; font-weight: 700; }
+.mi-perfil__puntaje { display: grid; gap: 10px; min-width: 200px; margin-left: auto; }
+.mi-perfil__puntaje > span { color: var(--color-secundario); font-size: 14px; }
+.mi-perfil__puntaje strong { color: var(--color-principal); font-size: 24px; }
+.mi-perfil__columnas { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 32px; margin-top: 32px; }
+.mi-perfil__actividad, .mi-perfil__resumen { padding: 24px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); }
+.mi-perfil__actividad h2, .mi-perfil__resumen h2 { margin: 0 0 24px; font-size: 21px; }
+.mi-perfil__accesos { display: grid; gap: 14px; }
+.mi-perfil__acceso { display: flex; align-items: center; gap: 16px; min-height: 76px; padding: 14px; border: 1px solid var(--color-borde); border-radius: 16px; background: var(--color-fondo); color: var(--color-texto); text-decoration: none; }
+.mi-perfil__acceso:hover { border-color: var(--color-principal); background: var(--color-elevado); }
+.mi-perfil__simbolo { display: grid; width: 48px; height: 48px; flex: none; place-items: center; border-radius: 12px; background: var(--color-elevado); color: var(--color-principal); font-size: 21px; }
+.mi-perfil__acceso strong, .mi-perfil__acceso small { display: block; }
+.mi-perfil__acceso small { margin-top: 5px; color: var(--color-secundario); font-size: 12px; }
+.mi-perfil__flecha { margin-left: auto; color: var(--color-secundario); font-size: 26px; }
+.mi-perfil__resumen dl { margin: 0; }
+.mi-perfil__resumen dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 20px 0; border-bottom: 1px solid var(--color-borde); }
+.mi-perfil__resumen dl > div:last-child { border-bottom: 0; }
+.mi-perfil__resumen dt { color: var(--color-secundario); font-size: 14px; }
+.mi-perfil__resumen dd { margin: 0; font-size: 18px; font-weight: 700; }
+.mi-perfil__nota { margin: 16px 0 0; color: var(--color-secundario); font-size: 12px; }
+
+@media (max-width: 1100px) {
+  .mi-perfil__columnas { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .mi-perfil__contenido { padding: 28px 20px 0; }
+  .mi-perfil__introduccion { display: none; }
+  .mi-perfil__identidad { display: grid; justify-items: center; gap: 14px; min-height: 0; padding: 24px; text-align: center; }
+  .mi-perfil__iniciales { width: 96px; height: 96px; font-size: 28px; }
+  .mi-perfil__datos h2 { font-size: 22px; }
+  .mi-perfil__datos p { margin-bottom: 12px; }
+  .mi-perfil__puntaje { justify-items: center; min-width: 0; margin: 4px 0 0; }
+  .mi-perfil__puntaje strong { font-size: 20px; }
+  .mi-perfil__columnas { gap: 18px; margin-top: 18px; }
+  .mi-perfil__actividad, .mi-perfil__resumen { padding: 20px; }
+}

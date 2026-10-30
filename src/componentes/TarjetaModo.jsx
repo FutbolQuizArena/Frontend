@@ -1,5 +1,6 @@
 import { Link as Enlace } from 'react-router-dom'
 
+/** Presenta un acceso resumido a otra modalidad desde Inicio. */
 export default function TarjetaModo({ titulo, descripcion, destino, textoEnlace }) {
   return (
     <article className="tarjeta-modo">

@@ -1,3 +1,4 @@
+/* Define la estructura de Inicio y sus vistas de escritorio y móvil. */
 .inicio { min-height: 100svh; padding-left: 240px; }
 .inicio__solo-movil { display: none; }
 .inicio__lateral { position: fixed; inset: 0 auto 0 0; width: 240px; background: #07100c; display: flex; flex-direction: column; padding: 28px 16px 80px; }
@@ -10,6 +11,7 @@
 .inicio__acumulado { margin: auto 8px 0; padding-top: 40px; font-size: 14px; color: var(--color-secundario); }
 .inicio__acumulado p { font-size: 11px; color: var(--color-tenue); margin: 0 0 18px; }
 .inicio__cabecera { height: 80px; padding: 0 56px 0 48px; display: flex; align-items: center; justify-content: flex-end; border-bottom: 1px solid var(--color-borde); }
+.inicio__ayuda { margin-right: 16px; color: var(--color-secundario); font-size: 14px; font-weight: 600; }
 .inicio__avatar { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--color-principal); color: #07100c; text-decoration: none; font-size: 12px; font-weight: 700; }
 .inicio__avatar:hover { color: #07100c; background: #5dd784; }
 .inicio__escudo, .inicio__saludo-movil { display: none; }
@@ -55,12 +57,14 @@
 .tarjeta-modo { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; border: 1px solid var(--color-borde); border-radius: 18px; background: var(--color-superficie); }
 .tarjeta-modo p { color: var(--color-secundario); font-size: 14px; line-height: 1.5; margin: 10px 0 0; }
 .tarjeta-modo a { flex-shrink: 0; font-size: 14px; padding: 12px 0; }
+/* En anchos intermedios, las secciones pasan a una sola columna. */
 @media (min-width: 901px) and (max-width: 1250px) {
   .inicio { padding-left: 190px; }
   .inicio__lateral { width: 190px; }
   .inicio__contenido { padding: 30px 24px 48px; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'bienvenida' 'rendimiento' 'desafio' 'ranking' 'torneo' 'otros'; }
   .inicio__pelota { width: 150px; }
 }
+/* La navegación lateral se convierte en barra fija inferior en móvil. */
 @media (max-width: 900px) {
   .inicio { padding: 0 0 calc(90px + env(safe-area-inset-bottom)); }
   .inicio__solo-escritorio { display: none; }
@@ -73,8 +77,9 @@
   .inicio__cabecera { height: 72px; padding: 0 20px; border-top: 3px solid var(--color-principal); border-bottom: 0; background: var(--color-superficie); gap: 12px; }
   .inicio__escudo { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--color-principal); color: #07110c; font-size: 12px; font-weight: 800; }
   .inicio__saludo-movil { display: grid; gap: 6px; margin-right: auto; min-width: 0; }
-  .inicio__saludo-movil strong { font-size: 17px; overflow-wrap: anywhere; }
+  .inicio__saludo-movil strong { font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .inicio__saludo-movil span { font-size: 11px; color: var(--color-secundario); }
+  .inicio__ayuda { margin-right: 0; }
   .inicio__avatar { width: 32px; height: 32px; flex-shrink: 0; background: #193426; color: var(--color-principal); font-size: 10px; }
   .inicio__contenido { padding: 24px 18px 0; max-width: 600px; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'bienvenida' 'desafio' 'rendimiento' 'torneo' 'nota' 'otros'; gap: 18px; }
   .inicio__bienvenida { margin: 0 4px -4px; }
@@ -93,6 +98,7 @@
   .inicio__metricas > div { min-height: 82px; padding: 13px; border-radius: 14px; background: var(--color-superficie); }
   .inicio__metricas dt { font-size: 10px; }
   .inicio__metricas dd { margin-top: 14px; font-size: 22px; font-weight: 800; }
+  .inicio__metrica-cargando { display: block; font-size: 11px; }
   .inicio__metricas > div:last-child dd { color: var(--color-principal); }
   .inicio__ranking { display: none; }
   .inicio__torneo { margin-top: 14px; }

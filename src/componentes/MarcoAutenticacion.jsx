@@ -2,6 +2,7 @@ import { Link as Enlace } from 'react-router-dom'
 import circuloCancha from '../recursos/circuloCancha.svg'
 import pelota from '../recursos/pelota.png'
 
+/** Comparte la estructura visual de las pantallas de ingreso y registro. */
 export default function MarcoAutenticacion({ variante = 'inicio-sesion', titulo, tituloMovil, descripcion, descripcionMovil, children: contenido }) {
   const esRegistro = variante === 'registro'
 
@@ -74,6 +75,7 @@ export default function MarcoAutenticacion({ variante = 'inicio-sesion', titulo,
               <div><strong>Acceso seguro</strong><p>Tus credenciales se protegen de forma segura.</p></div>
             </div>}
           </section>
+          <p className="autenticacion__ayuda"><Enlace to="/ayuda">¿Necesitás ayuda para usar la app?</Enlace></p>
           <p className="alternativa-movil">
             {esRegistro ? '¿Ya tenés cuenta?' : '¿No tenés cuenta?'}{' '}
             <Enlace to={esRegistro ? '/login' : '/registro'}>{esRegistro ? 'Iniciar sesión' : 'Crear cuenta'}</Enlace>

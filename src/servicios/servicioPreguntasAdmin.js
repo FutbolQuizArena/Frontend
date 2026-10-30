@@ -1,10 +1,12 @@
 import { solicitarApi } from './clienteApi.js'
 import { esSesionAdminPrueba, obtenerToken } from './servicioSesion.js'
 
+/** Activa preguntas locales solo para la vista previa de desarrollo. */
 function usarEjemplos({ vistaPrevia = false } = {}) {
   return import.meta.env.DEV && (vistaPrevia || esSesionAdminPrueba(obtenerToken()))
 }
 
+/** Convierte opciones y letra correcta al modelo del formulario. */
 function adaptarPregunta(pregunta) {
   return {
     id: pregunta.id, enunciado: pregunta.enunciado, categoria: pregunta.categoria_nombre || '',
@@ -14,6 +16,7 @@ function adaptarPregunta(pregunta) {
   }
 }
 
+/** Busca el ID de categoría y transforma la respuesta al formato de la API. */
 async function datosParaApi(pregunta) {
   const categorias = await solicitarApi('/api/admin/categorias')
   const categoria = categorias.find((item) => item.nombre === pregunta.categoria)
@@ -68,6 +71,7 @@ function copiarPregunta(pregunta) {
   return { ...pregunta, estado: pregunta.estado || 'ACTIVA', opciones: [...pregunta.opciones] }
 }
 
+/** Aplica filtros en el servidor; en vista previa devuelve copias locales. */
 export async function obtenerPreguntasAdmin(opciones = {}) {
   if (!usarEjemplos(opciones)) {
     const parametros = new URLSearchParams({ page: String(opciones.pagina || 1) })
@@ -92,6 +96,7 @@ export async function obtenerPreguntaAdmin(idPregunta, opciones = {}) {
   return copiarPregunta(pregunta)
 }
 
+/** Crea la pregunta por API o solo en la lista de demostración. */
 export async function crearPreguntaAdmin(datosPregunta, opciones = {}) {
   if (!usarEjemplos(opciones)) return adaptarPregunta(await solicitarApi('/api/admin/preguntas', { metodo: 'POST', datos: await datosParaApi(datosPregunta) }))
   const id = Math.max(0, ...preguntasTemporales.map((pregunta) => pregunta.id)) + 1
@@ -100,6 +105,7 @@ export async function crearPreguntaAdmin(datosPregunta, opciones = {}) {
   return copiarPregunta(pregunta)
 }
 
+/** Actualiza la API o reemplaza la copia de vista previa. */
 export async function actualizarPreguntaAdmin(idPregunta, datosPregunta, opciones = {}) {
   if (!usarEjemplos(opciones)) return adaptarPregunta(await solicitarApi(`/api/admin/preguntas/${idPregunta}`, { metodo: 'PATCH', datos: await datosParaApi(datosPregunta) }))
   const indice = preguntasTemporales.findIndex((pregunta) => pregunta.id === Number(idPregunta))
@@ -109,6 +115,7 @@ export async function actualizarPreguntaAdmin(idPregunta, datosPregunta, opcione
   return copiarPregunta(pregunta)
 }
 
+/** Elimina la pregunta del origen correspondiente al modo de uso. */
 export async function eliminarPreguntaAdmin(idPregunta, opciones = {}) {
   if (!usarEjemplos(opciones)) return solicitarApi(`/api/admin/preguntas/${idPregunta}`, { metodo: 'DELETE' })
   const indice = preguntasTemporales.findIndex((pregunta) => pregunta.id === Number(idPregunta))

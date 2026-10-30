@@ -8,6 +8,7 @@ function obtenerIniciales(nombre) {
     .toUpperCase()
 }
 
+/** Completa la lista de la sala con participantes reales y lugares disponibles. */
 export default function ListaParticipantesTorneo({ participantes, capacidad }) {
   const lugaresDisponibles = Math.max(capacidad - participantes.length, 0)
   const lugares = [

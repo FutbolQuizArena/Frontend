@@ -1,13 +1,14 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import TarjetaTorneo from '../componentes/TarjetaTorneo.jsx'
 import { obtenerMisTorneos, obtenerTorneosDisponibles, obtenerTorneosFinalizados } from '../servicios/servicioTorneos.js'
-import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 import '../estilos/estilosTorneos.css'
 
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/partida-individual', titulo: 'Jugar', simbolo: '▶' },
+  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
   { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
   { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
@@ -52,6 +53,7 @@ function obtenerTituloListado(seccionActiva) {
   return 'TORNEOS DISPONIBLES'
 }
 
+/** Carga los listados de torneos por sección y conserva el estado de cada consulta. */
 export default function PaginaTorneos() {
   const [seccionActiva, establecerSeccionActiva] = usarEstado('propios')
   const [torneos, establecerTorneos] = usarEstado([])
@@ -59,7 +61,7 @@ export default function PaginaTorneos() {
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [busqueda, establecerBusqueda] = usarEstado('')
   const [filtro, establecerFiltro] = usarEstado('todos')
-  const [perfil, establecerPerfil] = usarEstado(null)
+  const [perfil, establecerPerfil] = usarEstado(obtenerPerfilEnCache)
   const [perfilCargado, establecerPerfilCargado] = usarEstado(false)
   const seccion = secciones[seccionActiva]
   const consulta = busqueda.trim().toLocaleLowerCase('es-AR')
@@ -100,6 +102,7 @@ export default function PaginaTorneos() {
     return () => { vigente = false }
   }, [seccion])
 
+  // Repite la consulta de la sección activa después de un error.
   function reintentarCarga() {
     establecerCargando(true)
     establecerMensajeError('')
@@ -122,6 +125,7 @@ export default function PaginaTorneos() {
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="torneos__enlace" />
         </nav>
         <div className="torneos__acumulado"><p>PUNTAJE ACUMULADO</p><span>{obtenerTextoPuntaje(perfil, perfilCargado)}</span></div>
       </aside>

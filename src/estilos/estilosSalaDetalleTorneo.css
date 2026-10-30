@@ -1,3 +1,4 @@
+/* Comparte el marco visual de sala, detalle y cuadro de torneos. */
 .marco-torneo { min-height: 100svh; padding-left: 240px; background: var(--color-fondo); }
 .marco-torneo__lateral { position: fixed; inset: 0 auto 0 0; z-index: 3; display: flex; flex-direction: column; width: 240px; padding: 28px 16px 80px; background: #07100c; }
 .marco-torneo__marca { margin-left: 8px; color: var(--color-texto); text-decoration: none; }
@@ -66,7 +67,7 @@
 .detalle-torneo__fondo article small { color: var(--color-principal); }
 .detalle-torneo__fondo article h2 { margin: 12px 0 0; font-size: 18px; }
 .detalle-torneo__velo { position: fixed; inset: 0; z-index: 5; background: rgb(0 0 0 / 68%); }
-.detalle-torneo__panel { position: fixed; top: 233px; left: calc(50% + 120px); z-index: 6; width: min(680px, calc(100vw - 300px)); padding: 32px 36px 28px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); transform: translateX(-50%); }
+.detalle-torneo__panel { margin: 0; right: auto; color: inherit; position: fixed; top: 233px; left: calc(50% + 120px); z-index: 6; width: min(680px, calc(100vw - 300px)); padding: 32px 36px 28px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); transform: translateX(-50%); }
 .detalle-torneo__asa { display: none; }
 .detalle-torneo__panel h1 { margin: 0; font-size: 25px; }
 .detalle-torneo__subtitulo { margin: 8px 0 24px; color: var(--color-secundario); font-size: 13px; }

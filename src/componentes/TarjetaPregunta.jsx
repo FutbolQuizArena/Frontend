@@ -1,3 +1,4 @@
+/** Muestra opciones, bloqueo y respuesta confirmada en una pregunta. */
 export default function TarjetaPregunta({
   pregunta,
   indicePregunta,
@@ -21,7 +22,7 @@ export default function TarjetaPregunta({
 
       <h2>{pregunta.enunciado}</h2>
 
-      <div className="tarjeta-pregunta__opciones" role="list">
+      <ul className="tarjeta-pregunta__opciones">
         {pregunta.opciones.map((opcion) => {
           const tieneRespuestaCorrecta = Boolean(pregunta.opcionCorrectaId)
           const esSeleccionada = opcion.id === respuestaSeleccionada
@@ -37,19 +38,20 @@ export default function TarjetaPregunta({
           ].filter(Boolean).join(' ')
 
           return (
-            <button
-              key={opcion.id}
-              type="button"
-              className={claseBoton}
-              onClick={() => onSeleccionar(opcion.id)}
-              disabled={bloqueado}
-              data-testid="opcion-pregunta"
-            >
-              <span>{opcion.texto}</span>
-            </button>
+            <li key={opcion.id}>
+              <button
+                type="button"
+                className={claseBoton}
+                onClick={() => onSeleccionar(opcion.id)}
+                disabled={bloqueado}
+                data-testid="opcion-pregunta"
+              >
+                <span>{opcion.texto}</span>
+              </button>
+            </li>
           )
         })}
-      </div>
+      </ul>
 
       {mostrarFeedback && (
         <p className={`tarjeta-pregunta__feedback ${respuestaCorrecta ? 'tarjeta-pregunta__feedback--correcto' : 'tarjeta-pregunta__feedback--incorrecto'}`}>

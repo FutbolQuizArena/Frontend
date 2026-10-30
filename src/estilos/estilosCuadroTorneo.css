@@ -1,3 +1,4 @@
+/* Presenta rondas y cruces del cuadro con sus estados visuales. */
 .cuadro-torneo__encabezado { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .cuadro-torneo__sobrelinea { display: none; }
 .cuadro-torneo__encabezado h1 { margin: 0; font-size: 34px; line-height: 1.25; }
@@ -36,7 +37,12 @@
 .llaves-torneo__campeon > div > span { color: var(--color-dorado); font-size: 36px; }
 .llaves-torneo__campeon small { margin-top: 8px; color: var(--color-dorado); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
 .llaves-torneo__campeon strong { margin-top: 6px; font-size: 14px; }
-.cuadro-torneo__proximo { display: none; }
+.cuadro-torneo__proximo { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; margin-top: 20px; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-sutil); }
+.cuadro-torneo__proximo div { display: grid; gap: 6px; }
+.cuadro-torneo__proximo small { color: var(--color-secundario); font-size: 10px; font-weight: 800; }
+.cuadro-torneo__proximo strong { font-size: 14px; }
+.cuadro-torneo__proximo button { padding: 11px 16px; border: 0; border-radius: 10px; color: #07100c; background: var(--color-principal); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.cuadro-torneo__proximo button:disabled { cursor: wait; opacity: .65; }
 
 .torneo-finalizado { text-align: center; }
 .torneo-finalizado > header span { color: var(--color-principal); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
@@ -84,10 +90,10 @@
   .cruce-torneo__avatar { width: 30px; height: 30px; }
   .cruce-torneo__jugador strong { font-size: 12px; }
   .llaves-torneo__campeon { display: none; }
-  .cuadro-torneo__proximo { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; margin-top: 6px; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-sutil); }
-  .cuadro-torneo__proximo div { display: grid; gap: 6px; }
-  .cuadro-torneo__proximo small { color: var(--color-secundario); font-size: 8px; font-weight: 800; }
+  .cuadro-torneo__proximo { margin-top: 6px; }
+  .cuadro-torneo__proximo small { font-size: 8px; }
   .cuadro-torneo__proximo strong { font-size: 12px; }
+  .cuadro-torneo__proximo button { font-size: 11px; }
   .cuadro-torneo__proximo a { padding: 11px 13px; border-radius: 10px; color: #07100c; background: var(--color-principal); font-size: 11px; font-weight: 800; text-decoration: none; }
 
   .torneo-finalizado { padding: 8px 0 112px; }

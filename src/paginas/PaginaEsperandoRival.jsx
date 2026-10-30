@@ -1,5 +1,6 @@
 import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteCargandoDuelo from '../componentes/ComponenteCargandoDuelo.jsx'
@@ -9,13 +10,7 @@ import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import '../estilos/estilosHome.css'
 import '../estilos/estilosEsperandoRival.css'
 
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
+
 
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60)
@@ -25,16 +20,27 @@ function formatearTiempo(segundos) {
 
 function obtenerTituloBusqueda(estadoBusqueda) {
   if (estadoBusqueda === 'encontrado') return '¡Rival encontrado!'
+  if (estadoBusqueda === 'sin-rival') return 'No encontramos rival'
   if (estadoBusqueda === 'error') return 'Error al buscar rival'
   return 'Buscando rival...'
 }
 
 function obtenerSubtituloBusqueda(estadoBusqueda) {
   if (estadoBusqueda === 'encontrado') return 'Preparando la partida'
+  if (estadoBusqueda === 'sin-rival') return 'La búsqueda terminó. Podés iniciar otra desde el menú.'
   if (estadoBusqueda === 'error') return 'No se pudo conectar con el servidor de emparejamiento'
   return 'Emparejando con otro jugador'
 }
 
+function programarEntradaALaPartida(montadoRef, canceladoRef, navegar) {
+  return window.setTimeout(() => {
+    if (montadoRef.current && !canceladoRef.current) {
+      navegarConManejo(navegar, '/duelo/partida')
+    }
+  }, 1400)
+}
+
+/** Mantiene una búsqueda online, consulta su estado y resuelve cancelación o vencimiento. */
 export default function PaginaEsperandoRival() {
   const navegar = usarNavegacion()
   const canceladoRef = usarReferencia(false)
@@ -42,8 +48,12 @@ export default function PaginaEsperandoRival() {
   const busquedaPromesaRef = usarReferencia(null)
   const intervaloPollingRef = usarReferencia(null)
   const emparejadoRef = usarReferencia(false)
-  const [tiempoEspera, setTiempoEspera] = usarEstado(0)
+  const [tiempoEspera, setTiempoEspera] = usarEstado(null)
+  const [busquedaExpiraEn, setBusquedaExpiraEn] = usarEstado(null)
   const [estadoBusqueda, setEstadoBusqueda] = usarEstado('buscando')
+  const [cancelando, setCancelando] = usarEstado(false)
+  const [mensajeError, setMensajeError] = usarEstado('')
+  const [intentoConsulta, setIntentoConsulta] = usarEstado(0)
   const [rival, setRival] = usarEstado(null)
   const perfilRef = usarReferencia(null)
   const [jugadorLocal, setJugadorLocal] = usarEstado({
@@ -80,101 +90,107 @@ export default function PaginaEsperandoRival() {
     }
   }, [])
 
-  // Cronómetro de espera
+  // La cuenta regresiva usa la fecha UTC del servidor, incluso si la pestaña queda en segundo plano.
   usarEfecto(() => {
-    const temporizador = window.setInterval(() => {
-      setTiempoEspera((anterior) => anterior + 1)
-    }, 1000)
+    if (!busquedaExpiraEn) return undefined
+    const actualizarTiempo = () => {
+      const milisegundos = Date.parse(busquedaExpiraEn) - Date.now()
+      setTiempoEspera(Number.isFinite(milisegundos) ? Math.max(0, Math.ceil(milisegundos / 1000)) : null)
+    }
+    actualizarTiempo()
+    const temporizador = window.setInterval(actualizarTiempo, 1000)
     return () => window.clearInterval(temporizador)
-  }, [])
+  }, [busquedaExpiraEn])
 
-  // Emparejamiento y polling en segundo plano
+  // Conserva la partida confirmada y abre sus preguntas solo cuando existe jugador 2.
+  const continuarConRival = (duelo) => {
+    emparejadoRef.current = true
+    if (intervaloPollingRef.current) {
+      window.clearInterval(intervaloPollingRef.current)
+      intervaloPollingRef.current = null
+    }
+    const guardado = JSON.parse(window.sessionStorage.getItem('dueloActual') || '{}')
+    const rivalEncontrado = duelo.rival || { id: duelo.jugador2Id, nombre: 'Rival', alias: 'Rival', avatar: 'RV', nivel: 'Online', puntuacion: 0 }
+    window.sessionStorage.setItem('dueloActual', JSON.stringify({
+      ...guardado,
+      ...duelo,
+      categoriaNombre: duelo.categoriaNombre || guardado.categoriaNombre || 'Fútbol',
+      jugadorLocal: duelo.jugadorLocal || guardado.jugadorLocal,
+      rival: rivalEncontrado,
+    }))
+    setRival(rivalEncontrado)
+    setEstadoBusqueda('encontrado')
+    programarEntradaALaPartida(montadoRef, canceladoRef, navegar)
+  }
+
+  // Una búsqueda finalizada sin jugador 2 deja de consultar y no se trata como empate.
+  const mostrarBusquedaSinRival = () => {
+    if (intervaloPollingRef.current) {
+      window.clearInterval(intervaloPollingRef.current)
+      intervaloPollingRef.current = null
+    }
+    window.sessionStorage.removeItem('dueloActual')
+    setBusquedaExpiraEn(null)
+    setEstadoBusqueda('sin-rival')
+    setTiempoEspera(0)
+  }
+
+  // Inicia una sola búsqueda y consulta su estado sin crear duelos adicionales.
   usarEfecto(() => {
     montadoRef.current = true
 
     const iniciarBusqueda = async () => {
       try {
         setEstadoBusqueda('buscando')
-        const perfilActual = perfilRef.current || await obtenerPerfil().catch(() => null)
 
         // En desarrollo (React StrictMode), el efecto se ejecuta dos veces al montar.
-        // Reutilizamos la misma promesa en vuelo para no disparar dos POST /api/duelos/online.
+        // La promesa incluye el perfil para que Cancelar pueda esperarla desde el primer clic.
         if (!busquedaPromesaRef.current) {
-          busquedaPromesaRef.current = buscarRivalDuelo(perfilActual)
+          busquedaPromesaRef.current = (async () => {
+            const perfilActual = perfilRef.current || await obtenerPerfil().catch(() => null)
+            if (perfilActual) perfilRef.current = perfilActual
+            return buscarRivalDuelo(perfilActual)
+          })()
         }
         const duelo = await busquedaPromesaRef.current
+        const perfilActual = perfilRef.current
 
         if (!montadoRef.current || canceladoRef.current || emparejadoRef.current) return
-
-        if (!duelo || !duelo.id) {
+        if (!duelo?.id) {
           setEstadoBusqueda('error')
           return
         }
-
-        // Si ya nos emparejó de inmediato (somos jugador 2 y el duelo está EN_CURSO):
-        const estaEnCurso = duelo.estado === 'EN_CURSO' || duelo.estado === 'FINALIZADA' || duelo.estado === 'FINALIZADO'
-        if (estaEnCurso) {
-          emparejadoRef.current = true
-          const rivalFinal = duelo.rival || { id: 'rival-online', nombre: 'Rival', alias: 'Rival', avatar: 'RV', nivel: 'Online', puntuacion: 0 }
-          const guardado = JSON.parse(window.sessionStorage.getItem('dueloActual') || '{}')
-          window.sessionStorage.setItem('dueloActual', JSON.stringify({
-            ...guardado,
-            ...duelo,
-            categoriaNombre: duelo.categoriaNombre || guardado.categoriaNombre || 'Fútbol',
-            jugadorLocal: duelo.jugadorLocal || guardado.jugadorLocal,
-            rival: rivalFinal,
-          }))
-          setRival(rivalFinal)
-          setEstadoBusqueda('encontrado')
-          window.setTimeout(() => {
-            if (montadoRef.current && !canceladoRef.current) {
-              navegarConManejo(navegar, '/duelo/partida')
-            }
-          }, 1400)
+        setBusquedaExpiraEn(duelo.busquedaExpiraEn)
+        if (duelo.estado === 'FINALIZADA' && duelo.jugador2Id == null) {
+          mostrarBusquedaSinRival()
+          return
+        }
+        if (duelo.jugador2Id != null && ['EN_CURSO', 'FINALIZADA', 'FINALIZADO'].includes(duelo.estado)) {
+          continuarConRival(duelo)
           return
         }
 
-        // Si quedamos en PENDIENTE_RIVAL, consultamos cada 1.5s hasta que se sume el rival
+        // Consultar el mismo duelo permite detectar un rival o el vencimiento sin abrir otra búsqueda.
         if (!intervaloPollingRef.current && !emparejadoRef.current) {
+          let consultando = false
           intervaloPollingRef.current = window.setInterval(() => {
+            if (consultando) return
+            consultando = true
             void (async () => {
               try {
-              const estadoActual = await consultarEstadoDuelo(duelo.id, perfilActual)
-              if (!montadoRef.current || canceladoRef.current || emparejadoRef.current) return
-
-              const rivalListo = estadoActual &&
-                (estadoActual.estado === 'EN_CURSO' || estadoActual.estado === 'FINALIZADA' || estadoActual.estado === 'FINALIZADO')
-
-              if (rivalListo) {
-                emparejadoRef.current = true
-                if (intervaloPollingRef.current) {
-                  window.clearInterval(intervaloPollingRef.current)
-                  intervaloPollingRef.current = null
+                const estadoActual = await consultarEstadoDuelo(duelo.id, perfilActual)
+                if (!montadoRef.current || canceladoRef.current || emparejadoRef.current || !estadoActual) return
+                if (estadoActual.busquedaExpiraEn) setBusquedaExpiraEn(estadoActual.busquedaExpiraEn)
+                if (estadoActual.estado === 'FINALIZADA' && estadoActual.jugador2Id == null) {
+                  mostrarBusquedaSinRival()
+                } else if (estadoActual.jugador2Id != null && ['EN_CURSO', 'FINALIZADA', 'FINALIZADO'].includes(estadoActual.estado)) {
+                  continuarConRival(estadoActual)
                 }
-
-                const rivalFinal = estadoActual.rival || { id: 'rival-online', nombre: 'Rival', alias: 'Rival', avatar: 'RV', nivel: 'Online', puntuacion: 0 }
-                const guardado = JSON.parse(window.sessionStorage.getItem('dueloActual') || '{}')
-                window.sessionStorage.setItem('dueloActual', JSON.stringify({
-                  ...guardado,
-                  id: estadoActual.id || duelo.id,
-                  estado: estadoActual.estado,
-                  categoriaNombre: estadoActual.categoriaNombre || guardado.categoriaNombre || duelo.categoriaNombre || 'Fútbol',
-                  jugadorLocal: estadoActual.jugadorLocal || guardado.jugadorLocal,
-                  rival: rivalFinal,
-                }))
-
-                setRival(rivalFinal)
-                setEstadoBusqueda('encontrado')
-
-                window.setTimeout(() => {
-                  if (montadoRef.current && !canceladoRef.current) {
-                    navegarConManejo(navegar, '/duelo/partida')
-                  }
-                }, 1400)
+              } catch {
+                // Un fallo temporal de red permite volver a consultar en el siguiente intervalo.
+              } finally {
+                consultando = false
               }
-            } catch {
-              // Continúa reintentando en la siguiente iteración si falla una petición puntual
-            }
             })()
           }, 1500)
         }
@@ -194,17 +210,48 @@ export default function PaginaEsperandoRival() {
         intervaloPollingRef.current = null
       }
     }
-  }, [navegar])
+  }, [navegar, intentoConsulta])
 
-  const manejarCancelarBusqueda = () => {
+  // Espera el ID de la búsqueda inicial y confirma su cancelación en el servidor antes de salir.
+  const manejarCancelarBusqueda = async () => {
+    if (cancelando) return
+    if (estadoBusqueda === 'sin-rival' || estadoBusqueda === 'error') {
+      navegarConManejo(navegar, '/jugar')
+      return
+    }
     canceladoRef.current = true
-    emparejadoRef.current = true
+    setCancelando(true)
+    setMensajeError('')
     if (intervaloPollingRef.current) {
       window.clearInterval(intervaloPollingRef.current)
       intervaloPollingRef.current = null
     }
-    cancelarBusquedaDuelo()
-    navegarConManejo(navegar, '/jugar')
+    try {
+      const duelo = await busquedaPromesaRef.current
+      if (!duelo?.id) throw new Error('No se recibió el identificador de la búsqueda.')
+      await cancelarBusquedaDuelo(duelo.id)
+      navegarConManejo(navegar, '/jugar')
+    } catch (error) {
+      if (error.codigo === 'BUSQUEDA_YA_EMPAREJADA' || error.detalle?.code === 'BUSQUEDA_YA_EMPAREJADA') {
+        // Un 409 indica que ya hay rival: consultamos el duelo antes de decidir la navegación.
+        const duelo = await busquedaPromesaRef.current
+        const estadoActual = await consultarEstadoDuelo(duelo.id, perfilRef.current)
+        if (estadoActual?.jugador2Id != null) {
+          canceladoRef.current = false
+          continuarConRival(estadoActual)
+          return
+        }
+        if (estadoActual?.estado === 'FINALIZADA' && estadoActual.jugador2Id == null) {
+          mostrarBusquedaSinRival()
+          return
+        }
+      }
+      canceladoRef.current = false
+      setMensajeError('No se pudo cancelar la búsqueda. Intentá de nuevo.')
+      setIntentoConsulta((anterior) => anterior + 1)
+    } finally {
+      setCancelando(false)
+    }
   }
 
   return (
@@ -214,18 +261,7 @@ export default function PaginaEsperandoRival() {
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
 
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion
-              key={destino}
-              to={destino}
-              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-            >
-              <span aria-hidden="true">{simbolo}</span>
-              {titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
+        <NavegacionInicio destinoJugar="/jugar" />
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
@@ -251,7 +287,7 @@ export default function PaginaEsperandoRival() {
             <p className="sobretitulo pagina-esperando-rival__etiqueta">DUELO 1V1</p>
             <h1>{obtenerTituloBusqueda(estadoBusqueda)}</h1>
           </div>
-          <Enlace className="pagina-esperando-rival__volver" to="/jugar">Volver al menú</Enlace>
+          <button className="pagina-esperando-rival__volver" type="button" onClick={manejarCancelarBusqueda} disabled={cancelando || estadoBusqueda === 'encontrado'}>Volver al menú</button>
         </header>
 
         <section className="pagina-esperando-rival__panel">
@@ -262,7 +298,8 @@ export default function PaginaEsperandoRival() {
               <p className="pagina-esperando-rival__subtitulo">
                 {obtenerSubtituloBusqueda(estadoBusqueda)}
               </p>
-              <strong className="pagina-esperando-rival__tiempo">{formatearTiempo(tiempoEspera)}</strong>
+              <strong className="pagina-esperando-rival__tiempo">{tiempoEspera == null ? '--:--' : formatearTiempo(tiempoEspera)}</strong>
+              {mensajeError && <p role="alert">{mensajeError}</p>}
             </div>
           </div>
 
@@ -293,7 +330,9 @@ export default function PaginaEsperandoRival() {
           </div>
 
           <div className="pagina-esperando-rival__acciones">
-            <Boton alHacerClic={manejarCancelarBusqueda}>Cancelar Búsqueda</Boton>
+            <Boton alHacerClic={manejarCancelarBusqueda} cargando={cancelando} textoCargando="Cancelando..." deshabilitado={estadoBusqueda === 'encontrado'}>
+              {estadoBusqueda === 'sin-rival' || estadoBusqueda === 'error' ? 'Volver al menú' : 'Cancelar búsqueda'}
+            </Boton>
           </div>
         </section>
       </main>

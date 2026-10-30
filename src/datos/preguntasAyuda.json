@@ -1,0 +1,138 @@
+[
+  {
+    "id": "cuenta",
+    "titulo": "Crear y usar mi cuenta",
+    "preguntas": [
+      {
+        "pregunta": "¿Cómo creo una cuenta?",
+        "respuesta": [
+          "En la pantalla de ingreso, elegí Registrarme.",
+          "Completá tu nombre de usuario, correo y contraseña. Repetí la contraseña para confirmarla.",
+          "Pulsá Crear mi cuenta. Cuando se confirme el registro, iniciá sesión."
+        ]
+      },
+      {
+        "pregunta": "¿Cómo inicio sesión?",
+        "respuesta": [
+          "Ingresá el correo y la contraseña con los que te registraste.",
+          "Pulsá Ingresar. Si querés conservar el acceso en este dispositivo, marcá Mantener sesión iniciada."
+        ]
+      },
+      {
+        "pregunta": "¿Cómo cierro sesión?",
+        "respuesta": [
+          "Pulsá Cerrar sesión en la parte superior de la app.",
+          "Para volver a entrar, iniciá sesión con tu correo y contraseña."
+        ]
+      },
+      {
+        "pregunta": "¿Cómo actualizo mi nombre, correo o contraseña?",
+        "respuesta": [
+          "Entrá en Perfil y elegí Editar perfil para cambiar tu nombre o correo.",
+          "Para cambiar la contraseña, completá Contraseña actual y Nueva contraseña.",
+          "Pulsá Guardar cambios."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "partidas",
+    "titulo": "Jugar partidas",
+    "preguntas": [
+      {
+        "pregunta": "¿Cómo juego una partida individual?",
+        "respuesta": [
+          "Desde Inicio pulsá Empezar partida, o entrá en Jugar y elegí Partida Individual.",
+          "Girá la ruleta para obtener una categoría y respondé las preguntas antes de que termine el tiempo.",
+          "Al finalizar, consultá tu resultado."
+        ]
+      },
+      {
+        "pregunta": "¿Cómo juego un duelo con otra persona?",
+        "respuesta": [
+          "Entrá en Jugar y elegí Duelo 1v1.",
+          "Esperá a que la app encuentre un rival y respondé las preguntas.",
+          "Al terminar, consultá el resultado del duelo."
+        ]
+      },
+      {
+        "pregunta": "¿Cómo funciona el juego local?",
+        "respuesta": [
+          "En Jugar elegí Juego local e indicá los nombres de los dos jugadores.",
+          "Compartan el mismo dispositivo y respondan cuando la pantalla indique el turno de cada uno.",
+          "Al finalizar, consulten el resultado."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "torneos",
+    "titulo": "Participar en torneos",
+    "preguntas": [
+      {
+        "pregunta": "¿Cómo creo un torneo?",
+        "respuesta": [
+          "Abrí Torneos y pulsá Crear torneo.",
+          "Indicá el nombre, la cantidad de participantes y, si querés, una contraseña de acceso.",
+          "Creá el torneo y compartí el código que se genera."
+        ]
+      },
+      {
+        "pregunta": "¿Cómo me uno a un torneo?",
+        "respuesta": [
+          "En Torneos, buscá uno en Disponibles o elegí Ingresar código.",
+          "Escribí el código del torneo y la contraseña si corresponde.",
+          "Pulsá Unirme al torneo."
+        ]
+      },
+      {
+        "pregunta": "¿Dónde veo mis torneos y resultados?",
+        "respuesta": [
+          "Abrí Torneos y usá las pestañas Mis torneos y Finalizados.",
+          "Entrá en un torneo para ver su sala, el cuadro y los resultados disponibles."
+        ]
+      },
+      {
+        "pregunta": "¿Por qué no encuentro un torneo?",
+        "respuesta": [
+          "Revisá el nombre o código que escribiste y quitá los filtros de Disponibles.",
+          "Si te compartieron un código de invitación, usá Ingresar código."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "administracion",
+    "titulo": "Administración",
+    "preguntas": [
+      {
+        "pregunta": "¿Quién puede entrar al panel de administración?",
+        "respuesta": [
+          "El panel está disponible para las cuentas con rol de administrador.",
+          "Desde allí se gestionan preguntas, categorías y usuarios."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "disponibilidad",
+    "titulo": "Ranking y solución de problemas",
+    "preguntas": [
+      {
+        "pregunta": "¿Dónde veo el ranking?",
+        "respuesta": [
+          "Entrá en Ranking desde el menú para consultar las posiciones y tu puntaje acumulado.",
+          "Si los datos no cargan, comprobá tu conexión e intentá de nuevo más tarde."
+        ]
+      },
+      {
+        "pregunta": "¿Qué hago si una pantalla no carga los datos?",
+        "respuesta": [
+          "Comprobá tu conexión a Internet y volvé a intentar la acción.",
+          "Si aparece el botón Reintentar, pulsalo.",
+          "Si tu sesión venció, iniciá sesión nuevamente."
+        ]
+      }
+    ]
+  }
+]

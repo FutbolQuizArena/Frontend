@@ -1,8 +1,8 @@
 import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import { useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
-import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
+import MarcoPerfil from '../componentes/MarcoPerfil.jsx'
 import { actualizarPerfil, obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { esCorreoValido } from '../utilidades/validacionesAutenticacion.js'
 import '../estilos/estilosPerfil.css'
@@ -11,14 +11,7 @@ const datosIniciales = {
   nombre: '', correo: '', contrasenaActual: '', nuevaContrasena: '', iniciales: 'FQ', puntajeTotal: 0,
 }
 
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/partida-individual', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
-
+/** Comprueba los datos editables y devuelve errores por campo. */
 function validarPerfil(datos) {
   const errores = {}
 
@@ -32,6 +25,7 @@ function validarPerfil(datos) {
   return errores
 }
 
+/** Edita los datos del perfil y permite solicitar el cambio de contraseña. */
 export default function PaginaPerfil() {
   const [datos, establecerDatos] = usarEstado(datosIniciales)
   const [errores, establecerErrores] = usarEstado({})
@@ -67,6 +61,7 @@ export default function PaginaPerfil() {
     establecerMensajeExito('')
   }
 
+  // Actualiza el perfil y conserva visible cualquier rechazo de la API.
   async function manejarEnvio(evento) {
     evento.preventDefault()
     if (solicitudEnCurso.current) return
@@ -102,29 +97,7 @@ export default function PaginaPerfil() {
   }
 
   return (
-    <div className="perfil">
-      <a className="enlace-salto" href="#contenido-perfil">Ir al contenido</a>
-      <aside className="perfil__lateral">
-        <Enlace className="marca perfil__marca" to="/home" aria-label="FutbolQuiz Arena">
-          FUTBOLQUIZ<span className="marca__arena">ARENA</span>
-        </Enlace>
-        <nav className="perfil__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `perfil__enlace${activo ? ' perfil__enlace--activo' : ''}`}>
-              <span aria-hidden="true">{simbolo}</span>{titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
-        <div className="perfil__acumulado"><p>PUNTAJE ACUMULADO</p><span>{datos.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · {datos.puntajeTotal.toLocaleString('es-AR')} pts</span></div>
-      </aside>
-
-      <header className="perfil__cabecera">
-        <span className="perfil__escudo" aria-label="FutbolQuiz Arena">FQ</span>
-        <div className="perfil__titulo-movil"><strong>Editar perfil</strong><span>Datos personales</span></div>
-        <span className="perfil__avatar" aria-label="Avatar del perfil">{datos.iniciales}</span>
-        <BotonCerrarSesion />
-      </header>
-
+    <MarcoPerfil tituloMovil="Editar perfil" subtituloMovil="Datos personales" perfil={cargando ? null : datos}>
       <main className="perfil__contenido" id="contenido-perfil">
         <div className="perfil__introduccion">
           <h1>Editar perfil</h1>
@@ -140,21 +113,21 @@ export default function PaginaPerfil() {
               error={errores.nombre} autocompletar="name" requerido={true} />
             <CampoEntrada etiqueta="Correo electrónico" nombre="correo" tipo="email" valor={datos.correo}
               alCambiar={manejarCambio} error={errores.correo} autocompletar="email" requerido={true} />
-            <div className="perfil__solo-escritorio"><CampoEntrada etiqueta="Contraseña actual" nombre="contrasenaActual"
+            <div id="seguridad"><CampoEntrada etiqueta="Contraseña actual" nombre="contrasenaActual"
               tipo="password" valor={datos.contrasenaActual} alCambiar={manejarCambio} error={errores.contrasenaActual} autocompletar="current-password" requerido={false} /></div>
-            <div className="perfil__solo-escritorio"><CampoEntrada etiqueta="Nueva contraseña (opcional)" nombre="nuevaContrasena"
+            <div><CampoEntrada etiqueta="Nueva contraseña (opcional)" nombre="nuevaContrasena"
               tipo="password" valor={datos.nuevaContrasena} alCambiar={manejarCambio} error={errores.nuevaContrasena}
               autocompletar="new-password" requerido={false} /></div>
           </fieldset>
           <p className="perfil__nota perfil__solo-escritorio">Tu historial y puntaje no cambian al editar los datos.</p>
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-          {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito}</p>}
+          {mensajeExito && <p className="mensaje mensaje--exito"><output>{mensajeExito}</output></p>}
           <div className="perfil__acciones">
             <Boton tipo="submit" cargando={guardando} textoCargando="Guardando cambios…">Guardar cambios</Boton>
-            <button type="button" className="perfil__cancelar" onClick={() => navegar('/home')} disabled={guardando}>Cancelar</button>
+            <button type="button" className="perfil__cancelar" onClick={() => navegar('/perfil')} disabled={guardando}>Cancelar</button>
           </div>
         </form>
       </main>
-    </div>
+    </MarcoPerfil>
   )
 }

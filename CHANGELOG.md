@@ -1,6 +1,119 @@
 # Changelog
 
-Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, la rama actual, el código y las decisiones de esta conversación. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 25/09/2026.
+Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 30/10/2026.
+
+## 30/10 [1.2.3, 6.1] Datos de sesión y rendimiento en móvil
+
+En revisión en la rama `fix/mobile-inicio-sesion-estadisticas`.
+
+- **Inicio:** las tres tarjetas muestran puntos, ranking y partidas tanto en escritorio como en móvil, con los valores consultados a la API.
+- **Cuenta:** Jugar, ruleta, duelo local y formularios de torneo muestran nombre, iniciales y puntaje de la sesión actual en lugar de datos de ejemplo.
+- **Diseño móvil:** se evita que el saludo largo desborde el encabezado y que el acceso de administración pase a una segunda fila de navegación.
+- **Pruebas:** se amplían los casos de Inicio, selección de modo y duelo local para verificar las métricas y la identidad del jugador.
+
+## 30/10 [6.1] Recarga de rutas internas en Netlify
+
+Integrado en `develop` mediante PR #83 (`9024a3f`). Netlify entrega la aplicación al recargar una ruta interna para que React resuelva la pantalla correspondiente.
+
+## 29/10 [6.1] Comentarios de apoyo en el código
+
+Integrado en `develop` mediante PR #82 (`627bf86`). Se añadieron explicaciones junto a funciones y decisiones de los archivos JS/JSX de `src`, además de notas sobre la estructura y los puntos de adaptación de sus hojas CSS. El cambio no modifica el comportamiento de la aplicación.
+
+## 29/10 [2.2.8, 6.1] Cambio de turno del duelo local
+
+Integrado en `develop` mediante PR #81 (`4470852`).
+
+- **Interfaz:** la pantalla de cambio de turno indica a quién pasar el dispositivo, muestra su nombre e iniciales y ofrece una acción clara para continuar.
+- **Calidad:** se corrigieron dos avisos de Sonar sobre espacios ambiguos entre texto y elementos JSX de esa pantalla.
+
+## 29/10 [1.2.3, 6.1] Ranking y partidas en Inicio
+
+Integrado en `develop` mediante PR #80 (`5c88da1`). La pantalla de Inicio consulta la posición en el ranking y la cantidad de partidas del usuario; cuando un dato no está disponible, lo indica sin mostrar una cifra inventada. La ayuda aclara dónde consultar el ranking y qué hacer si una pantalla no carga los datos.
+
+## 29/10 [2.2.8] Cancelación de búsqueda online
+
+Integrado en `develop` mediante PR #79 (`e34dc72`). La búsqueda del rival se puede cancelar desde la pantalla de espera y respeta el vencimiento informado por el servidor. Si el rival se encuentra al mismo tiempo que se cancela, se consulta el estado del duelo antes de navegar.
+
+## 29/10 [2, 3 y 5] Partidas, duelos y edición de preguntas
+
+Integrado en `develop` mediante PR #78 (`6967389`).
+
+- **Partida individual:** las preguntas, respuestas y el resultado se obtienen del backend; los fallos de la API se muestran sin reemplazarlos por datos de ejemplo. Se evita crear dos partidas cuando React vuelve a ejecutar el efecto en desarrollo y se muestran los datos reales del perfil.
+- **Duelos:** la búsqueda online consulta el mismo duelo hasta encontrar rival o recibir el vencimiento; muestra la cuenta regresiva del servidor y confirma la cancelación con la API antes de salir. Si el rival aparece durante la cancelación, abre el duelo. Las respuestas del torneo avanzan mediante «Siguiente» después de la confirmación del servidor. Se quitaron respuestas y resultados de reemplazo de los recorridos de juego.
+- **Administración:** la dificultad de una pregunta se puede elegir al crearla o editarla y se envía con el resto de los datos.
+- **Búsqueda de usuarios:** el texto se envía al pulsar «Buscar» o Enter, para permitir escribir el nombre o correo completo sin recargar el listado con cada letra.
+- **Pruebas:** se actualizaron los casos unitarios y E2E para comprobar el avance con «Siguiente», el envío explícito del buscador, la consulta del mismo duelo, la cancelación confirmada y el rechazo de partidas o resultados sin confirmación. Las respuestas HTTP simuladas se definen en las pruebas con el contrato de la API.
+
+## 28/10 [5.2, 6.1] Gestión de usuarios y eliminación de categorías
+
+Integrado en `develop` mediante PR #77 (`f06a246`).
+
+- **Usuarios:** el panel permite crear y editar cuentas con el backend, además de consultar y cambiar su estado. Se añadieron el formulario y las rutas administrativas correspondientes.
+- **Categorías:** el formulario permite solicitar la eliminación de una categoría. Si tiene preguntas asociadas, el backend rechaza la operación y la pantalla muestra el motivo.
+- **Calidad y ayuda:** se corrigieron observaciones de Sonar en el formulario y los estilos, se ampliaron pruebas unitarias de administración y se aclaró en la ayuda el acceso a la edición del perfil.
+
+## 28/10 [2.2.8, 3.3.5, 6.1] Acceso a jugar y duelos de torneo
+
+- **Navegación:** los accesos «Jugar» de Perfil y Torneos abren la selección de modo. La URL anterior `/partida-individual` redirige a esa pantalla.
+- **Cruces:** el cuadro permite iniciar o retomar el duelo asignado al usuario mediante el endpoint del backend. La partida recupera preguntas pendientes y muestra el resultado real cuando ambos jugadores terminan. Los errores de la API se muestran sin inventar respuestas del torneo.
+- **Pruebas:** se agregaron casos de Playwright con respuestas HTTP simuladas para comprobar navegación, inicio, reanudación y errores. Estas simulaciones pertenecen a las pruebas; jugar un duelo de torneo en la aplicación requiere el backend actualizado.
+
+## 27/10 [6.3] Pruebas unitarias y correcciones finales de Sonar
+
+Integrado mediante PR #74 (`6575940`) y PR #75 (`e1880a1`).
+
+- **Pruebas unitarias:** se incorporaron Vitest y React Testing Library para servicios, contexto, componentes y páginas. El workflow genera un reporte LCOV unitario separado del reporte E2E; SonarQube Cloud recibe ambos.
+- **Correcciones:** se atendieron observaciones restantes en Inicio, partida individual e historial, sin cambiar los recorridos de juego previstos.
+
+## 27/10 [6.3] Observaciones Low de SonarQube Cloud
+
+Cambios integrados en `develop` mediante PR #71 (`8ff189c`).
+
+- **Estado de React:** se renombraron los setters de `useState` en seis archivos de administración para resolver 52 avisos de la misma regla. Las llamadas conservan los mismos valores y efectos.
+- **Código y errores:** se corrigieron 20 avisos adicionales: nombres de parámetros `catch`, imports sin uso, explicación de tres salidas alternativas ante errores, una condición con encadenamiento opcional y una transición CSS limitada al fondo y al borde.
+- **Cobertura:** se agregaron pruebas de los estados de error de categorías, preguntas administrativas, ranking, historial y duelo local. El análisis del PR aprobó el Quality Gate; los casos quedaron integrados en `develop`.
+- **Referencias:** `bb14013`, `4fd69cf`, `574ca9b`, `9cb1dab` y `bbda15f`. El detalle de los 72 avisos agrupados por regla está en la documentación local de Sonar, que no se publica en GitHub.
+
+## 26–27/10 [1.2.3, 6.1] Mi perfil, historial y ranking
+
+El ranking llegó con PR #67, el historial personal el 26/10 y la integración de navegación mediante PR #70 (`0df08a3`).
+
+- **Ranking:** `PaginaRankingGeneral.jsx` y `servicioRanking.js` consultan la clasificación, muestran la posición propia y contemplan errores de la API. La Home y la navegación abren la pantalla de ranking.
+- **Historial personal:** `PaginaHistorialPersonal.jsx` y `servicioHistorial.js` presentan partidas y torneos anteriores, con detalle, estado vacío, error y reintento. El frontend consulta los endpoints de historial; su disponibilidad depende del backend desplegado.
+- **Mi perfil:** `PaginaMiPerfil.jsx` reúne datos de la cuenta y accesos a editar perfil, historial, torneos y ranking. La edición existente sigue disponible como pantalla separada.
+- **Administración:** el acceso lateral se comparte para mantenerlo visible al navegar, integrado en PR #69 (`a84700c`). PR #72 (`96c8319`) simplificó una clase CSS construida con una plantilla anidada.
+
+## 24/10 [6.2] Manual de usuario y ayuda
+
+El manual se agregó en `62ae8e6` y la aclaración de modos de juego se integró mediante PR #65 (`873c720`).
+
+- **Manual:** se incorporó una guía de uso dentro de la aplicación para recorrer registro, ingreso y funciones principales, con pasos y preguntas frecuentes.
+- **Ayuda:** se ajustó el texto de modos disponibles para que la guía describa las opciones que ofrece la aplicación.
+
+## 22–23/10 [6.3] Accesibilidad, estilos y mantenibilidad
+
+Cambios integrados en `develop` mediante las tandas de Sonar de PR #55 a #65.
+
+- **Accesibilidad:** los estados usan elementos HTML adecuados, las listas y opciones tienen claves estables y se revisaron controles que requerían mejor semántica.
+- **Estilos:** se unificaron selectores duplicados, se revisaron contraste y especificidad, y se respetó la preferencia del sistema por movimiento reducido.
+- **Mantenibilidad:** se redujo la complejidad de páginas y servicios de juego y se compartió la navegación repetida de la pantalla de resultado de duelo.
+- **Pruebas:** se ampliaron los recorridos de Playwright para cubrir código nuevo y comprobar las correcciones antes de cada análisis de SonarQube Cloud.
+
+## 19–22/10 [6.3] Análisis de SonarQube Cloud y cobertura
+
+PR #29 (`ab787b5`) configuró el análisis; PR #33 (`f84b420`) incorporó la cobertura E2E. Las primeras correcciones se integraron mediante PR #35 (`bcfa040`) y tandas posteriores.
+
+- **Workflow:** GitHub Actions instala dependencias, compila el frontend, ejecuta las pruebas de Playwright, genera LCOV y envía el reporte a SonarQube Cloud en los eventos configurados.
+- **Calidad del código:** se atendieron promesas de navegación, expresiones regulares, ternarios anidados y avisos de mantenibilidad. Las correcciones se hicieron en el código; los cinco usos no criptográficos de `Math.random()` se revisaron y aceptaron en Sonar.
+- **Cobertura:** se añadieron casos para servicios y componentes con baja cobertura. En esa etapa Sonar recibía solo el reporte E2E; el reporte unitario se incorporó después mediante PR #74.
+
+## 26/9 [1.2.3, 2.2.8, 6.1] Home, duelos y cierre de sesión
+
+Cambios posteriores a la revisión de septiembre, integrados en `develop` mediante `6e68791`, `7f900cf` y ajustes relacionados.
+
+- **Home y torneos:** se corrigieron enlaces y filtros, y se aclararon las métricas que todavía no estaban disponibles desde el backend.
+- **Duelos:** se ajustó la búsqueda de rival, la transición al estado en curso y la presentación del resultado para esperar el cierre de ambos jugadores.
+- **Sesión:** cerrar sesión se conectó con el backend, conservando la limpieza del token local.
 
 ## 25/9 [3.3.1, 3.3.5, 6.1] Auditoría de Home y torneos
 

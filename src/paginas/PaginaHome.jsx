@@ -1,39 +1,68 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import TarjetaModo from '../componentes/TarjetaModo.jsx'
-import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
+import { obtenerPosicionUsuarioActual } from '../servicios/servicioRanking.js'
+import { obtenerHistorialPersonal } from '../servicios/servicioHistorial.js'
 import { obtenerTorneosDisponibles } from '../servicios/servicioTorneos.js'
 import fondoPelota from '../recursos/fondoPelotaHome.svg'
 import '../estilos/estilosHome.css'
 
-// TODO: reemplazar las estadísticas que GET /api/usuarios/me aún no publica.
-const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: null, posicion: '—', partidas: '—', victorias: '—', torneos: '—' }
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
+// Las estadísticas ausentes del perfil se muestran como no disponibles.
+const usuarioInicial = { nombre: 'Jugador', iniciales: 'FQ', rol: 'JUGADOR', puntajeTotal: null, posicion: '—', partidas: '—' }
+
 const formatearPuntaje = (puntaje) => puntaje == null ? '—' : puntaje.toLocaleString('es-AR')
 
+/** Carga el perfil y las métricas del inicio sin inventar valores cuando falta una respuesta. */
 export default function PaginaHome() {
   const navegar = usarNavegacion()
-  const [usuario, establecerUsuario] = usarEstado(usuarioInicial)
+  const [usuario, establecerUsuario] = usarEstado(() => ({ ...usuarioInicial, ...obtenerPerfilEnCache() }))
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [torneoDestacado, establecerTorneoDestacado] = usarEstado(null)
   const [cargandoTorneo, establecerCargandoTorneo] = usarEstado(true)
   const [errorTorneo, establecerErrorTorneo] = usarEstado(false)
+  const [cargandoPosicion, establecerCargandoPosicion] = usarEstado(true)
+  const [cargandoPartidas, establecerCargandoPartidas] = usarEstado(true)
 
   usarEfecto(() => {
     let vigente = true
     obtenerPerfil().then((perfil) => {
-      if (vigente) establecerUsuario((anterior) => ({ ...anterior, ...perfil }))
+      if (vigente) establecerUsuario((anterior) => ({ ...anterior, ...perfil, posicion: anterior.posicion, partidas: anterior.partidas }))
     }).catch((error) => {
       if (vigente) establecerMensajeError(error.message || 'No pudimos cargar tus datos.')
     })
+    return () => { vigente = false }
+  }, [])
+
+  usarEfecto(() => {
+    let vigente = true
+    // Cada estadística se consulta por separado para conservar la otra si una API falla.
+    obtenerPosicionUsuarioActual()
+      .then((posicion) => {
+        if (vigente) establecerUsuario((anterior) => ({ ...anterior, posicion: posicion ?? '—' }))
+      })
+      .catch(() => {
+        if (vigente) establecerUsuario((anterior) => ({ ...anterior, posicion: '—' }))
+      })
+      .finally(() => { if (vigente) establecerCargandoPosicion(false) })
+    return () => { vigente = false }
+  }, [])
+
+  usarEfecto(() => {
+    let vigente = true
+    obtenerHistorialPersonal()
+      .then((historial) => {
+        if (!vigente) return
+        const total = Number(historial?.estadisticasGenerales?.partidasJugadas)
+        establecerUsuario((anterior) => ({ ...anterior, partidas: Number.isFinite(total) && total >= 0 ? total : '—' }))
+      })
+      .catch(() => {
+        if (vigente) establecerUsuario((anterior) => ({ ...anterior, partidas: '—' }))
+      })
+      .finally(() => { if (vigente) establecerCargandoPartidas(false) })
     return () => { vigente = false }
   }, [])
 
@@ -46,6 +75,7 @@ export default function PaginaHome() {
     return () => { vigente = false }
   }, [])
   const esAdministrador = usuario.rol === 'ADMINISTRADOR'
+  const posicionMostrada = usuario.posicion === '—' ? '—' : `#${usuario.posicion}`
 
   return (
     <div className="inicio">
@@ -54,18 +84,13 @@ export default function PaginaHome() {
         <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {[...enlaces, ...(esAdministrador ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])].map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}>
-              <span aria-hidden="true">{simbolo}</span>{titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
+        <NavegacionInicio destinoJugar="/jugar" />
         <div className="inicio__acumulado"><p>PUNTAJE ACUMULADO</p><span>{esAdministrador ? 'Administrador' : 'Jugador'} · {formatearPuntaje(usuario.puntajeTotal)} pts</span></div>
       </aside>
       <header className="inicio__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil"><strong>Hola, {usuario.nombre}</strong><span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span></div>
+        <Enlace className="inicio__ayuda" to="/ayuda">Ayuda</Enlace>
         <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{usuario.iniciales}</Enlace>
         <BotonCerrarSesion />
       </header>
@@ -80,8 +105,8 @@ export default function PaginaHome() {
           <h2 className="inicio__solo-movil">TU RENDIMIENTO</h2>
           <dl className="inicio__metricas">
             <div><dt>PUNTOS</dt><dd>{formatearPuntaje(usuario.puntajeTotal)}</dd></div>
-            <div><dt><span className="inicio__solo-escritorio">RANKING</span><span className="inicio__solo-movil">VICTORIAS</span></dt><dd><span className="inicio__solo-escritorio">{usuario.posicion === '—' ? '—' : `#${usuario.posicion}`}</span><span className="inicio__solo-movil">{usuario.victorias}</span></dd></div>
-            <div><dt><span className="inicio__solo-escritorio">PARTIDAS</span><span className="inicio__solo-movil">TORNEOS</span></dt><dd><span className="inicio__solo-escritorio">{usuario.partidas}</span><span className="inicio__solo-movil">{usuario.torneos}</span></dd></div>
+            <div><dt>RANKING</dt><dd>{cargandoPosicion ? <span className="inicio__metrica-cargando">Cargando…</span> : posicionMostrada}</dd></div>
+            <div><dt>PARTIDAS</dt><dd>{cargandoPartidas ? <span className="inicio__metrica-cargando">Cargando…</span> : usuario.partidas}</dd></div>
           </dl>
           <p>— indica que el dato todavía no está disponible.</p>
         </section>
@@ -94,14 +119,14 @@ export default function PaginaHome() {
         </section>
         <section className="inicio__ranking" aria-labelledby="titulo-ranking">
           <h2 id="titulo-ranking">Ranking general</h2>
-          <p>Ranking próximamente.</p>
-          <Enlace to="/ranking">Estado del ranking</Enlace>
+          <p>Consultá las posiciones y tu lugar en el ranking.</p>
+          <Enlace to="/ranking">Ver ranking</Enlace>
         </section>
         <section className="inicio__torneo" aria-labelledby="titulo-torneos">
           <h2 id="titulo-torneos"><span className="inicio__solo-escritorio">Torneos disponibles</span><span className="inicio__solo-movil">TORNEOS DISPONIBLES</span></h2>
           <div className="inicio__tarjeta-torneo">
             <div>
-              {cargandoTorneo && <p role="status">Cargando torneos…</p>}
+              {cargandoTorneo && <p><output>Cargando torneos…</output></p>}
               {!cargandoTorneo && errorTorneo && <p>No pudimos cargar los torneos disponibles.</p>}
               {!cargandoTorneo && !errorTorneo && !torneoDestacado && <p>No hay torneos disponibles por ahora.</p>}
               {torneoDestacado && <><p className="inicio__etiqueta-torneo">DISPONIBLE</p><h3>{torneoDestacado.nombre}</h3><p>Eliminación directa · {torneoDestacado.participantes}/{torneoDestacado.capacidad} jugadores</p></>}

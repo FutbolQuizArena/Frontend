@@ -2,6 +2,27 @@
 
 import { esSesionAdminPrueba, obtenerToken } from './servicioSesion.js'
 
+let tokenPerfilGuardado = null
+let perfilGuardado = null
+let tokenConsulta = null
+let consultaPerfil = null
+
+/** Asocia el perfil en memoria al token que lo solicitó para no mezclar usuarios. */
+function guardarPerfil(token, perfil) {
+  if (token && token === obtenerToken()) {
+    tokenPerfilGuardado = token
+    perfilGuardado = perfil
+  }
+  return perfil
+}
+
+/** Entrega el perfil guardado solo si pertenece a la sesión vigente. */
+export function obtenerPerfilEnCache() {
+  const token = obtenerToken()
+  return token && token === tokenPerfilGuardado ? perfilGuardado : null
+}
+
+/** Convierte los campos del backend al modelo que usa React. */
 function adaptarPerfil(usuario) {
   return {
     id: usuario.id,
@@ -13,13 +34,28 @@ function adaptarPerfil(usuario) {
   }
 }
 
+/** Comparte una consulta en curso entre pantallas y actualiza la caché de la sesión. */
 export async function obtenerPerfil() {
-  if (esSesionAdminPrueba(obtenerToken())) {
-    return adaptarPerfil({ id: 0, nombre: 'Admin de prueba', email: 'admin@futbolquiz.local', rol: 'ADMINISTRADOR', puntaje_total: 0 })
+  const token = obtenerToken()
+  if (esSesionAdminPrueba(token)) {
+    return guardarPerfil(token, adaptarPerfil({ id: 0, nombre: 'Admin de prueba', email: 'admin@futbolquiz.local', rol: 'ADMINISTRADOR', puntaje_total: 0 }))
   }
-  return adaptarPerfil(await solicitarApi('/api/usuarios/me'))
+  if (consultaPerfil && tokenConsulta === token) return consultaPerfil
+
+  const consulta = solicitarApi('/api/usuarios/me').then((usuario) => guardarPerfil(token, adaptarPerfil(usuario)))
+  tokenConsulta = token
+  consultaPerfil = consulta
+  try {
+    return await consulta
+  } finally {
+    if (consultaPerfil === consulta) {
+      tokenConsulta = null
+      consultaPerfil = null
+    }
+  }
 }
 
+/** Envía nombre, correo y, si corresponde, el cambio de contraseña. */
 export async function actualizarPerfil(datosPerfil) {
   const datos = { nombre: datosPerfil.nombre, email: datosPerfil.correo }
   if (datosPerfil.nuevaContrasena) {
@@ -30,12 +66,14 @@ export async function actualizarPerfil(datosPerfil) {
     metodo: 'PATCH',
     datos,
   })
-  return adaptarPerfil(usuario)
+  return guardarPerfil(obtenerToken(), adaptarPerfil(usuario))
 }
 
+/** Actualiza la contraseña y refresca el perfil con la respuesta del servidor. */
 export async function cambiarContrasena(contrasenaActual, nuevaContrasena) {
-  return adaptarPerfil(await solicitarApi('/api/usuarios/me/password', {
+  const usuario = await solicitarApi('/api/usuarios/me/password', {
     metodo: 'PATCH',
     datos: { password_actual: contrasenaActual, nueva_password: nuevaContrasena },
-  }))
+  })
+  return guardarPerfil(obtenerToken(), adaptarPerfil(usuario))
 }

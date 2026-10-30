@@ -1,29 +1,35 @@
 import { useRef as usarReferencia, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
 import { unirseATorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosUnirseTorneo.css'
 
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/partida-individual', titulo: 'Jugar', simbolo: '▶' },
+  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
   { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
   { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
+/** Quita separadores antes de validar el código de invitación. */
 function normalizarCodigo(codigo) {
   return codigo.replace(/\s+/g, '').toUpperCase().slice(0, 6)
 }
 
+/** Devuelve el mensaje que acompaña al campo cuando el código es inválido. */
 function validarCodigo(codigo) {
   if (!codigo) return 'Ingresá el código del torneo.'
   if (!/^[A-Z0-9]{6}$/.test(codigo)) return 'El código debe tener 6 letras o números.'
   return ''
 }
 
+/** Valida el código de acceso y solicita la inscripción al torneo. */
 export default function PaginaUnirseTorneo() {
+  const perfil = usarPerfilActual()
   const navegar = usarNavegacion()
   const [datos, establecerDatos] = usarEstado({ codigo: '', contrasena: '' })
   const [errorCodigo, establecerErrorCodigo] = usarEstado('')
@@ -45,6 +51,7 @@ export default function PaginaUnirseTorneo() {
     establecerMensajeExito('')
   }
 
+  // Navega a la sala únicamente tras confirmarse la inscripción.
   async function manejarEnvio(evento) {
     evento.preventDefault()
     if (solicitudEnCurso.current) return
@@ -87,14 +94,15 @@ export default function PaginaUnirseTorneo() {
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          <EnlaceAdministracion claseEnlace="unirse-torneo__enlace" />
         </nav>
-        <div className="unirse-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>Jugador · 2.450 pts</span></div>
+        <div className="unirse-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>{perfil?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span></div>
       </aside>
 
       <header className="unirse-torneo__cabecera">
         <span className="unirse-torneo__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="unirse-torneo__titulo-movil"><strong>Unirse a torneo</strong><span>Ingresá una invitación</span></div>
-        <Enlace className="unirse-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>LM</span></Enlace>
+        <Enlace className="unirse-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>{perfil?.iniciales || 'FQ'}</span></Enlace>
       </header>
 
       <main className="unirse-torneo__contenido" id="contenido-unirse-torneo">
@@ -129,7 +137,7 @@ export default function PaginaUnirseTorneo() {
           </fieldset>
 
           {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-          {mensajeExito && <p className="mensaje mensaje--exito" role="status">{mensajeExito}</p>}
+          {mensajeExito && <p className="mensaje mensaje--exito"><output>{mensajeExito}</output></p>}
           <Boton tipo="submit" cargando={ingresando} textoCargando="Ingresando…">Unirme al torneo</Boton>
         </form>
       </main>

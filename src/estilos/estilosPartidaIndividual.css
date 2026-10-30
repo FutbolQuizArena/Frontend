@@ -1,3 +1,4 @@
+/* Organiza pregunta, temporizador y resumen de la partida individual. */
 .partida-individual__pagina {
   min-height: 100svh;
   padding-left: 240px;
@@ -16,7 +17,7 @@
 
 .partida-individual__panel {
   min-width: 0;
-  padding: 0;
+  padding: 28px 32px 40px 40px;
   display: flex;
   flex-direction: column;
 }
@@ -24,8 +25,9 @@
 .partida-individual__barra-derecha {
   background: rgba(8, 18, 14, 0.9);
   border: 1px solid rgba(122, 149, 134, 0.28);
+  border-left: 1px solid rgba(122, 149, 134, 0.28);
   border-radius: 18px;
-  padding: 18px 16px;
+  padding: 28px 18px 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -90,21 +92,6 @@
   font-size: 1.8rem;
   line-height: 1.1;
   font-weight: 700;
-}
-
-.partida-individual__panel {
-  padding: 28px 32px 40px 40px;
-  display: flex;
-  flex-direction: column;
-}
-
-.partida-individual__barra-derecha {
-  background: rgba(8, 18, 14, 0.9);
-  border-left: 1px solid rgba(122, 149, 134, 0.28);
-  padding: 28px 18px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
 }
 
 .partida-individual__estado-partida {
@@ -247,6 +234,9 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .tarjeta-pregunta__opcion {
@@ -297,12 +287,12 @@
 }
 
 .tarjeta-pregunta__feedback--correcto {
-  background: rgba(53, 196, 102, 0.12);
+  background: #153a25;
   color: #aaf0be;
 }
 
 .tarjeta-pregunta__feedback--incorrecto {
-  background: rgba(228, 84, 84, 0.12);
+  background: #321e1b;
   color: #ffb9b9;
 }
 
@@ -352,6 +342,7 @@
   font-size: 1.05rem;
 }
 
+/* El resumen deja la columna derecha cuando falta espacio horizontal. */
 @media (max-width: 1100px) {
   .partida-individual__pagina {
     padding-left: 190px;

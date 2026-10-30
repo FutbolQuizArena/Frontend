@@ -1,9 +1,11 @@
-import { Link as Enlace, Route as Ruta, Routes as Rutas } from 'react-router-dom'
+import { Link as Enlace, Navigate as Redireccion, Route as Ruta, Routes as Rutas } from 'react-router-dom'
 import PaginaLogin from './paginas/PaginaLogin.jsx'
 import PaginaRegistro from './paginas/PaginaRegistro.jsx'
 import PaginaHome from './paginas/PaginaHome.jsx'
 import PaginaPendiente from './paginas/PaginaPendiente.jsx'
 import PaginaPerfil from './paginas/PaginaPerfil.jsx'
+import PaginaHistorialPersonal from './paginas/PaginaHistorialPersonal.jsx'
+import PaginaMiPerfil from './paginas/PaginaMiPerfil.jsx'
 import PaginaCrearTorneo from './paginas/PaginaCrearTorneo.jsx'
 import PaginaTorneos from './paginas/PaginaTorneos.jsx'
 import PaginaUnirseTorneo from './paginas/PaginaUnirseTorneo.jsx'
@@ -12,7 +14,6 @@ import PaginaDetalleTorneo from './paginas/PaginaDetalleTorneo.jsx'
 import PaginaCuadroTorneo from './paginas/PaginaCuadroTorneo.jsx'
 import PaginaRuletaCategoria from './paginas/PaginaRuletaCategoria.jsx'
 import PaginaPartidaIndividual from './paginas/PaginaPartidaIndividual.jsx'
-import PaginaResultadoPartida from './paginas/PaginaResultadoPartida.jsx'
 import PaginaResultadoIndividual from './paginas/PaginaResultadoIndividual.jsx'
 import PaginaResultadoDuelo from './paginas/PaginaResultadoDuelo.jsx'
 import PaginaSeleccionModo from './paginas/PaginaSeleccionModo.jsx'
@@ -24,13 +25,18 @@ import PaginaCategoriasAdmin from './paginas/PaginaCategoriasAdmin.jsx'
 import PaginaFormularioPreguntaAdmin from './paginas/PaginaFormularioPreguntaAdmin.jsx'
 import PaginaFormularioCategoriaAdmin from './paginas/PaginaFormularioCategoriaAdmin.jsx'
 import PaginaUsuariosAdmin from './paginas/PaginaUsuariosAdmin.jsx'
+import PaginaFormularioUsuarioAdmin from './paginas/PaginaFormularioUsuarioAdmin.jsx'
+import PaginaAyuda from './paginas/PaginaAyuda.jsx'
+import PaginaRankingGeneral from './paginas/PaginaRankingGeneral.jsx'
 import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaAdministrador from './componentes/RutaAdministrador.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
+/** Agrupa las rutas públicas, privadas y de administración bajo sus controles de acceso. */
 export default function Aplicacion() {
   return (
     <Rutas>
+      <Ruta path="/ayuda" element={<PaginaAyuda />} />
       <Ruta element={<RutaPublica />}>
         <Ruta path="/" element={<PaginaLogin />} />
         <Ruta path="/login" element={<PaginaLogin />} />
@@ -40,7 +46,7 @@ export default function Aplicacion() {
         <Ruta path="/home" element={<PaginaHome />} />
         <Ruta path="/jugar" element={<PaginaSeleccionModo />} />
         <Ruta path="/juegos/modos" element={<PaginaSeleccionModo />} />
-        <Ruta path="/partida-individual" element={<PaginaPendiente titulo="Partida Individual" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
+        <Ruta path="/partida-individual" element={<Redireccion to="/jugar" replace />} />
         <Ruta path="/duelo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/duelo/esperando" textoAccion="Ir a la espera" />} />
         <Ruta path="/duelo/esperando" element={<PaginaEsperandoRival />} />
         <Ruta path="/duelo/modo" element={<PaginaPendiente titulo="Duelo" destinoAccion="/partida/ruleta" textoAccion="Ir a la ruleta" />} />
@@ -60,12 +66,16 @@ export default function Aplicacion() {
         <Ruta path="/torneos/:idTorneo/sala" element={<PaginaSalaTorneo />} />
         <Ruta path="/torneos/:idTorneo/cuadro" element={<PaginaCuadroTorneo />} />
         <Ruta path="/torneos/:idTorneo" element={<PaginaDetalleTorneo />} />
-        <Ruta path="/ranking" element={<PaginaPendiente titulo="Ranking próximamente" />} />
-        <Ruta path="/perfil" element={<PaginaPerfil />} />
+        <Ruta path="/ranking" element={<PaginaRankingGeneral />} />
+        <Ruta path="/perfil" element={<PaginaMiPerfil />} />
+        <Ruta path="/perfil/editar" element={<PaginaPerfil />} />
+        <Ruta path="/historial" element={<PaginaHistorialPersonal />} />
         <Ruta element={<RutaAdministrador />}>
           <Ruta path="/admin" element={<PaginaPreguntasAdmin />} />
           <Ruta path="/admin/categorias" element={<PaginaCategoriasAdmin />} />
           <Ruta path="/admin/usuarios" element={<PaginaUsuariosAdmin />} />
+          <Ruta path="/admin/usuarios/nuevo" element={<PaginaFormularioUsuarioAdmin />} />
+          <Ruta path="/admin/usuarios/:idUsuario/editar" element={<PaginaFormularioUsuarioAdmin />} />
           <Ruta path="/admin/categorias/nueva" element={<PaginaFormularioCategoriaAdmin />} />
           <Ruta path="/admin/categorias/:idCategoria/editar" element={<PaginaFormularioCategoriaAdmin />} />
           <Ruta path="/admin/preguntas/nueva" element={<PaginaFormularioPreguntaAdmin />} />

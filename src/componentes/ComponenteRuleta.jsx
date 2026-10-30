@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState
 
 const PALETA_CATEGORIAS = ['#35c466', '#1f4d3a', '#f7d77d', '#87d2a4', '#2a7a4a', '#dff9ea']
 
+// Acepta categorías como texto u objeto y completa los datos necesarios para dibujar cada segmento.
 const normalizarCategoria = (categoria, indice) => {
   if (typeof categoria === 'string') {
     return { id: `${categoria}-${indice}`, nombre: categoria, color: PALETA_CATEGORIAS[indice % PALETA_CATEGORIAS.length] }
@@ -14,6 +15,7 @@ const normalizarCategoria = (categoria, indice) => {
   }
 }
 
+/** Dibuja la ruleta y expone el giro al componente que controla la partida. */
 const ComponenteRuleta = forwardRef(function ComponenteRuleta({
   categorias = [],
   alFinalizarGiro,
@@ -51,6 +53,7 @@ const ComponenteRuleta = forwardRef(function ComponenteRuleta({
     return Math.floor(Math.random() * categoriasNormalizadas.length)
   }, [categoriasNormalizadas, indiceResultado, resultadoSeleccionado])
 
+  // Calcula vueltas completas y el ángulo final para detener el puntero en la categoría elegida.
   const girarRuleta = useCallback((resultado = null) => {
     if (giroEnCurso || deshabilitado || categoriasNormalizadas.length === 0) {
       return null
@@ -96,6 +99,7 @@ const ComponenteRuleta = forwardRef(function ComponenteRuleta({
 
   const categoriaElegidaEnIndice = (indice) => categoriasNormalizadas[indice] ?? null
 
+  // Cada segmento se construye como un arco SVG con su etiqueta sobre el círculo.
   const segmentos = categoriasNormalizadas.map((categoria, indice) => {
     const anguloInicio = -90 + indice * anguloSegmento
     const anguloFin = anguloInicio + anguloSegmento

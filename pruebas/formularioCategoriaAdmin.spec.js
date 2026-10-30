@@ -40,3 +40,19 @@ prueba('un jugador no puede crear ni editar categorías', async ({ page: pagina 
   await esperar(pagina.getByRole('alert')).toContainText('Solo los administradores')
   await esperar(pagina.getByRole('button', { name: 'Crear categoría' })).toHaveCount(0)
 })
+
+prueba('muestra un error cuando falla la carga de una categoría para editar', async ({ page: pagina }) => {
+  await prepararSesion(pagina)
+  await pagina.route('**/api/usuarios/me', (ruta) => ruta.fulfill({
+    json: { id: 2, nombre: 'Admin', email: 'admin@ejemplo.com', rol: 'ADMINISTRADOR', puntaje_total: 0 },
+  }))
+  await pagina.route('**/api/admin/categorias/*', (ruta) => ruta.fulfill({
+    status: 503,
+    json: { message: 'No pudimos cargar la categoría solicitada' },
+  }))
+
+  await pagina.goto('/admin/categorias/999/editar', { waitUntil: 'domcontentloaded' })
+
+  await esperar(pagina.getByRole('alert')).toBeVisible()
+  await esperar(pagina.getByRole('heading', { name: 'Editar categoría' })).toBeVisible()
+})

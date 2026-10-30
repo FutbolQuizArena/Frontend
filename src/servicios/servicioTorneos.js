@@ -1,5 +1,7 @@
 import { solicitarApi } from './clienteApi.js'
+import { normalizarDueloOnline } from './servicioDuelos.js'
 
+/** Quita espacios y unifica mayúsculas antes de enviar una invitación. */
 function normalizarCodigo(codigo) {
   return codigo.trim().replace(/\s+/g, '').toUpperCase()
 }
@@ -15,6 +17,7 @@ function obtenerTono(indice) {
   return ['verde', 'dorado', 'azul'][indice % 3]
 }
 
+/** Convierte un torneo de la API en la tarjeta que usa cada listado. */
 function adaptarTorneo(torneo, filtro, indice) {
   const participantes = torneo.cantidad_participantes_actual
   const capacidad = torneo.cantidad_participantes
@@ -50,11 +53,13 @@ function adaptarTorneo(torneo, filtro, indice) {
   }
 }
 
+/** Comparte la consulta de listados propios, disponibles y finalizados. */
 async function obtenerTorneos(filtro) {
   const torneos = await solicitarApi(`/api/torneos?filtro=${encodeURIComponent(filtro)}`)
   return torneos.map((torneo, indice) => adaptarTorneo(torneo, filtro, indice))
 }
 
+/** Convierte el formulario al contrato de creación y devuelve el ID para la sala. */
 export async function crearTorneo(datosTorneo) {
   const respuesta = await solicitarApi('/api/torneos', {
     metodo: 'POST',
@@ -80,6 +85,7 @@ export function obtenerTorneosFinalizados() {
   return obtenerTorneos('finalizados')
 }
 
+/** Solicita la inscripción con código y contraseña opcional. */
 export async function unirseATorneo(codigo, contrasena = '') {
   const respuesta = await solicitarApi('/api/torneos/unirse', {
     metodo: 'POST',
@@ -97,6 +103,7 @@ function obtenerTorneo(idTorneo) {
   return solicitarApi(`/api/torneos/${encodeURIComponent(idTorneo)}`)
 }
 
+/** Prepara los participantes y el código que muestra la sala. */
 function adaptarSala(torneo) {
   return {
     id: torneo.id,
@@ -114,6 +121,7 @@ function adaptarSala(torneo) {
   }
 }
 
+/** Deriva el nombre de la ronda según los jugadores que quedan. */
 function nombreRonda(numero, capacidad) {
   const participantes = capacidad / 2 ** (numero - 1)
   if (participantes === 2) return 'Final'
@@ -122,6 +130,14 @@ function nombreRonda(numero, capacidad) {
   return 'Octavos de final'
 }
 
+/** Distingue cruces pendientes, en juego y finalizados. */
+function estadoVisibleCruce(cruce) {
+  if (cruce.estado === 'JUGADO') return 'FINALIZADO'
+  if (cruce.duelo_id) return 'EN_CURSO'
+  return 'PENDIENTE'
+}
+
+/** Agrupa cruces por ronda y determina campeón y próxima ronda visible. */
 function adaptarCuadro(torneo) {
   const cruces = torneo.cuadro || []
   const rondas = [...new Set(cruces.map((cruce) => cruce.ronda))].sort((a, b) => a - b).map((numero) => ({
@@ -129,10 +145,11 @@ function adaptarCuadro(torneo) {
     nombre: nombreRonda(numero, torneo.cantidad_participantes),
     cruces: cruces.filter((cruce) => cruce.ronda === numero).map((cruce) => ({
       id: cruce.id,
-      jugadorA: { id: cruce.jugador_a_id ?? cruce.jugador_a?.id, nombre: cruce.jugador_a?.nombre || 'Por definir', puntaje: null },
-      jugadorB: { id: cruce.jugador_b_id ?? cruce.jugador_b?.id, nombre: cruce.jugador_b?.nombre || 'Por definir', puntaje: null },
+      dueloId: cruce.duelo_id ?? null,
+      jugadorA: { id: cruce.jugador_a_id ?? cruce.jugador_a?.id, usuarioId: cruce.jugador_a?.usuario_id, nombre: cruce.jugador_a?.nombre || 'Por definir', puntaje: null },
+      jugadorB: { id: cruce.jugador_b_id ?? cruce.jugador_b?.id, usuarioId: cruce.jugador_b?.usuario_id, nombre: cruce.jugador_b?.nombre || 'Por definir', puntaje: null },
       ganadorId: cruce.ganador_id ?? cruce.ganador?.id,
-      estado: cruce.estado === 'JUGADO' ? 'FINALIZADO' : 'PENDIENTE',
+      estado: estadoVisibleCruce(cruce),
     })),
   }))
   const final = rondas.at(-1)?.cruces[0]
@@ -164,6 +181,7 @@ export async function obtenerSalaTorneo(idTorneo) {
   return adaptarSala(await obtenerTorneo(idTorneo))
 }
 
+/** Combina el estado del torneo y su cuadro para la vista de detalle. */
 export async function obtenerDetalleTorneo(idTorneo) {
   const torneo = await obtenerTorneo(idTorneo)
   const cuadro = adaptarCuadro(torneo)
@@ -183,4 +201,19 @@ export async function obtenerDetalleTorneo(idTorneo) {
 
 export async function obtenerCuadroTorneo(idTorneo) {
   return adaptarCuadro(await obtenerTorneo(idTorneo))
+}
+
+/** Inicia o recupera el duelo y guarda sus preguntas para abrir la partida. */
+export async function iniciarDueloCruce(idTorneo, idCruce, usuarioActual) {
+  const respuesta = await solicitarApi(`/api/torneos/${encodeURIComponent(idTorneo)}/cruces/${encodeURIComponent(idCruce)}/iniciar-duelo`, {
+    metodo: 'POST',
+  })
+  const duelo = normalizarDueloOnline(respuesta.duelo, usuarioActual)
+  if (!duelo.id || duelo.preguntas.length === 0) {
+    throw new Error('El servidor no devolvió las preguntas del duelo.')
+  }
+  const dueloTorneo = { ...duelo, torneoId: Number(idTorneo), cruceId: Number(idCruce) }
+  window.sessionStorage.setItem('dueloActual', JSON.stringify(dueloTorneo))
+  window.sessionStorage.removeItem('resultadoDuelo')
+  return dueloTorneo
 }

@@ -7,6 +7,7 @@ import MarcoAutenticacion from '../componentes/MarcoAutenticacion.jsx'
 import { iniciarSesion } from '../servicios/servicioAuth.js'
 import { validarInicioSesion } from '../utilidades/validacionesAutenticacion.js'
 
+/** Valida las credenciales, inicia sesión y navega según el resultado del servidor. */
 export default function PaginaLogin() {
   const [datos, establecerDatos] = usarEstado({ correo: '', contrasena: '' })
   const [errores, establecerErrores] = usarEstado({})
@@ -15,6 +16,7 @@ export default function PaginaLogin() {
   const { abrirSesion } = usarSesion()
   const navegar = usarNavegacion()
   const [enviando, establecerEnviando] = usarEstado(false)
+  // Impide un segundo envío antes de que cambie el estado visual.
   const solicitudEnCurso = usarReferencia(false)
 
   function manejarCambio(evento) {
@@ -24,6 +26,7 @@ export default function PaginaLogin() {
     establecerMensajeError('')
   }
 
+  // Guarda el token solo cuando la validación y el servicio confirman el ingreso.
   async function manejarEnvio(evento) {
     evento.preventDefault()
     if (solicitudEnCurso.current) return

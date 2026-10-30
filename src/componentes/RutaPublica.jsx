@@ -2,6 +2,7 @@ import { Navigate as Redireccion, Outlet as ContenidoRuta } from 'react-router-d
 import { usarSesion } from '../contextos/ContextoSesion.jsx'
 import { esSesionAdminPrueba } from '../servicios/servicioSesion.js'
 
+/** Evita mostrar ingreso y registro a quien ya tiene una sesión activa. */
 export default function RutaPublica() {
   const { autenticado, token } = usarSesion()
   return autenticado ? <Redireccion to={esSesionAdminPrueba(token) ? '/admin' : '/home'} replace /> : <ContenidoRuta />

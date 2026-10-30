@@ -1,30 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import Boton from '../componentes/Boton.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import ComponenteRuleta from '../componentes/ComponenteRuleta.jsx'
-import { categoriasPartidas, obtenerCategoriaAleatoria, obtenerCategoriasDisponibles } from '../servicios/servicioPartidas.js'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
+import { obtenerCategoriaAleatoria, obtenerCategoriasDisponibles } from '../servicios/servicioPartidas.js'
 import '../estilos/estilosRuleta.css'
 
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/partida/ruleta', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
 
-const categoriasBase = categoriasPartidas.map((nombre) => ({ nombre }))
 
+/** Obtiene categorías jugables y controla el giro que inicia una partida. */
 export default function PaginaRuletaCategoria() {
+  const perfil = usarPerfilActual()
+  const esAdministrador = perfil?.rol === 'ADMINISTRADOR'
   const navegar = usarNavegacion()
   const ruletaReferencial = useRef(null)
-  const [categoriasDisponibles, setCategoriasDisponibles] = useState(categoriasBase)
+  const [categoriasDisponibles, setCategoriasDisponibles] = useState([])
   const [categoriaElegida, setCategoriaElegida] = useState(null)
   const [categoriaSiguiente, setCategoriaSiguiente] = useState(null)
   const [giroActivo, setGiroActivo] = useState(false)
   const [mensajeError, setMensajeError] = useState('')
 
+  // Carga las categorías de la API; si falla, muestra el error y deja el giro deshabilitado.
   useEffect(() => {
     let cancelado = false
 
@@ -34,9 +32,9 @@ export default function PaginaRuletaCategoria() {
           setCategoriasDisponibles(categorias)
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (!cancelado) {
-          setCategoriasDisponibles(categoriasBase)
+          setMensajeError(error.message || 'No pudimos cargar las categorías. Recargá la página para reintentar.')
         }
       })
 
@@ -45,7 +43,10 @@ export default function PaginaRuletaCategoria() {
     }
   }, [])
 
+  // Elige una categoría de la lista y le indica a la animación dónde debe detenerse.
+  // Inicia el giro cuando ya hay categorías disponibles.
   const manejarGiro = () => {
+    if (categoriasDisponibles.length === 0) return
     const siguienteCategoria = obtenerCategoriaAleatoria(categoriasDisponibles)
     setCategoriaElegida(null)
     setCategoriaSiguiente(siguienteCategoria)
@@ -56,6 +57,9 @@ export default function PaginaRuletaCategoria() {
     }
   }
 
+  // Guarda el nombre elegido para mostrarlo al abrir la partida.
+  // La categoría definitiva de las preguntas la asigna el backend al crear la partida.
+  // Guarda la categoría elegida al terminar la animación.
   const manejarFinalGiro = (categoriaSeleccionada) => {
     setCategoriaElegida(categoriaSeleccionada)
     setGiroActivo(false)
@@ -64,6 +68,7 @@ export default function PaginaRuletaCategoria() {
     }
   }
 
+  // Conserva la selección para mostrarla en la partida siguiente.
   const manejarContinuar = () => {
     setMensajeError('')
     sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaElegida.nombre)
@@ -80,28 +85,17 @@ export default function PaginaRuletaCategoria() {
         <Enlace className="marca inicio__marca" to="/home" aria-label="FutbolQuiz Arena">
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion
-              key={destino}
-              to={destino}
-              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-            >
-              <span aria-hidden="true">{simbolo}</span>
-              {titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
+        <NavegacionInicio destinoJugar="/partida/ruleta" />
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · 2.450 pts</span>
+          <span>{esAdministrador ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
-        <div className="inicio__saludo-movil"><strong>Hola, Lucas</strong><span>Cuenta de jugador</span></div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <div className="inicio__saludo-movil"><strong>Hola, {perfil?.nombre || 'Jugador'}</strong><span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span></div>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'FQ'}</Enlace>
         <BotonCerrarSesion />
       </header>
 
@@ -119,23 +113,23 @@ export default function PaginaRuletaCategoria() {
               categorias={categoriasDisponibles}
               resultadoSeleccionado={categoriaSiguiente}
               alFinalizarGiro={manejarFinalGiro}
-              deshabilitado={giroActivo}
+              deshabilitado={giroActivo || categoriasDisponibles.length === 0}
             />
 
             <div className="ruleta-categoria__acciones">
-              <Boton alHacerClic={manejarGiro} deshabilitado={giroActivo}>
+              <Boton alHacerClic={manejarGiro} deshabilitado={giroActivo || categoriasDisponibles.length === 0}>
                 Girar Ruleta
               </Boton>
+              {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
 
               {categoriaElegida && (
-                <div className="ruleta-categoria__resultado" role="dialog" aria-modal="true" aria-labelledby="categoria-resultante">
+                <dialog open className="ruleta-categoria__resultado" aria-labelledby="categoria-resultante">
                   <p className="ruleta-categoria__etiqueta">Categoría seleccionada:</p>
                   <h2 id="categoria-resultante">{categoriaElegida.nombre}</h2>
                   <Boton alHacerClic={manejarContinuar}>
                     Continuar a la Partida
                   </Boton>
-                  {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
-                </div>
+                </dialog>
               )}
             </div>
           </div>

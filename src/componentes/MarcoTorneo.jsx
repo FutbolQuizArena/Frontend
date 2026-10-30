@@ -1,22 +1,25 @@
 import { useEffect as usarEfecto, useState as usarEstado } from 'react'
 import { Link as Enlace, NavLink as EnlaceNavegacion, useLocation } from 'react-router-dom'
-import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import EnlaceAdministracion from './EnlaceAdministracion.jsx'
+import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 
 const enlaces = [
   { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/partida-individual', titulo: 'Jugar', simbolo: '▶' },
+  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
   { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
   { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
-export default function MarcoTorneo({ children: contenido, tituloMovil, subtituloMovil, administrador = false, sufijoAdmin = '' }) {
-  const [usuario, establecerUsuario] = usarEstado(null)
+/** Reutiliza el marco de navegación y encabezado de las pantallas de torneos. */
+export default function MarcoTorneo({ children: contenido, tituloMovil, subtituloMovil, administrador = false, sufijoAdmin = '', claseAdicional = '', inicialesUsuario }) {
+  const [usuario, establecerUsuario] = usarEstado(obtenerPerfilEnCache)
   const ubicacion = useLocation()
   const etiquetaRolUsuario = usuario?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'
   const textoPuntajeAcumulado = usuario
     ? `${etiquetaRolUsuario} · ${usuario.puntajeTotal.toLocaleString('es-AR')} pts`
     : 'Cargando…'
+  const clasesMarco = ['marco-torneo', administrador && 'marco-admin', claseAdicional].filter(Boolean).join(' ')
   const enlacesAdmin = [
     { destino: `/admin${sufijoAdmin}`, titulo: 'Preguntas', simbolo: '?' },
     { destino: `/admin/categorias${sufijoAdmin}`, titulo: 'Categorías', simbolo: '▦' },
@@ -37,17 +40,18 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
   }, [])
 
   return (
-    <div className={`marco-torneo${administrador ? ' marco-admin' : ''}`}>
+    <div className={clasesMarco}>
       <a className="enlace-salto" href="#contenido-torneo">Ir al contenido</a>
       <aside className="marco-torneo__lateral">
         <Enlace className="marca marco-torneo__marca" to="/home" aria-label="FutbolQuiz Arena">FUTBOLQUIZ<span className="marca__arena">{administrador ? 'ADMIN' : 'ARENA'}</span></Enlace>
         <nav className="marco-torneo__navegacion" aria-label="Navegación principal">
           {administrador && <p className="marco-admin__gestion">GESTIÓN</p>}
-          {(administrador ? enlacesAdmin : [...enlaces, ...(usuario?.rol === 'ADMINISTRADOR' ? [{ destino: '/admin', titulo: 'Administración', simbolo: '⚙' }] : [])]).map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin')} aria-current={esFormularioDeSeccion(destino) ? 'page' : undefined} className={({ isActive: activo }) => `marco-torneo__enlace${(activo || esFormularioDeSeccion(destino)) ? ' marco-torneo__enlace--activo' : ''}`}>
+          {(administrador ? enlacesAdmin : enlaces).map(({ destino, titulo, simbolo }) => (
+            <EnlaceNavegacion key={destino} to={destino} end={administrador && destino.startsWith('/admin')} aria-current={esFormularioDeSeccion(destino) ? 'page' : undefined} className={({ isActive: activo }) => `marco-torneo__enlace${(activo || esFormularioDeSeccion(destino) || (destino === '/perfil' && ubicacion.pathname === '/historial')) ? ' marco-torneo__enlace--activo' : ''}`}>
               <span aria-hidden="true">{simbolo}</span>{titulo}
             </EnlaceNavegacion>
           ))}
+          {!administrador && <EnlaceAdministracion claseEnlace="marco-torneo__enlace" />}
         </nav>
         <div className="marco-torneo__acumulado"><p>{administrador ? 'Rol: Administrador' : 'PUNTAJE ACUMULADO'}</p><span hidden={administrador}>{textoPuntajeAcumulado}</span></div>
       </aside>
@@ -55,7 +59,8 @@ export default function MarcoTorneo({ children: contenido, tituloMovil, subtitul
       <header className="marco-torneo__cabecera">
         <span className="marco-torneo__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="marco-torneo__titulo-movil"><strong>{tituloMovil}</strong><span>{subtituloMovil}</span></div>
-        <Enlace className="marco-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>{usuario?.iniciales || 'FQ'}</span></Enlace>
+        {/* Permite que pantallas con datos propios del usuario prioricen sus iniciales calculadas. */}
+        <Enlace className="marco-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>{inicialesUsuario || usuario?.iniciales || 'FQ'}</span></Enlace>
       </header>
 
       <main id="contenido-torneo" className="marco-torneo__contenido">{contenido}</main>

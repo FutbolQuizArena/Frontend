@@ -1,3 +1,4 @@
+/* Adapta el marco compartido a las pantallas del panel administrador. */
 .marco-admin { padding-left: 260px; }
 .marco-admin__juego-movil { display: none; }
 .marco-admin .marco-torneo__navegacion { margin-top: 44px; }
@@ -19,7 +20,7 @@
 .marco-admin .admin-formulario__panel > label, .marco-admin .admin-formulario__fila label { color: var(--color-secundario); font-weight: 400; }
 .marco-admin .admin-formulario__panel textarea { min-height: 92px; }
 .marco-admin .admin-formulario__panel fieldset legend, .marco-admin .admin-formulario__panel fieldset > p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.marco-admin .admin-formulario__radio { display: none; }
+.marco-admin .admin-formulario__radio { display: none; font-size: 12px; color: var(--color-secundario); }
 .marco-admin .marco-torneo__lateral { width: 260px; }
 .marco-admin .marca__arena { color: var(--color-dorado); }
 .marco-admin__gestion { color: var(--color-tenue); font-size: 11px; }
@@ -47,7 +48,6 @@
 .marco-admin .admin-formulario__opcion { grid-template-columns: 1fr; position: relative; }
 .marco-admin .admin-formulario__opcion > input { min-height: 56px; }
 .marco-admin .admin-formulario__opcion--correcta > input { border-color: var(--color-principal); }
-.marco-admin .admin-formulario__radio { font-size: 12px; color: var(--color-secundario); }
 .admin-formulario__nota { padding: 18px; border-radius: 12px; color: var(--color-secundario); background: var(--color-campo); font-size: 13px; }
 .marco-admin .admin-formulario__acciones > * { min-width: 180px; padding: 15px 24px; border-radius: 12px; text-align: center; text-decoration: none; }
 .marco-admin .admin-formulario__acciones a { border: 1px solid var(--color-borde); background: var(--color-campo); }
@@ -58,6 +58,7 @@
   .marco-admin .marco-torneo__lateral { width: 190px; }
   .marco-admin .admin-preguntas__cabecera, .marco-admin .admin-preguntas__tabla li { grid-template-columns: minmax(0, 2fr) 90px 65px 90px 28px; gap: 8px; }
 }
+/* En móvil el panel usa accesos fijos en la parte inferior. */
 @media (max-width: 900px) {
   .marco-admin .marco-torneo__navegacion { display: none; }
   .marco-admin__juego-movil { position: fixed; inset: auto 0 0; z-index: 4; display: grid; grid-template-columns: repeat(4, 1fr); padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); background: #0c1f16; }

@@ -8,6 +8,7 @@ function obtenerUrlApi() {
   return urlApi
 }
 
+/** Expone código, detalle y estado HTTP para que cada pantalla decida cómo responder. */
 function crearErrorApi(datos, estado, mensajePredeterminado) {
   const error = new Error(datos?.message || mensajePredeterminado)
   error.codigo = datos?.code || 'ERROR_API'
@@ -17,6 +18,7 @@ function crearErrorApi(datos, estado, mensajePredeterminado) {
 }
 
 export async function solicitarApi(ruta, { metodo = 'GET', datos, requiereSesion = true } = {}) {
+  // Centraliza token, JSON, tiempo de espera y formato de errores para todos los servicios.
   const token = requiereSesion ? obtenerToken() : null
   if (requiereSesion && !token) throw crearErrorApi(null, 401, 'Necesitás iniciar sesión de nuevo.')
 

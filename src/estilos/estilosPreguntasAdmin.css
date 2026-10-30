@@ -1,3 +1,4 @@
+/* Presenta filtros, tabla y acciones del listado administrativo de preguntas. */
 .admin-preguntas { max-width: 1120px; margin: 0 auto; }
 .admin-preguntas__encabezado { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin: 22px 0 34px; }
 .admin-preguntas__seccion { color: var(--color-principal); font-size: 11px; font-weight: 800; letter-spacing: .1em; }
@@ -20,8 +21,8 @@
 .admin-categorias__tabla li:nth-child(even) { background: var(--color-campo); }
 .admin-categorias__tabla li strong { overflow-wrap: anywhere; }
 .admin-categorias__tabla li span { color: var(--color-secundario); }
-.admin-categorias__estado { width: fit-content; padding: 7px 12px; border: 1px solid var(--color-principal); border-radius: 999px; color: var(--color-principal) !important; font-size: 11px; font-weight: 700; }
-.admin-categorias__estado--borrador { border-color: var(--color-dorado); color: var(--color-dorado) !important; }
+.admin-categorias__tabla li .admin-categorias__estado, .admin-preguntas__tabla li .admin-categorias__estado { width: fit-content; padding: 7px 12px; border: 1px solid var(--color-principal); border-radius: 999px; color: var(--color-principal); font-size: 11px; font-weight: 700; }
+.admin-categorias__tabla li .admin-categorias__estado--borrador, .admin-preguntas__tabla li .admin-categorias__estado--borrador { border-color: var(--color-dorado); color: var(--color-dorado); }
 .admin-categorias__unidad { display: none; }
 .admin-preguntas__titulo { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .admin-preguntas__titulo h2 { margin: 0 0 8px; font-size: 23px; }
@@ -81,7 +82,7 @@
   .admin-categorias__cabecera, .admin-categorias__estado { display: none; }
   .admin-categorias__tabla { overflow: visible; border: 0; background: transparent; }
   .admin-categorias__tabla ul { display: grid; gap: 14px; }
-  .admin-categorias__tabla li { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 72px; padding: 14px 16px; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-superficie) !important; }
+  .admin-categorias__tabla li:nth-child(n) { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 72px; padding: 14px 16px; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-superficie); }
   .admin-categorias__unidad { display: inline; }
   .admin-preguntas__navegacion a { flex: 1; text-align: center; }
   .admin-preguntas__titulo, .admin-preguntas__acciones { flex-wrap: wrap; }

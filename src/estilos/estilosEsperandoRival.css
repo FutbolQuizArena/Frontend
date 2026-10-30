@@ -1,3 +1,4 @@
+/* Diseña la espera de emparejamiento y las tarjetas de ambos jugadores. */
 .pagina-esperando-rival {
   min-height: 100svh;
   padding-left: 240px;
@@ -31,10 +32,15 @@
 .pagina-esperando-rival__etiqueta {
   margin: 0 0 10px;
   color: var(--color-principal);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
+  display: inline-block;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 .pagina-esperando-rival__volver {
+  /* El botón conserva el aspecto del enlace y permite esperar la cancelación del servidor. */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +52,9 @@
   color: var(--color-texto);
   text-decoration: none;
   font-size: 14px;
+  font-family: inherit;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .pagina-esperando-rival__panel {
@@ -114,15 +122,6 @@
   margin: 0;
   color: var(--color-secundario);
   font-size: 14px;
-}
-
-.pagina-esperando-rival__etiqueta {
-  display: inline-block;
-  color: var(--color-principal);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 10px;
-  font-weight: 700;
 }
 
 .pagina-esperando-rival__avatar {
@@ -242,5 +241,11 @@
 
   .pagina-esperando-rival__acciones .boton {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cargando-duelo__anillo {
+    animation: none;
   }
 }

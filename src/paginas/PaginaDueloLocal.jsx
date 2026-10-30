@@ -1,25 +1,25 @@
 import { useState as usarEstado } from 'react'
-import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegacion } from 'react-router-dom'
+import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
+import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
 import PantallaPreparacionDuelo from '../componentes/PantallaPreparacionDuelo.jsx'
 import PantallaCambioTurno from '../componentes/PantallaCambioTurno.jsx'
 import PantallaResultadoDueloLocal from '../componentes/PantallaResultadoDueloLocal.jsx'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
 import { guardarResultadoDueloLocal, iniciarDueloLocal, obtenerResultadoDueloLocal, registrarRespuestaTurnoLocal } from '../servicios/servicioDuelosLocales.js'
 import '../estilos/estilosDueloLocal.css'
 
-const enlaces = [
-  { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },
-  { destino: '/jugar', titulo: 'Jugar', simbolo: '▶' },
-  { destino: '/torneos', titulo: 'Torneos', simbolo: '◆' },
-  { destino: '/ranking', titulo: 'Ranking', simbolo: '★' },
-  { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
-]
 
+
+/** Coordina los turnos de dos jugadores en un dispositivo y muestra el resultado final. */
 export default function PaginaDueloLocal() {
+  const perfil = usarPerfilActual()
+  const esAdministrador = perfil?.rol === 'ADMINISTRADOR'
   const navegar = usarNavegacion()
+  // El flujo avanza por preparación, pregunta, traspaso del dispositivo y resultado.
   const [preguntas, setPreguntas] = usarEstado([])
   const [fase, setFase] = usarEstado('preparacion')
-  const [nombres, setNombres] = usarEstado({ jugador1: 'Lucas', jugador2: 'Mati' })
+  const [nombres, setNombres] = usarEstado({ jugador1: 'Jugador 1', jugador2: 'Jugador 2' })
   const [turnoActual, setTurnoActual] = usarEstado('jugador1')
   const [indicePregunta, setIndicePregunta] = usarEstado(0)
   const [proximoJugador, setProximoJugador] = usarEstado('jugador2')
@@ -48,6 +48,7 @@ export default function PaginaDueloLocal() {
     setCargandoDuelo(true)
     setError('')
     try {
+      // El servidor crea el duelo y entrega las preguntas antes de habilitar el primer turno.
       const duelo = await iniciarDueloLocal(nombreJugador1, nombreJugador2)
       setIdDueloLocal(duelo.idDueloLocal)
       setPreguntas(duelo.preguntas)
@@ -59,8 +60,8 @@ export default function PaginaDueloLocal() {
       setAciertosJugador1(0)
       setAciertosJugador2(0)
       setUltimoResultado(null)
-    } catch (fallo) {
-      setError(fallo.message || 'No pudimos cargar preguntas del servidor. Intentá de nuevo.')
+    } catch (error_) {
+      setError(error_.message || 'No pudimos cargar preguntas del servidor. Intentá de nuevo.')
     } finally {
       setCargandoDuelo(false)
     }
@@ -75,6 +76,7 @@ export default function PaginaDueloLocal() {
     setError('')
     let respuesta
     try {
+      // El puntaje y el acierto provienen de la respuesta confirmada por la API.
       respuesta = await registrarRespuestaTurnoLocal(
         idDueloLocal,
         turnoActual,
@@ -82,8 +84,8 @@ export default function PaginaDueloLocal() {
         opcionSeleccionada,
         10,
       )
-    } catch (fallo) {
-      setError(fallo.message || 'No pudimos registrar la respuesta. Intentá de nuevo.')
+    } catch (error_) {
+      setError(error_.message || 'No pudimos registrar la respuesta. Intentá de nuevo.')
       setRegistrandoRespuesta(false)
       return
     }
@@ -105,6 +107,7 @@ export default function PaginaDueloLocal() {
     }
 
     const siguienteJugador = turnoActual === 'jugador1' ? 'jugador2' : 'jugador1'
+    // La pantalla intermedia evita mostrar la próxima pregunta antes de pasar el dispositivo.
     setProximoJugador(siguienteJugador)
     setFase('cambioTurno')
   }
@@ -113,6 +116,7 @@ export default function PaginaDueloLocal() {
     const siguienteIndice = indicePregunta + 1
 
     if (siguienteIndice >= preguntas.length) {
+      // Al terminar, se prioriza el puntaje persistido en el servidor para decidir el ganador.
       const estadoDuelo = idDueloLocal ? await obtenerResultadoDueloLocal(idDueloLocal) : null
       const puntajeFinalJugador1 = Number(estadoDuelo?.puntajeJugador1 ?? puntajeJugador1)
       const puntajeFinalJugador2 = Number(estadoDuelo?.puntajeJugador2 ?? puntajeJugador2)
@@ -172,32 +176,21 @@ export default function PaginaDueloLocal() {
           FUTBOLQUIZ<span className="marca__arena">ARENA</span>
         </Enlace>
 
-        <nav className="inicio__navegacion" aria-label="Navegación principal">
-          {enlaces.map(({ destino, titulo, simbolo }) => (
-            <EnlaceNavegacion
-              key={destino}
-              to={destino}
-              className={({ isActive: activo }) => `inicio__enlace${activo ? ' inicio__enlace--activo' : ''}`}
-            >
-              <span aria-hidden="true">{simbolo}</span>
-              {titulo}
-            </EnlaceNavegacion>
-          ))}
-        </nav>
+        <NavegacionInicio destinoJugar="/jugar" />
 
         <div className="inicio__acumulado">
           <p>PUNTAJE ACUMULADO</p>
-          <span>Jugador · 2.450 pts</span>
+          <span>{esAdministrador ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span>
         </div>
       </aside>
 
       <header className="inicio__cabecera duelo-local__cabecera">
         <span className="inicio__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="inicio__saludo-movil">
-          <strong>Hola, Lucas</strong>
-          <span>Cuenta de jugador</span>
+          <strong>Hola, {perfil?.nombre || 'Jugador'}</strong>
+          <span>Cuenta de {esAdministrador ? 'administrador' : 'jugador'}</span>
         </div>
-        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">LM</Enlace>
+        <Enlace className="inicio__avatar" to="/perfil" aria-label="Ver mi perfil">{perfil?.iniciales || 'FQ'}</Enlace>
         <BotonCerrarSesion />
       </header>
 

@@ -6,6 +6,7 @@ function obtenerUrlApi() {
   return urlApi
 }
 
+/** Unifica registro e ingreso y conserva los errores del contrato de la API. */
 async function enviarSolicitudAutenticacion(ruta, datos, mensajeError) {
   const urlApi = obtenerUrlApi()
 
@@ -58,6 +59,7 @@ export function registrar(nombre, correo, contrasena) {
   )
 }
 
+/** Habilita una cuenta de vista previa en desarrollo; el resto consulta al backend. */
 export function iniciarSesion(correo, contrasena) {
   if (import.meta.env.DEV && correo === 'admin@futbolquiz.local' && contrasena === 'Admin1234!') {
     let contenido = btoa(JSON.stringify({ adminPrueba: true, exp: Math.floor(Date.now() / 1000) + 86400 }))
@@ -71,6 +73,7 @@ export function iniciarSesion(correo, contrasena) {
   )
 }
 
+/** Informa al servidor el cierre de sesión cuando todavía hay un token. */
 export async function cerrarSesionRemota() {
   const token = obtenerToken()
   if (!token) return
