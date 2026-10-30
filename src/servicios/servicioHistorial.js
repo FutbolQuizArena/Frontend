@@ -1,5 +1,6 @@
 import { solicitarApi } from './clienteApi.js'
 
+/** Lleva una partida individual al formato común del historial. */
 function adaptarPartidaIndividual(partida) {
   return {
     id: partida.partida_id,
@@ -11,6 +12,7 @@ function adaptarPartidaIndividual(partida) {
   }
 }
 
+/** Añade rival y marcador al registro común de actividades. */
 function adaptarDuelo(duelo) {
   return {
     id: `duelo-${duelo.duelo_id}`,
@@ -29,6 +31,7 @@ function normalizarEstadoTorneo(estado) {
   return `${texto.charAt(0).toLocaleUpperCase('es-AR')}${texto.slice(1)}`
 }
 
+/** Expresa la ronda alcanzada y el resultado del torneo para el historial. */
 function adaptarTorneo(torneo) {
   const ronda = torneo.ronda_alcanzada
   return {
@@ -43,6 +46,7 @@ function adaptarTorneo(torneo) {
   }
 }
 
+/** Ordena primero las actividades recientes, incluso si falta alguna fecha. */
 function ordenarPorFechaDescendente(registros) {
   return registros.sort((registroA, registroB) => {
     const fechaA = registroA.fecha ? new Date(registroA.fecha).getTime() : 0

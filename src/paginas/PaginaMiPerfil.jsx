@@ -12,6 +12,7 @@ const accesos = [
   { destino: '/torneos', simbolo: '▦', titulo: 'Mis torneos', descripcion: 'Consultá tu participación y resultados' },
 ]
 
+/** Presenta los datos de la cuenta y los accesos a historial, ranking y torneos. */
 export default function PaginaMiPerfil() {
   const [perfil, establecerPerfil] = usarEstado(null)
   const [resumen, establecerResumen] = usarEstado(null)

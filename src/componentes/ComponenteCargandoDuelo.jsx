@@ -1,3 +1,4 @@
+/** Muestra la animación visual durante la búsqueda de un rival. */
 export default function ComponenteCargandoDuelo() {
   return (
     <output className="cargando-duelo" aria-label="Buscando rival">

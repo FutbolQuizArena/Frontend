@@ -9,10 +9,12 @@ const usuariosEjemplo = [
   { id: 5, nombre: 'NicoFC', email: 'nico@ejemplo.com', rol: 'JUGADOR', puntaje_total: 760, esta_habilitado: true },
 ]
 
+/** Aísla la lista ficticia de la operación normal con el backend. */
 function usarEjemplos({ vistaPrevia = false } = {}) {
   return import.meta.env.DEV && (vistaPrevia || esSesionAdminPrueba(obtenerToken()))
 }
 
+/** Aplica búsqueda, rol y estado en la API o en la vista previa. */
 export async function obtenerUsuariosAdmin({ buscar = '', rol = '', estaHabilitado = '' } = {}, { vistaPrevia = false } = {}) {
   const consulta = new URLSearchParams()
   if (buscar.trim()) consulta.set('buscar', buscar.trim())
@@ -43,6 +45,7 @@ export async function obtenerUsuarioAdmin(idUsuario, opciones = {}) {
   return solicitarApi(`/api/admin/usuarios/${encodeURIComponent(idUsuario)}`)
 }
 
+/** Comprueba correos duplicados al crear usuarios de demostración. */
 export async function crearUsuarioAdmin(datos, opciones = {}) {
   if (usarEjemplos(opciones)) {
     if (usuariosEjemplo.some((usuario) => usuario.email.toLowerCase() === datos.email.trim().toLowerCase())) {
@@ -59,6 +62,7 @@ export async function crearUsuarioAdmin(datos, opciones = {}) {
   return solicitarApi('/api/admin/usuarios', { metodo: 'POST', datos })
 }
 
+/** Actualiza nombre, correo y rol sin cambiar el estado de habilitación. */
 export async function actualizarUsuarioAdmin(idUsuario, datos, opciones = {}) {
   if (usarEjemplos(opciones)) {
     const usuario = usuariosEjemplo.find((item) => item.id === Number(idUsuario))
@@ -72,6 +76,7 @@ export async function actualizarUsuarioAdmin(idUsuario, datos, opciones = {}) {
   return solicitarApi(`/api/admin/usuarios/${encodeURIComponent(idUsuario)}`, { metodo: 'PATCH', datos })
 }
 
+/** Cambia la habilitación y evita bloquear al admin de ejemplo. */
 export async function cambiarEstadoUsuarioAdmin(idUsuario, estaHabilitado, { vistaPrevia = false } = {}) {
   if (usarEjemplos({ vistaPrevia })) {
     const usuario = usuariosEjemplo.find((u) => u.id === Number(idUsuario) || u.id === idUsuario)

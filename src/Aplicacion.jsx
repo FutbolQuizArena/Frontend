@@ -32,6 +32,7 @@ import RutaProtegida from './componentes/RutaProtegida.jsx'
 import RutaAdministrador from './componentes/RutaAdministrador.jsx'
 import RutaPublica from './componentes/RutaPublica.jsx'
 
+/** Agrupa las rutas públicas, privadas y de administración bajo sus controles de acceso. */
 export default function Aplicacion() {
   return (
     <Rutas>

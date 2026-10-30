@@ -1,3 +1,4 @@
+/** Presenta la categoría y el reloj de la pregunta del duelo. */
 export default function MarcadorDuelo({ categoriaActual, tiempoRestante, tiempoTotal }) {
   const porcentaje = tiempoTotal ? (tiempoRestante / tiempoTotal) * 100 : 0
 

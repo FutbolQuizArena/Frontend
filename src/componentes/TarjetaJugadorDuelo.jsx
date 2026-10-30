@@ -1,3 +1,4 @@
+/** Muestra la identidad y puntuación de un participante del duelo. */
 export default function TarjetaJugadorDuelo({
   nombre,
   alias,

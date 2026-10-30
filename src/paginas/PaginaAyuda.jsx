@@ -4,6 +4,7 @@ import pelota from '../recursos/pelota.png'
 import secciones from '../datos/preguntasAyuda.json'
 import '../estilos/estilosAyuda.css'
 
+/** Presenta las preguntas frecuentes y permite desplegar cada respuesta de la guía. */
 export default function PaginaAyuda() {
   const { autenticado } = usarSesion()
 

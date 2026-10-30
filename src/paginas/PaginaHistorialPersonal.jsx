@@ -7,6 +7,7 @@ import '../estilos/estilosHistorialPersonal.css'
 
 const mensajeErrorPredeterminado = 'No pudimos cargar tu historial. Intentá de nuevo.'
 
+/** Carga el historial y permite repetir la consulta tras un error. */
 function usarHistorialPersonal() {
   const [historial, establecerHistorial] = usarEstado(null)
   const [cargando, establecerCargando] = usarEstado(true)
@@ -44,6 +45,7 @@ function PestanasHistorial({ pestanaActiva, alCambiarPestana }) {
   )
 }
 
+/** Muestra partidas y torneos con la misma estructura de filas. */
 function TablaHistorial({ partidas, alVerDetalle }) {
   return (
     <div className="historial__tabla-contenedor">
@@ -92,6 +94,7 @@ function obtenerFilasDetalle(partida) {
   return filas
 }
 
+/** Presenta la actividad seleccionada sin cambiar de ruta. */
 function DialogoDetalleHistorial({ partida, alCerrar }) {
   if (!partida) return null
 
@@ -109,6 +112,7 @@ function DialogoDetalleHistorial({ partida, alCerrar }) {
   )
 }
 
+/** Combina el historial de partidas y torneos y ofrece el detalle de cada registro. */
 export default function PaginaHistorialPersonal() {
   const { historial, cargando, error, reintentar } = usarHistorialPersonal()
   const [pestanaActiva, establecerPestana] = usarEstado('partidas')

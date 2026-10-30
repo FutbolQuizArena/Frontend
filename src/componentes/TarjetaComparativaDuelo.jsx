@@ -1,3 +1,4 @@
+/** Compara los datos de ambos jugadores en la pantalla de resultado. */
 export default function TarjetaComparativaDuelo({
   jugador,
   esLocal = false,

@@ -1,5 +1,6 @@
 import { solicitarApi } from './clienteApi.js'
 
+/** Convierte opciones y categoría de la API al formato de pregunta del duelo. */
 function mapearPreguntaDuelo(pregunta, categoriaPorDefecto = 'Fútbol') {
   const idPregunta = Number(pregunta?.id ?? 0)
   const opciones = [
@@ -89,6 +90,7 @@ export function normalizarDueloOnline(respuesta, usuarioActual = null) {
 }
  
 
+/** Ordena marcador y nombres desde la perspectiva del usuario conectado. */
 function obtenerDatosJugadoresResultado(respuesta, esJugador1, usuarioActual) {
   const numeroLocal = esJugador1 ? 1 : 2
   const numeroRival = esJugador1 ? 2 : 1
@@ -105,6 +107,7 @@ function obtenerDatosJugadoresResultado(respuesta, esJugador1, usuarioActual) {
   }
 }
 
+/** Traduce el ganador del backend a victoria, derrota o empate propios. */
 function obtenerGanadorResultado(estaFinalizado, empate, ganadorNumero, esJugador1) {
   if (!estaFinalizado || (!empate && ganadorNumero !== 1 && ganadorNumero !== 2)) {
     return { ganador: 'pendiente', resultadoTexto: 'PENDIENTE' }

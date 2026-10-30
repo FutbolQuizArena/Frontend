@@ -106,6 +106,7 @@ async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, pregu
   // El jugador avanza a la siguiente pregunta al pulsar «Siguiente».
 }
 
+/** Recupera el duelo activo, envía respuestas y controla el avance hasta su resultado. */
 export default function PaginaPartidaDuelo() {
   const navegar = usarNavegacion()
   const [partidaId, setPartidaId] = usarEstado(() => (window.crypto?.randomUUID ? window.crypto.randomUUID() : `duelo-${Date.now()}`))

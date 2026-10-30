@@ -1,5 +1,6 @@
 import { useId as usarId } from 'react'
 
+/** Asocia etiqueta, entrada y error para reutilizar campos de formularios accesibles. */
 export default function CampoEntrada({
   etiqueta,
   nombre,

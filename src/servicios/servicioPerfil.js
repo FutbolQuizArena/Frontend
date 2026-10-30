@@ -7,6 +7,7 @@ let perfilGuardado = null
 let tokenConsulta = null
 let consultaPerfil = null
 
+/** Asocia el perfil en memoria al token que lo solicitó para no mezclar usuarios. */
 function guardarPerfil(token, perfil) {
   if (token && token === obtenerToken()) {
     tokenPerfilGuardado = token
@@ -15,11 +16,13 @@ function guardarPerfil(token, perfil) {
   return perfil
 }
 
+/** Entrega el perfil guardado solo si pertenece a la sesión vigente. */
 export function obtenerPerfilEnCache() {
   const token = obtenerToken()
   return token && token === tokenPerfilGuardado ? perfilGuardado : null
 }
 
+/** Convierte los campos del backend al modelo que usa React. */
 function adaptarPerfil(usuario) {
   return {
     id: usuario.id,
@@ -31,6 +34,7 @@ function adaptarPerfil(usuario) {
   }
 }
 
+/** Comparte una consulta en curso entre pantallas y actualiza la caché de la sesión. */
 export async function obtenerPerfil() {
   const token = obtenerToken()
   if (esSesionAdminPrueba(token)) {
@@ -51,6 +55,7 @@ export async function obtenerPerfil() {
   }
 }
 
+/** Envía nombre, correo y, si corresponde, el cambio de contraseña. */
 export async function actualizarPerfil(datosPerfil) {
   const datos = { nombre: datosPerfil.nombre, email: datosPerfil.correo }
   if (datosPerfil.nuevaContrasena) {
@@ -64,6 +69,7 @@ export async function actualizarPerfil(datosPerfil) {
   return guardarPerfil(obtenerToken(), adaptarPerfil(usuario))
 }
 
+/** Actualiza la contraseña y refresca el perfil con la respuesta del servidor. */
 export async function cambiarContrasena(contrasenaActual, nuevaContrasena) {
   const usuario = await solicitarApi('/api/usuarios/me/password', {
     metodo: 'PATCH',

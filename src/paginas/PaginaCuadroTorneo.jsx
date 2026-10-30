@@ -11,6 +11,7 @@ function formatearPuntos(puntos) {
   return new Intl.NumberFormat('es-AR').format(puntos)
 }
 
+/** Encuentra el cruce del usuario entre todas las rondas. */
 function obtenerCrucePropio(torneo, usuarioId) {
   return torneo?.rondas.flatMap((ronda) => ronda.cruces).find((cruce) =>
     cruce.estado !== 'FINALIZADO' && cruce.jugadorA.usuarioId != null && cruce.jugadorB.usuarioId != null &&
@@ -29,6 +30,7 @@ function obtenerDescripcionCruce(cruce, alternativa) {
   return `${cruce.jugadorA.nombre} vs. ${cruce.jugadorB.nombre}`
 }
 
+/** Dibuja las rondas completas o resumidas según la vista. */
 function CuadroLlaves({ torneo, completo = false }) {
   const indiceRondaActual = Math.max(0, torneo.rondas.findIndex((ronda) => ronda.nombre === torneo.rondaActual))
   const numeroCampeon = String(torneo.rondas.length + 1).padStart(2, '0')
@@ -57,6 +59,7 @@ function TorneoFinalizado({ torneo }) {
   const [mostrarCuadro, establecerMostrarCuadro] = usarEstado(false)
   const [mensajeCompartir, establecerMensajeCompartir] = usarEstado('')
 
+  // Ofrece compartir el resultado final mediante el navegador.
   async function compartirResultado() {
     const texto = `${torneo.campeon?.nombre || 'El campeón'} ganó ${torneo.nombre} en FutbolQuiz Arena.`
     establecerMensajeCompartir('')
@@ -108,6 +111,7 @@ function TorneoFinalizado({ torneo }) {
   )
 }
 
+/** Obtiene los cruces del torneo y habilita el duelo que corresponde al usuario. */
 export default function PaginaCuadroTorneo() {
   const { idTorneo } = usarParametros()
   const navegar = usarNavegacion()
@@ -147,6 +151,7 @@ export default function PaginaCuadroTorneo() {
   const crucePropio = obtenerCrucePropio(torneo, perfil?.id)
   const textoBotonDuelo = obtenerTextoBotonDuelo(iniciando, crucePropio?.dueloId)
 
+  // Abre la partida solo después de que el servidor confirme el duelo del cruce.
   async function jugarCruce() {
     if (!crucePropio || !perfil || iniciando) return
     establecerIniciando(true)

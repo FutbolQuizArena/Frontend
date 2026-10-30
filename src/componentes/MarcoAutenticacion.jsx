@@ -2,6 +2,7 @@ import { Link as Enlace } from 'react-router-dom'
 import circuloCancha from '../recursos/circuloCancha.svg'
 import pelota from '../recursos/pelota.png'
 
+/** Comparte la estructura visual de las pantallas de ingreso y registro. */
 export default function MarcoAutenticacion({ variante = 'inicio-sesion', titulo, tituloMovil, descripcion, descripcionMovil, children: contenido }) {
   const esRegistro = variante === 'registro'
 

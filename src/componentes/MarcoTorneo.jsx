@@ -11,6 +11,7 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
+/** Reutiliza el marco de navegación y encabezado de las pantallas de torneos. */
 export default function MarcoTorneo({ children: contenido, tituloMovil, subtituloMovil, administrador = false, sufijoAdmin = '', claseAdicional = '', inicialesUsuario }) {
   const [usuario, establecerUsuario] = usarEstado(obtenerPerfilEnCache)
   const ubicacion = useLocation()

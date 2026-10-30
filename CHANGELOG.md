@@ -2,9 +2,13 @@
 
 Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 29/10/2026.
 
+## 29/10 [6.1] Comentarios de apoyo en el código
+
+En revisión en la rama `docs/comentarios-src`. Se añadieron explicaciones junto a funciones y decisiones de los 80 archivos JS/JSX de `src`, además de notas sobre la estructura y los puntos de adaptación de sus 23 hojas CSS. El cambio no modifica el comportamiento de la aplicación.
+
 ## 29/10 [2.2.8, 6.1] Cambio de turno del duelo local
 
-En revisión mediante PR #81 (`d69aa91`).
+Integrado en `develop` mediante PR #81 (`4470852`).
 
 - **Interfaz:** la pantalla de cambio de turno indica a quién pasar el dispositivo, muestra su nombre e iniciales y ofrece una acción clara para continuar.
 - **Calidad:** se corrigieron dos avisos de Sonar sobre espacios ambiguos entre texto y elementos JSX de esa pantalla.

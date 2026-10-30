@@ -27,6 +27,7 @@ export const modosJuegoBase = [
   },
 ]
 
+/** Acepta distintos nombres de campo y devuelve un modelo único de tarjeta. */
 function normalizarModoJuego(modo) {
   if (!modo || typeof modo !== 'object') {
     return null
@@ -52,6 +53,7 @@ function normalizarModoJuego(modo) {
   }
 }
 
+/** Busca la lista de modalidades en las variantes de respuesta admitidas. */
 function extraerModosDesdeRespuesta(respuesta) {
   if (!respuesta) return []
 
@@ -78,6 +80,7 @@ function extraerModosDesdeRespuesta(respuesta) {
   return []
 }
 
+/** Prueba rutas posibles y usa el catálogo local si ninguna devuelve modalidades. */
 export async function obtenerModosJuego() {
   const rutasPosibles = [
     '/api/juegos/modos',

@@ -18,6 +18,7 @@ function FilaRanking({ usuario, propia = false }) {
   )
 }
 
+/** Renderiza la clasificación y destaca la fila del usuario conectado. */
 export default function TablaRanking({ usuarios, usuarioActual }) {
   // La fila personal se muestra aparte; la lista general comienza después del podio.
   const clasificacion = usuarios.filter((usuario) => usuario.posicion > 3

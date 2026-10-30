@@ -12,6 +12,7 @@ function obtenerIniciales(nombre = '') {
     .join('')
 }
 
+/** Transforma una fila del backend y deja vacías métricas que no devuelve. */
 function adaptarJugadorRanking(jugador) {
   const nombre = jugador.nombre || 'Jugador'
   return {
@@ -27,6 +28,7 @@ function adaptarJugadorRanking(jugador) {
   }
 }
 
+/** Pide una página de la clasificación con el tamaño definido para el listado. */
 async function obtenerPaginaRanking(pagina) {
   const parametros = new URLSearchParams({
     pagina: String(pagina),
@@ -35,6 +37,7 @@ async function obtenerPaginaRanking(pagina) {
   return solicitarApi(`/api/ranking?${parametros.toString()}`)
 }
 
+/** Lee la posición propia que el backend incluye en la primera página. */
 export async function obtenerPosicionUsuarioActual() {
   const respuesta = await obtenerPaginaRanking(1)
   return respuesta?.mi_posicion?.posicion ?? null

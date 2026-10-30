@@ -1,6 +1,7 @@
 import { NavLink as EnlaceNavegacion } from 'react-router-dom'
 import EnlaceAdministracion from './EnlaceAdministracion.jsx'
 
+/** Comparte los enlaces principales y permite elegir el destino del acceso a Jugar. */
 export default function NavegacionInicio({ destinoJugar = '/jugar' }) {
   const enlaces = [
     { destino: '/home', titulo: 'Inicio', simbolo: '⌂' },

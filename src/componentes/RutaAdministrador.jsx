@@ -3,6 +3,7 @@ import { Link, Outlet, useSearchParams } from 'react-router-dom'
 import { usarSesion } from '../contextos/ContextoSesion.jsx'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 
+/** Restringe las rutas administrativas a sesiones con rol de administrador. */
 export default function RutaAdministrador() {
   const { token } = usarSesion()
   const [parametros] = useSearchParams()

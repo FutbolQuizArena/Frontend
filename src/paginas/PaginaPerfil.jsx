@@ -11,6 +11,7 @@ const datosIniciales = {
   nombre: '', correo: '', contrasenaActual: '', nuevaContrasena: '', iniciales: 'FQ', puntajeTotal: 0,
 }
 
+/** Comprueba los datos editables y devuelve errores por campo. */
 function validarPerfil(datos) {
   const errores = {}
 
@@ -24,6 +25,7 @@ function validarPerfil(datos) {
   return errores
 }
 
+/** Edita los datos del perfil y permite solicitar el cambio de contraseña. */
 export default function PaginaPerfil() {
   const [datos, establecerDatos] = usarEstado(datosIniciales)
   const [errores, establecerErrores] = usarEstado({})
@@ -59,6 +61,7 @@ export default function PaginaPerfil() {
     establecerMensajeExito('')
   }
 
+  // Actualiza el perfil y conserva visible cualquier rechazo de la API.
   async function manejarEnvio(evento) {
     evento.preventDefault()
     if (solicitudEnCurso.current) return

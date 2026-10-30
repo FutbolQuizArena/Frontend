@@ -1,5 +1,6 @@
 import { Link as Enlace } from 'react-router-dom'
 
+/** Ofrece una salida de navegación para una ruta que todavía no tiene pantalla propia. */
 export default function PaginaPendiente({ titulo, destinoAccion, textoAccion }) {
   return (
     <main className="pagina-no-encontrada">

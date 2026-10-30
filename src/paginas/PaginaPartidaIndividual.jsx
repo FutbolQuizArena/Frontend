@@ -33,6 +33,7 @@ const obtenerParametrosPartida = () => {
   }
 }
 
+/** Controla el tiempo, las respuestas y el cierre de la partida individual. */
 export default function PaginaPartidaIndividual() {
   const navegar = usarNavegacion()
   // La referencia conserva la solicitud en curso sin provocar un renderizado.

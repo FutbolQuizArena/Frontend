@@ -8,6 +8,7 @@ function obtenerUrlApi() {
   return urlApi
 }
 
+/** Expone código, detalle y estado HTTP para que cada pantalla decida cómo responder. */
 function crearErrorApi(datos, estado, mensajePredeterminado) {
   const error = new Error(datos?.message || mensajePredeterminado)
   error.codigo = datos?.code || 'ERROR_API'

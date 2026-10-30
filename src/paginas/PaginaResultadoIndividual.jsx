@@ -21,9 +21,11 @@ function obtenerNivelLogro(puntaje) {
   return 'Buen intento'
 }
 
+/** Presenta el resultado confirmado de la partida individual y sus acciones siguientes. */
 export default function PaginaResultadoIndividual() {
   const navegar = usarNavegacion()
   // Lee una vez el resultado que se guardó después de la confirmación del servidor.
+  // Lee el resultado guardado tras el cierre confirmado de la partida.
   const resultadoGuardado = useMemo(() => {
     const valor = sessionStorage.getItem('resultadoPartidaIndividual')
     return valor ? JSON.parse(valor) : null

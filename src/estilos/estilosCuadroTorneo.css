@@ -1,3 +1,4 @@
+/* Presenta rondas y cruces del cuadro con sus estados visuales. */
 .cuadro-torneo__encabezado { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .cuadro-torneo__sobrelinea { display: none; }
 .cuadro-torneo__encabezado h1 { margin: 0; font-size: 34px; line-height: 1.25; }

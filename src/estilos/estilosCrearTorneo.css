@@ -1,3 +1,4 @@
+/* Organiza el formulario de creación con navegación lateral en escritorio. */
 .crear-torneo { min-height: 100svh; padding-left: 240px; background: var(--color-fondo); }
 .crear-torneo__solo-movil, .crear-torneo__sobretitulo { display: none; }
 .crear-torneo__lateral { position: fixed; inset: 0 auto 0 0; z-index: 2; display: flex; flex-direction: column; width: 240px; padding: 28px 16px 80px; background: #07100c; }

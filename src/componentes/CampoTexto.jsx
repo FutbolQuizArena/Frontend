@@ -1,5 +1,6 @@
 import { useId as usarId } from 'react'
 
+/** Renderiza un campo de texto controlado con su etiqueta y requisitos. */
 export default function CampoTexto({ etiqueta, nombre, valor, alCambiar, ejemplo, requerido = false }) {
   const id = usarId()
 

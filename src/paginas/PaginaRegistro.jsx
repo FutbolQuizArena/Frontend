@@ -7,12 +7,14 @@ import { validarRegistro } from '../utilidades/validacionesAutenticacion.js'
 
 const datosIniciales = { nombre: '', correo: '', contrasena: '', confirmacionContrasena: '' }
 
+/** Valida el formulario de alta y crea una cuenta mediante el servicio de autenticación. */
 export default function PaginaRegistro() {
   const [datos, establecerDatos] = usarEstado(datosIniciales)
   const [errores, establecerErrores] = usarEstado({})
   const [mensajeError, establecerMensajeError] = usarEstado('')
   const [mensajeExito, establecerMensajeExito] = usarEstado('')
   const [enviando, establecerEnviando] = usarEstado(false)
+  // Bloquea clics repetidos mientras se procesa el registro.
   const solicitudEnCurso = usarReferencia(false)
 
   function manejarCambio(evento) {
@@ -27,6 +29,7 @@ export default function PaginaRegistro() {
     establecerMensajeExito('')
   }
 
+  // Revisa contraseña y confirmación antes de enviar el alta.
   async function manejarEnvio(evento) {
     evento.preventDefault()
     if (solicitudEnCurso.current) return

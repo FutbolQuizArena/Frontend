@@ -4,6 +4,7 @@ import MarcoTorneo from '../componentes/MarcoTorneo.jsx'
 import { obtenerDetalleTorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosSalaDetalleTorneo.css'
 
+/** Muestra el resumen del torneo y deriva a la sala o al cuadro según su estado. */
 export default function PaginaDetalleTorneo() {
   const { idTorneo } = usarParametros()
   const [torneo, establecerTorneo] = usarEstado(null)

@@ -2,10 +2,12 @@ import { obtenerPreguntasAdmin, renombrarCategoriaPreguntasAdmin } from './servi
 import { solicitarApi } from './clienteApi.js'
 import { esSesionAdminPrueba, obtenerToken } from './servicioSesion.js'
 
+/** Limita los datos de demostración a desarrollo y a la cuenta local de prueba. */
 function usarEjemplos({ vistaPrevia = false } = {}) {
   return import.meta.env.DEV && (vistaPrevia || esSesionAdminPrueba(obtenerToken()))
 }
 
+/** Unifica el conteo de preguntas y los campos de la categoría. */
 function adaptarCategoria(categoria) {
   return { id: categoria.id, nombre: categoria.nombre, estado: categoria.estado, cantidadPreguntas: categoria.preguntas_count ?? 0 }
 }
@@ -19,6 +21,7 @@ let categoriasEjemplo = [
   { id: 5, nombre: 'Eurocopa', estado: 'BORRADOR' },
 ]
 
+/** Consulta categorías reales o calcula el conteo local en la vista previa. */
 export async function obtenerCategoriasAdmin(opciones = {}) {
   if (!usarEjemplos(opciones)) {
     const respuesta = await solicitarApi('/api/admin/categorias')
@@ -39,6 +42,7 @@ export async function obtenerCategoriaAdmin(idCategoria, opciones = {}) {
   return { ...categoria }
 }
 
+/** Comprueba nombre y duplicados antes de modificar ejemplos locales. */
 function validarCategoria(datos, idActual) {
   const nombre = datos.nombre.trim()
   if (!nombre) throw new Error('Ingresá el nombre de la categoría.')
@@ -57,6 +61,7 @@ export async function crearCategoriaAdmin(datos, opciones = {}) {
   return { ...categoria }
 }
 
+/** En vista previa, sincroniza el nuevo nombre con las preguntas asociadas. */
 export async function actualizarCategoriaAdmin(idCategoria, datos, opciones = {}) {
   if (!usarEjemplos(opciones)) return adaptarCategoria(await solicitarApi(`/api/admin/categorias/${idCategoria}`, {
     metodo: 'PATCH', datos: { nombre: datos.nombre.trim(), estado: datos.estado },
@@ -70,6 +75,7 @@ export async function actualizarCategoriaAdmin(idCategoria, datos, opciones = {}
   return { ...categoria }
 }
 
+/** Respeta la restricción de no borrar categorías con preguntas. */
 export async function eliminarCategoriaAdmin(idCategoria, opciones = {}) {
   if (!usarEjemplos(opciones)) {
     await solicitarApi(`/api/admin/categorias/${idCategoria}`, { metodo: 'DELETE' })

@@ -9,6 +9,7 @@ import '../estilos/estilosRuleta.css'
 
 
 
+/** Obtiene categorías jugables y controla el giro que inicia una partida. */
 export default function PaginaRuletaCategoria() {
   const navegar = usarNavegacion()
   const ruletaReferencial = useRef(null)
@@ -40,6 +41,7 @@ export default function PaginaRuletaCategoria() {
   }, [])
 
   // Elige una categoría de la lista y le indica a la animación dónde debe detenerse.
+  // Inicia el giro cuando ya hay categorías disponibles.
   const manejarGiro = () => {
     if (categoriasDisponibles.length === 0) return
     const siguienteCategoria = obtenerCategoriaAleatoria(categoriasDisponibles)
@@ -54,6 +56,7 @@ export default function PaginaRuletaCategoria() {
 
   // Guarda el nombre elegido para mostrarlo al abrir la partida.
   // La categoría definitiva de las preguntas la asigna el backend al crear la partida.
+  // Guarda la categoría elegida al terminar la animación.
   const manejarFinalGiro = (categoriaSeleccionada) => {
     setCategoriaElegida(categoriaSeleccionada)
     setGiroActivo(false)
@@ -62,6 +65,7 @@ export default function PaginaRuletaCategoria() {
     }
   }
 
+  // Conserva la selección para mostrarla en la partida siguiente.
   const manejarContinuar = () => {
     setMensajeError('')
     sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaElegida.nombre)

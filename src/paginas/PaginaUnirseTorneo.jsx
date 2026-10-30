@@ -14,16 +14,19 @@ const enlaces = [
   { destino: '/perfil', titulo: 'Perfil', simbolo: '●' },
 ]
 
+/** Quita separadores antes de validar el código de invitación. */
 function normalizarCodigo(codigo) {
   return codigo.replace(/\s+/g, '').toUpperCase().slice(0, 6)
 }
 
+/** Devuelve el mensaje que acompaña al campo cuando el código es inválido. */
 function validarCodigo(codigo) {
   if (!codigo) return 'Ingresá el código del torneo.'
   if (!/^[A-Z0-9]{6}$/.test(codigo)) return 'El código debe tener 6 letras o números.'
   return ''
 }
 
+/** Valida el código de acceso y solicita la inscripción al torneo. */
 export default function PaginaUnirseTorneo() {
   const navegar = usarNavegacion()
   const [datos, establecerDatos] = usarEstado({ codigo: '', contrasena: '' })
@@ -46,6 +49,7 @@ export default function PaginaUnirseTorneo() {
     establecerMensajeExito('')
   }
 
+  // Navega a la sala únicamente tras confirmarse la inscripción.
   async function manejarEnvio(evento) {
     evento.preventDefault()
     if (solicitudEnCurso.current) return

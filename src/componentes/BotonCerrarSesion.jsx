@@ -3,6 +3,7 @@ import { usarSesion } from '../contextos/ContextoSesion.jsx'
 import { cerrarSesionRemota } from '../servicios/servicioAuth.js'
 import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 
+/** Cierra la sesión remota y local desde los encabezados compartidos. */
 export default function BotonCerrarSesion() {
   const { cerrarSesion } = usarSesion()
   const navegar = usarNavegacion()

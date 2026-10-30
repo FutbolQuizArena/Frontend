@@ -1,5 +1,6 @@
 import { Link as Enlace } from 'react-router-dom'
 
+/** Presenta una modalidad de juego con su ruta y disponibilidad. */
 export default function TarjetaModoJuego({ titulo, descripcion, destino, icono, etiqueta }) {
   return (
     <Enlace className="tarjeta-modo-juego" to={destino} aria-label={`${titulo}: ${descripcion}`}>

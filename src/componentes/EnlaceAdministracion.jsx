@@ -3,6 +3,7 @@ import { NavLink as EnlaceNavegacion } from 'react-router-dom'
 import { usarSesion } from '../contextos/ContextoSesion.jsx'
 import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil.js'
 
+/** Muestra el acceso al panel únicamente cuando la sesión permite administrarlo. */
 export default function EnlaceAdministracion({ claseEnlace }) {
   const { token } = usarSesion()
   const [esAdministrador, establecerEsAdministrador] = usarEstado(() => obtenerPerfilEnCache()?.rol === 'ADMINISTRADOR')
