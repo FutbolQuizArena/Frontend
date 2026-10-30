@@ -1,6 +1,7 @@
 import { solicitarApi } from './clienteApi.js'
 
 function normalizarPreguntaLocal(pregunta) {
+  // La API puede enviar opciones como columnas o como lista; la vista usa siempre A, B, C y D.
   const opciones = [
     { id: 'A', texto: pregunta?.opcion_a ?? pregunta?.opciones?.[0]?.texto ?? pregunta?.opciones?.[0] },
     { id: 'B', texto: pregunta?.opcion_b ?? pregunta?.opciones?.[1]?.texto ?? pregunta?.opciones?.[1] },
@@ -37,6 +38,7 @@ function normalizarDueloLocal(respuesta) {
 }
 
 export async function iniciarDueloLocal(_nombreJugador1, nombreJugador2) {
+  // El usuario autenticado es el jugador principal; solo se envía el nombre del invitado.
   const respuesta = await solicitarApi('/api/duelos/local', {
     metodo: 'POST',
     datos: {
@@ -48,6 +50,7 @@ export async function iniciarDueloLocal(_nombreJugador1, nombreJugador2) {
 }
 
 export async function registrarRespuestaTurnoLocal(idDueloLocal, jugadorId, idPregunta, opcionSeleccionada, tiempoEmpleado) {
+  // La API recibe la respuesta por pregunta y el tiempo en segundos.
   const opcionNormalizada = String(opcionSeleccionada ?? '').trim().toUpperCase()
   const tiempoRespuesta = Number(tiempoEmpleado) || 0
   const respuesta = await solicitarApi(`/api/duelos/preguntas/${encodeURIComponent(idPregunta)}/respuesta`, {
@@ -90,11 +93,13 @@ export async function obtenerResultadoDueloLocal(idDueloLocal) {
       esEmpate: Boolean(respuesta?.es_empate),
     }
   } catch {
+    // La pantalla puede calcular el resumen con el puntaje que ya confirmó cada respuesta.
     return null
   }
 }
 
 export async function guardarResultadoDueloLocal(idDueloLocal, datosResumen) {
+  // Completa el resumen de la vista con el estado del duelo; no crea otro resultado en la API.
   const estadoDuelo = await obtenerResultadoDueloLocal(idDueloLocal)
 
   return {

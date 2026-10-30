@@ -11,7 +11,7 @@ export default function PantallaCambioTurno({ jugador, onListo }) {
     <section className="duelo-local__panel duelo-local__panel--turno" aria-labelledby="titulo-cambio-turno">
       <div className="duelo-local__turno-contenido">
         <span className="duelo-local__turno-etapa">
-          <span className="duelo-local__turno-punto" aria-hidden="true" />
+          <span className="duelo-local__turno-punto" aria-hidden="true" />{' '}
           Cambio de turno
         </span>
 
@@ -36,7 +36,7 @@ export default function PantallaCambioTurno({ jugador, onListo }) {
         </div>
 
         <button type="button" className="duelo-local__boton-primary duelo-local__turno-boton" onClick={onListo}>
-          ¡Estoy listo!
+          ¡Estoy listo!{' '}
           <span aria-hidden="true">→</span>
         </button>
         <p className="duelo-local__turno-ayuda">Tocá el botón cuando tengas el dispositivo.</p>

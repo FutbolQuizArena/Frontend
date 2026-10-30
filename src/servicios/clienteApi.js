@@ -17,6 +17,7 @@ function crearErrorApi(datos, estado, mensajePredeterminado) {
 }
 
 export async function solicitarApi(ruta, { metodo = 'GET', datos, requiereSesion = true } = {}) {
+  // Centraliza token, JSON, tiempo de espera y formato de errores para todos los servicios.
   const token = requiereSesion ? obtenerToken() : null
   if (requiereSesion && !token) throw crearErrorApi(null, 401, 'Necesitás iniciar sesión de nuevo.')
 
