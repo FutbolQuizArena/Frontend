@@ -1,0 +1,5 @@
+# React Router resuelve las rutas en el navegador; al recargar, Netlify debe servir la aplicación.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
