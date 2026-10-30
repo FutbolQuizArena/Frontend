@@ -2,9 +2,24 @@
 
 Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 29/10/2026.
 
-## 29/10 [en revisión] Partidas, duelos y edición de preguntas
+## 29/10 [2.2.8, 6.1] Cambio de turno del duelo local
 
-Correcciones pendientes de prueba manual y análisis de Sonar antes de su integración en `develop`.
+En revisión mediante PR #81 (`d69aa91`).
+
+- **Interfaz:** la pantalla de cambio de turno indica a quién pasar el dispositivo, muestra su nombre e iniciales y ofrece una acción clara para continuar.
+- **Calidad:** se corrigieron dos avisos de Sonar sobre espacios ambiguos entre texto y elementos JSX de esa pantalla.
+
+## 29/10 [1.2.3, 6.1] Ranking y partidas en Inicio
+
+Integrado en `develop` mediante PR #80 (`5c88da1`). La pantalla de Inicio consulta la posición en el ranking y la cantidad de partidas del usuario; cuando un dato no está disponible, lo indica sin mostrar una cifra inventada. La ayuda aclara dónde consultar el ranking y qué hacer si una pantalla no carga los datos.
+
+## 29/10 [2.2.8] Cancelación de búsqueda online
+
+Integrado en `develop` mediante PR #79 (`e34dc72`). La búsqueda del rival se puede cancelar desde la pantalla de espera y respeta el vencimiento informado por el servidor. Si el rival se encuentra al mismo tiempo que se cancela, se consulta el estado del duelo antes de navegar.
+
+## 29/10 [2, 3 y 5] Partidas, duelos y edición de preguntas
+
+Integrado en `develop` mediante PR #78 (`6967389`).
 
 - **Partida individual:** las preguntas, respuestas y el resultado se obtienen del backend; los fallos de la API se muestran sin reemplazarlos por datos de ejemplo. Se evita crear dos partidas cuando React vuelve a ejecutar el efecto en desarrollo y se muestran los datos reales del perfil.
 - **Duelos:** la búsqueda online consulta el mismo duelo hasta encontrar rival o recibir el vencimiento; muestra la cuenta regresiva del servidor y confirma la cancelación con la API antes de salir. Si el rival aparece durante la cancelación, abre el duelo. Las respuestas del torneo avanzan mediante «Siguiente» después de la confirmación del servidor. Se quitaron respuestas y resultados de reemplazo de los recorridos de juego.

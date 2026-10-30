@@ -12,6 +12,7 @@ import '../estilos/estilosDueloLocal.css'
 
 export default function PaginaDueloLocal() {
   const navegar = usarNavegacion()
+  // El flujo avanza por preparación, pregunta, traspaso del dispositivo y resultado.
   const [preguntas, setPreguntas] = usarEstado([])
   const [fase, setFase] = usarEstado('preparacion')
   const [nombres, setNombres] = usarEstado({ jugador1: 'Lucas', jugador2: 'Mati' })
@@ -43,6 +44,7 @@ export default function PaginaDueloLocal() {
     setCargandoDuelo(true)
     setError('')
     try {
+      // El servidor crea el duelo y entrega las preguntas antes de habilitar el primer turno.
       const duelo = await iniciarDueloLocal(nombreJugador1, nombreJugador2)
       setIdDueloLocal(duelo.idDueloLocal)
       setPreguntas(duelo.preguntas)
@@ -70,6 +72,7 @@ export default function PaginaDueloLocal() {
     setError('')
     let respuesta
     try {
+      // El puntaje y el acierto provienen de la respuesta confirmada por la API.
       respuesta = await registrarRespuestaTurnoLocal(
         idDueloLocal,
         turnoActual,
@@ -100,6 +103,7 @@ export default function PaginaDueloLocal() {
     }
 
     const siguienteJugador = turnoActual === 'jugador1' ? 'jugador2' : 'jugador1'
+    // La pantalla intermedia evita mostrar la próxima pregunta antes de pasar el dispositivo.
     setProximoJugador(siguienteJugador)
     setFase('cambioTurno')
   }
@@ -108,6 +112,7 @@ export default function PaginaDueloLocal() {
     const siguienteIndice = indicePregunta + 1
 
     if (siguienteIndice >= preguntas.length) {
+      // Al terminar, se prioriza el puntaje persistido en el servidor para decidir el ganador.
       const estadoDuelo = idDueloLocal ? await obtenerResultadoDueloLocal(idDueloLocal) : null
       const puntajeFinalJugador1 = Number(estadoDuelo?.puntajeJugador1 ?? puntajeJugador1)
       const puntajeFinalJugador2 = Number(estadoDuelo?.puntajeJugador2 ?? puntajeJugador2)
