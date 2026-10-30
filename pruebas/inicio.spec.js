@@ -82,8 +82,11 @@ prueba('la Home se adapta al celular y mantiene accesibles los enlaces', async (
   await pagina.route('**/api/ranking?*', (ruta) => ruta.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify({ jugadores: [], total_jugadores: 0, pagina: 1, tamano_pagina: 100, mi_posicion: null }),
+    body: JSON.stringify({ jugadores: [], total_jugadores: 0, pagina: 1, tamano_pagina: 100, mi_posicion: { posicion: 4 } }),
   }))
+  await pagina.route('**/api/historial/partidas-individuales', (ruta) => ruta.fulfill({ json: { partidas: [], total: 3 } }))
+  await pagina.route('**/api/historial/duelos', (ruta) => ruta.fulfill({ json: { duelos: [], total: 0 } }))
+  await pagina.route('**/api/historial/torneos', (ruta) => ruta.fulfill({ json: { torneos: [], total: 0 } }))
   for (const ancho of [320, 390, 768, 1024, 1440]) {
     await pagina.setViewportSize({ width: ancho, height: 844 })
     await pagina.goto('/home')
@@ -92,6 +95,8 @@ prueba('la Home se adapta al celular y mantiene accesibles los enlaces', async (
   }
   await pagina.setViewportSize({ width: 390, height: 844 })
   await esperar(pagina.getByRole('heading', { name: '¿Listo para jugar?' })).toBeVisible()
+  await esperar(pagina.locator('.inicio__metricas dt')).toHaveText(['PUNTOS', 'RANKING', 'PARTIDAS'])
+  await esperar(pagina.locator('.inicio__metricas dd')).toHaveText(['2.450', '#4', '3'])
   await pagina.getByRole('button', { name: 'Jugar ahora' }).click()
   await esperar(pagina).toHaveURL(/\/partida\/ruleta$/)
   await esperar(pagina.getByRole('button', { name: 'Girar Ruleta' })).toBeEnabled()

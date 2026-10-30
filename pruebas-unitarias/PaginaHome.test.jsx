@@ -5,9 +5,13 @@ import PaginaHome from '../src/paginas/PaginaHome.jsx'
 import { ProveedorSesion } from '../src/contextos/ContextoSesion.jsx'
 import { obtenerPerfil } from '../src/servicios/servicioPerfil.js'
 import { obtenerTorneosDisponibles } from '../src/servicios/servicioTorneos.js'
+import { obtenerPosicionUsuarioActual } from '../src/servicios/servicioRanking.js'
+import { obtenerHistorialPersonal } from '../src/servicios/servicioHistorial.js'
 
 vi.mock('../src/servicios/servicioPerfil.js', () => ({ obtenerPerfil: vi.fn(), obtenerPerfilEnCache: vi.fn(() => null) }))
 vi.mock('../src/servicios/servicioTorneos.js', () => ({ obtenerTorneosDisponibles: vi.fn() }))
+vi.mock('../src/servicios/servicioRanking.js', () => ({ obtenerPosicionUsuarioActual: vi.fn() }))
+vi.mock('../src/servicios/servicioHistorial.js', () => ({ obtenerHistorialPersonal: vi.fn() }))
 vi.mock('../src/componentes/BotonCerrarSesion.jsx', () => ({ default: () => <button>Cerrar sesión</button> }))
 
 function RutaActual() {
@@ -19,7 +23,11 @@ function mostrarPagina() {
   render(<ProveedorSesion><MemoryRouter initialEntries={['/home']}><PaginaHome /><RutaActual /></MemoryRouter></ProveedorSesion>)
 }
 
-beforeEach(() => vi.resetAllMocks())
+beforeEach(() => {
+  vi.resetAllMocks()
+  vi.mocked(obtenerPosicionUsuarioActual).mockResolvedValue(4)
+  vi.mocked(obtenerHistorialPersonal).mockResolvedValue({ estadisticasGenerales: { partidasJugadas: 3 } })
+})
 afterEach(cleanup)
 
 describe('inicio', () => {
@@ -28,6 +36,10 @@ describe('inicio', () => {
     vi.mocked(obtenerTorneosDisponibles).mockResolvedValue([{ nombre: 'Copa del barrio', participantes: 2, capacidad: 8 }])
     mostrarPagina()
     await waitFor(() => expect(screen.getByText('Copa del barrio')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('#4')).toBeTruthy())
+    expect(screen.getByText('RANKING')).toBeTruthy()
+    expect(screen.getByText('PARTIDAS')).toBeTruthy()
+    expect(screen.getByText('3')).toBeTruthy()
     expect(screen.getByText('1.250')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Ver mi perfil' }).textContent).toBe('AP')
     fireEvent.click(screen.getByRole('button', { name: /Empezar partida/i }))

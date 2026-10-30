@@ -3,6 +3,7 @@ import { Link as Enlace, NavLink as EnlaceNavegacion, useNavigate as usarNavegac
 import EnlaceAdministracion from '../componentes/EnlaceAdministracion.jsx'
 import Boton from '../componentes/Boton.jsx'
 import CampoEntrada from '../componentes/CampoEntrada.jsx'
+import usarPerfilActual from '../ganchos/usarPerfilActual.js'
 import { unirseATorneo } from '../servicios/servicioTorneos.js'
 import '../estilos/estilosUnirseTorneo.css'
 
@@ -28,6 +29,7 @@ function validarCodigo(codigo) {
 
 /** Valida el código de acceso y solicita la inscripción al torneo. */
 export default function PaginaUnirseTorneo() {
+  const perfil = usarPerfilActual()
   const navegar = usarNavegacion()
   const [datos, establecerDatos] = usarEstado({ codigo: '', contrasena: '' })
   const [errorCodigo, establecerErrorCodigo] = usarEstado('')
@@ -94,13 +96,13 @@ export default function PaginaUnirseTorneo() {
           ))}
           <EnlaceAdministracion claseEnlace="unirse-torneo__enlace" />
         </nav>
-        <div className="unirse-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>Jugador · 2.450 pts</span></div>
+        <div className="unirse-torneo__acumulado"><p>PUNTAJE ACUMULADO</p><span>{perfil?.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Jugador'} · {perfil?.puntajeTotal == null ? '—' : perfil.puntajeTotal.toLocaleString('es-AR')} pts</span></div>
       </aside>
 
       <header className="unirse-torneo__cabecera">
         <span className="unirse-torneo__escudo" aria-label="FutbolQuiz Arena">FQ</span>
         <div className="unirse-torneo__titulo-movil"><strong>Unirse a torneo</strong><span>Ingresá una invitación</span></div>
-        <Enlace className="unirse-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>LM</span></Enlace>
+        <Enlace className="unirse-torneo__avatar" to="/perfil" aria-label="Ver mi perfil"><span>{perfil?.iniciales || 'FQ'}</span></Enlace>
       </header>
 
       <main className="unirse-torneo__contenido" id="contenido-unirse-torneo">

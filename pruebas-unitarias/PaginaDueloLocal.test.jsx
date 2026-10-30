@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import PaginaDueloLocal from '../src/paginas/PaginaDueloLocal.jsx'
+import { ProveedorSesion } from '../src/contextos/ContextoSesion.jsx'
+import { obtenerPerfil } from '../src/servicios/servicioPerfil.js'
 import { guardarResultadoDueloLocal, iniciarDueloLocal, obtenerResultadoDueloLocal, registrarRespuestaTurnoLocal } from '../src/servicios/servicioDuelosLocales.js'
 
 vi.mock('../src/servicios/servicioDuelosLocales.js', () => ({
@@ -10,6 +12,7 @@ vi.mock('../src/servicios/servicioDuelosLocales.js', () => ({
 }))
 vi.mock('../src/componentes/NavegacionInicio.jsx', () => ({ default: () => <nav>Inicio</nav> }))
 vi.mock('../src/componentes/BotonCerrarSesion.jsx', () => ({ default: () => <button>Cerrar sesión</button> }))
+vi.mock('../src/servicios/servicioPerfil.js', () => ({ obtenerPerfil: vi.fn(), obtenerPerfilEnCache: vi.fn(() => null) }))
 vi.mock('../src/componentes/PantallaPreparacionDuelo.jsx', () => ({
   default: ({ nombres, onChange, onIniciar, error }) => <section>
     <input aria-label="Jugador 1" value={nombres.jugador1} onChange={(evento) => onChange('jugador1', evento.target.value)} />
@@ -34,7 +37,7 @@ const preguntas = [
 
 function RutaActual() { return <output data-testid="ruta">{useLocation().pathname}</output> }
 function mostrarPagina() {
-  render(<MemoryRouter initialEntries={['/duelo/local']}><PaginaDueloLocal /><RutaActual /></MemoryRouter>)
+  render(<ProveedorSesion><MemoryRouter initialEntries={['/duelo/local']}><PaginaDueloLocal /><RutaActual /></MemoryRouter></ProveedorSesion>)
 }
 
 beforeEach(() => {
@@ -43,12 +46,14 @@ beforeEach(() => {
   vi.mocked(registrarRespuestaTurnoLocal).mockResolvedValue({ esCorrecta: true, puntajeObtenido: 100 })
   vi.mocked(obtenerResultadoDueloLocal).mockResolvedValue({ puntajeJugador1: 100, puntajeJugador2: 50 })
   vi.mocked(guardarResultadoDueloLocal).mockResolvedValue({})
+  vi.mocked(obtenerPerfil).mockResolvedValue({ nombre: 'Ana', iniciales: 'AP', rol: 'JUGADOR', puntajeTotal: 1250 })
 })
 afterEach(cleanup)
 
 describe('duelo local', () => {
   it('alterna turnos, guarda el resultado y permite revancha', async () => {
     mostrarPagina()
+    await waitFor(() => expect(screen.getByText('Hola, Ana')).toBeTruthy())
     fireEvent.change(screen.getByLabelText('Jugador 1'), { target: { value: 'Ana' } })
     fireEvent.change(screen.getByLabelText('Jugador 2'), { target: { value: 'Luis' } })
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar duelo' }))
