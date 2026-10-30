@@ -44,9 +44,9 @@ prueba('tras responder el jugador 1 aparece la pantalla de cambio de turno', asy
   const boton = pagina.getByRole('button', { name: /opción/i }).first()
   await boton.click()
 
-  await esperar(pagina.getByText('Pasa el dispositivo')).toBeVisible()
+  await esperar(pagina.getByRole('heading', { name: 'Pasá el dispositivo' })).toBeVisible()
   await esperar(pagina.getByText('Mati', { exact: true }).first()).toBeVisible()
-  await esperar(pagina.getByRole('button', { name: '¡Estoy Listo!' })).toBeVisible()
+  await esperar(pagina.getByRole('button', { name: '¡Estoy listo!' })).toBeVisible()
 })
 
 prueba('al presionar estoy listo se activa el turno del jugador 2', async ({ page: pagina }) => {
@@ -56,7 +56,7 @@ prueba('al presionar estoy listo se activa el turno del jugador 2', async ({ pag
   await pagina.getByRole('button', { name: 'Comenzar Duelo' }).click()
 
   await pagina.getByRole('button', { name: /opción/i }).first().click()
-  await pagina.getByRole('button', { name: '¡Estoy Listo!' }).click()
+  await pagina.getByRole('button', { name: '¡Estoy listo!' }).click()
 
   await esperar(pagina.getByText('Turno de Mati')).toBeVisible()
   await esperar(pagina.getByRole('button', { name: /opción/i }).first()).toBeVisible()
@@ -70,7 +70,7 @@ prueba('al finalizar calcula ganador y muestra resultado final', async ({ page: 
 
   for (let i = 0; i < 8; i += 1) {
     await pagina.getByRole('button', { name: /opción/i }).first().click()
-    await pagina.getByRole('button', { name: '¡Estoy Listo!' }).click()
+    await pagina.getByRole('button', { name: '¡Estoy listo!' }).click()
   }
 
   await esperar(pagina.getByText(/Ganador|Empate/i)).toBeVisible()
@@ -90,6 +90,16 @@ prueba('mantiene la vista responsive sin scroll horizontal en móvil', async ({ 
   })
 
   await esperar(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 2)
+
+  await pagina.getByRole('button', { name: 'Comenzar Duelo' }).click()
+  await pagina.getByRole('button', { name: /opción/i }).first().click()
+  await esperar(pagina.getByRole('heading', { name: 'Pasá el dispositivo' })).toBeVisible()
+
+  const overflowCambioTurno = await pagina.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }))
+  await esperar(overflowCambioTurno.scrollWidth).toBeLessThanOrEqual(overflowCambioTurno.clientWidth + 2)
 })
 
 prueba('permite reintentar si fallan el inicio del duelo y el registro de una respuesta', async ({ page: pagina }) => {
