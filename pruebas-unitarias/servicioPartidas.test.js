@@ -22,17 +22,16 @@ afterEach(() => {
 
 describe('categorías de partidas', () => {
   it('normaliza categorías del backend e ignora valores vacíos', async () => {
-    vi.mocked(solicitarApi).mockResolvedValue({ items: ['Historia', null, { categoria_id: 8, titulo: 'Clubes', color: '#f00' }] })
+    vi.mocked(solicitarApi).mockResolvedValue({ items: ['Historia', null, {}, { id: 8, nombre: ' Clubes ', color: '#f00' }] })
     await expect(obtenerCategoriasDisponibles()).resolves.toEqual([
-      { nombre: 'Historia' },
       { id: 8, nombre: 'Clubes', color: '#f00' },
     ])
   })
 
-  it('propaga el error de categorías y rechaza un listado vacío', async () => {
+  it('propaga el error de conexión y devuelve un listado vacío sin inventar categorías', async () => {
     vi.mocked(solicitarApi).mockRejectedValueOnce(new Error('sin servidor')).mockResolvedValueOnce([])
     await expect(obtenerCategoriasDisponibles()).rejects.toThrow('sin servidor')
-    await expect(obtenerCategoriasDisponibles()).rejects.toThrow('No hay categorías disponibles')
+    await expect(obtenerCategoriasDisponibles()).resolves.toEqual([])
     expect(solicitarApi).toHaveBeenCalledWith('/api/partidas/categorias')
   })
 
@@ -41,10 +40,18 @@ describe('categorías de partidas', () => {
     expect(obtenerCategoriaAleatoria(['A', { nombre: 'B' }])).toEqual({ nombre: 'B' })
     expect(obtenerCategoriaAleatoria([])).toBeNull()
     expect(obtenerCategoriaAleatoria(null)).toBeNull()
+    expect(obtenerCategoriaAleatoria()).toBeNull()
   })
 })
 
 describe('partida individual', () => {
+  it('envía el ID elegido en la ruleta al iniciar', async () => {
+    vi.mocked(solicitarApi).mockResolvedValue({ id: 5, preguntas: [{ id: 7 }] })
+    await iniciarPartidaIndividual(8)
+    expect(solicitarApi).toHaveBeenCalledWith('/api/partidas/individual', {
+      metodo: 'POST', datos: { categoria_id: 8 },
+    })
+  })
   it('mapea las preguntas recibidas del backend', async () => {
     vi.mocked(solicitarApi).mockResolvedValue({
       id: 5, categoria_nombre: 'Historia', categoria_id: 2, estado: 'EN_CURSO',

@@ -41,6 +41,23 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('formulario de pregunta', () => {
+  it('conserva el formulario cuando mover una pregunta dejaría la ruleta sin categorías', async () => {
+    const mensaje = 'Esta acción dejaría al juego sin categorías con preguntas activas suficientes. Primero habilitá otra categoría con preguntas.'
+    vi.mocked(obtenerCategoriasAdmin).mockResolvedValue([{ nombre: 'Historia', estado: 'ACTIVA' }, { nombre: 'Clubes', estado: 'ACTIVA' }])
+    vi.mocked(obtenerPreguntaAdmin).mockResolvedValue({ enunciado: 'Original', categoria: 'Historia', dificultad: 'Fácil', estado: 'ACTIVA', opciones: ['A', 'B', 'C', 'D'], respuestaCorrecta: 0 })
+    vi.mocked(actualizarPreguntaAdmin).mockRejectedValue(new Error(mensaje))
+    mostrarPagina('/admin/preguntas/5/editar')
+    await waitFor(() => expect(screen.getByLabelText('Enunciado de la pregunta').value).toBe('Original'))
+    fireEvent.change(screen.getByLabelText('Enunciado de la pregunta'), { target: { value: 'Edición conservada' } })
+    fireEvent.change(screen.getByLabelText('Categoría'), { target: { value: 'Clubes' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toBe(mensaje))
+    expect(screen.getByLabelText('Enunciado de la pregunta').value).toBe('Edición conservada')
+    expect(screen.getByLabelText('Categoría').value).toBe('Clubes')
+    expect(screen.getByLabelText('Opción A').value).toBe('A')
+    expect(screen.getByRole('button', { name: 'Guardar cambios' }).disabled).toBe(false)
+  })
+
   it('valida los campos antes de crear una pregunta', async () => {
     mostrarPagina()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Guardar pregunta' })).toBeTruthy())

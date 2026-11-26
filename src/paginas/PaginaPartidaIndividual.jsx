@@ -18,7 +18,7 @@ import { obtenerPerfil, obtenerPerfilEnCache } from '../servicios/servicioPerfil
 
 const obtenerCategoriaGuardada = () => {
   const categoriaGuardada = sessionStorage.getItem('categoriaPartidaSeleccionada')
-  return categoriaGuardada || 'Historia'
+  return categoriaGuardada || 'Categoría de la partida'
 }
 
 const obtenerParametrosPartida = () => {
@@ -76,7 +76,8 @@ export default function PaginaPartidaIndividual() {
       setCargando(true)
       setError('')
       // Se comparte la solicitud entre los dos montajes de StrictMode para no crear dos partidas.
-      const solicitudPartida = promesaInicioRef.current ?? iniciarPartidaIndividual()
+      const categoriaId = Number(sessionStorage.getItem('categoriaPartidaSeleccionadaId')) || null
+      const solicitudPartida = promesaInicioRef.current ?? iniciarPartidaIndividual(categoriaId)
       promesaInicioRef.current = solicitudPartida
       try {
         const partida = await solicitudPartida
@@ -88,6 +89,7 @@ export default function PaginaPartidaIndividual() {
         setCategoriaActual(partida.categoriaNombre)
         setPreguntas(partida.preguntas)
         setPartidaId(partida.id)
+        sessionStorage.removeItem('categoriaPartidaSeleccionadaId')
         setIndicePreguntaActual(0)
         setTiempoRestante(parametros.segundosPorPregunta || 15)
         setRespuestaSeleccionada(null)
@@ -221,7 +223,7 @@ export default function PaginaPartidaIndividual() {
 
   if (!preguntaActual) {
     return <main className="partida-individual partida-individual--carga">
-      {cargando ? <output>Cargando preguntas...</output> : <><p role="alert">{error}</p><Boton alHacerClic={() => setIntentoCarga((actual) => actual + 1)}>Reintentar</Boton></>}
+      {cargando ? <output>Cargando preguntas...</output> : <><p role="alert">{error}</p><Boton alHacerClic={() => setIntentoCarga((actual) => actual + 1)}>Reintentar</Boton><Enlace to="/partida/ruleta">Volver a la ruleta</Enlace></>}
     </main>
   }
 

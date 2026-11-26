@@ -12,9 +12,9 @@ async function llamarServicio(pagina, nombre, argumentos = []) {
   }, { nombreFuncion: nombre, argumentosFuncion: argumentos })
 }
 
-prueba('normaliza categorías del servidor y rechaza respuestas vacías o fallidas', async ({ page: pagina }) => {
+prueba('normaliza categorías reales, admite un banco vacío y propaga fallos de conexión', async ({ page: pagina }) => {
   const respuestas = [
-    [null, 'Historia', { id: 1, nombre: 'Mundiales', color: 'azul' }, { categoria_id: 2, titulo: 'Clubes' }, { slug: 'reglas', descripcion: 'Reglas' }, {}],
+    [null, 'Historia', { id: 1, nombre: 'Mundiales', color: 'azul' }, { id: 2, nombre: 'Clubes' }, { slug: 'reglas', descripcion: 'Reglas' }, {}],
     { categorias: [{ id: 4, nombre: 'Alternativa' }] },
     { items: [{ id: 3, nombre: 'Reglas' }] },
     { items: [] },
@@ -25,14 +25,13 @@ prueba('normaliza categorías del servidor y rechaza respuestas vacías o fallid
     return respuesta ? ruta.fulfill({ json: respuesta }) : ruta.fulfill({ status: 503, json: { message: 'No disponible' } })
   })
   const categorias = await llamarServicio(pagina, 'obtenerCategoriasDisponibles')
-  esperar(categorias.slice(0, 4)).toEqual([
-    { nombre: 'Historia' }, { id: 1, nombre: 'Mundiales', color: 'azul' },
-    { id: 2, nombre: 'Clubes', color: null }, { id: 'reglas', nombre: 'Reglas', color: null },
+  esperar(categorias).toEqual([
+    { id: 1, nombre: 'Mundiales', color: 'azul' },
+    { id: 2, nombre: 'Clubes', color: null },
   ])
-  esperar(categorias[4]).toMatchObject({ id: null, color: null })
   esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toEqual([{ id: 4, nombre: 'Alternativa', color: null }])
   esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toEqual([{ id: 3, nombre: 'Reglas', color: null }])
-  await esperar(llamarServicio(pagina, 'obtenerCategoriasDisponibles')).rejects.toThrow('No hay categorías disponibles')
+  esperar(await llamarServicio(pagina, 'obtenerCategoriasDisponibles')).toEqual([])
   await esperar(llamarServicio(pagina, 'obtenerCategoriasDisponibles')).rejects.toThrow()
 })
 
