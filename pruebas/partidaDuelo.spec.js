@@ -110,7 +110,6 @@ prueba('renderiza la partida de duelo y avanza hasta el resultado', async ({ pag
   await botones.first().click()
 
   await esperar(botones.first()).toBeDisabled()
-  await pagina.getByRole('button', { name: 'Siguiente', exact: true }).click()
 
   await esperar(pagina).toHaveURL(/\/duelo\/(?:[^/]+\/)?resultado$/)
 })

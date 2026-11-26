@@ -27,6 +27,14 @@ export async function prepararResultadoDuelo(pagina, datos = {}) {
 }
 
 export async function prepararDueloOnline(pagina) {
+  await pagina.route('**/api/duelos/42/juego', (ruta) => ruta.fulfill({ json: {
+    id: 42, estado: 'EN_CURSO', categoria_nombre: 'Historia', jugador1_id: 1,
+    jugador1_nombre: 'Lucas', jugador2_id: 2, jugador2_nombre: 'Rival',
+    preguntas: [crearPreguntaPartida()],
+  } }))
+  await pagina.route('**/api/duelos/42/presencia', (ruta) => ruta.fulfill({ json: {
+    id: 42, estado: 'EN_CURSO', jugador1_id: 1, jugador2_id: 2,
+  } }))
   await pagina.route('**/api/duelos/online', (ruta) => ruta.fulfill({ json: {
     id: 42, estado: 'EN_CURSO', categoria_nombre: 'Historia', jugador1_id: 1,
     jugador1_nombre: 'Lucas', jugador2_id: 2, jugador2_nombre: 'Rival',

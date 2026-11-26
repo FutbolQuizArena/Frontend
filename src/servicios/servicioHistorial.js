@@ -22,7 +22,7 @@ function adaptarDuelo(duelo) {
     resultado: duelo.resultado,
     puntaje: Number(duelo.puntaje_propio ?? 0),
     oponente: duelo.rival_nombre,
-    detalle: `Marcador: ${duelo.puntaje_propio}–${duelo.puntaje_rival}`,
+    detalle: `Marcador: ${duelo.puntaje_propio}–${duelo.puntaje_rival}${duelo.motivo_finalizacion === 'ABANDONO' ? ' · Finalizado por abandono' : duelo.motivo_finalizacion === 'SIN_CONEXION' ? ' · Ambos sin conexión; sin premios' : ''}`,
   }
 }
 

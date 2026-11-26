@@ -81,6 +81,8 @@ export function normalizarDueloOnline(respuesta, usuarioActual = null) {
     jugador2Id: respuesta?.jugador2_id ?? null,
     busquedaExpiraEn: respuesta?.busqueda_expira_en ?? null,
     modalidad: respuesta?.modalidad ?? 'online',
+    puntajePropio: Number(respuesta?.puntaje_propio ?? 0),
+    aciertosPropios: Number(respuesta?.aciertos_propios ?? 0),
     categoriaId: respuesta?.categoria_id ?? null,
     categoriaNombre,
     jugadorLocal,
@@ -138,11 +140,17 @@ export function obtenerResultadoDuelo(idDuelo, usuarioActual = null) {
       const ganadorNumero = Number(respuesta?.numero_ganador ?? 0)
 
       const resultadoGanador = obtenerGanadorResultado(estaFinalizado, empate, ganadorNumero, esJugador1)
+      if (estaFinalizado && respuesta?.motivo_finalizacion === 'SIN_CONEXION') {
+        resultadoGanador.ganador = 'sin_resultado'
+        resultadoGanador.resultadoTexto = 'SIN GANADOR'
+      }
 
       return {
         idPartida: Number(respuesta?.id ?? idDuelo ?? 0),
         estado,
         ganador: resultadoGanador.ganador,
+        motivoFinalizacion: respuesta?.motivo_finalizacion ?? null,
+        rivalAusente: Boolean(respuesta?.[`jugador${esJugador1 ? 2 : 1}_ausente`]),
         jugadorLocal: {
           nombre: datosJugadores.nombreLocal,
           alias: generarAlias(datosJugadores.nombreLocal),
@@ -295,7 +303,7 @@ export function obtenerPreguntasDuelo() {
 // Envía la respuesta al servidor y devuelve su confirmación con los puntos obtenidos.
 export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada, tiempoEmpleado) {
   const preguntaId = Number(idPregunta)
-  const opcionNormalizada = String(opcionSeleccionada ?? '').toUpperCase()
+  const opcionNormalizada = opcionSeleccionada == null ? null : String(opcionSeleccionada).toUpperCase()
 
   if (!Number.isFinite(preguntaId) || preguntaId <= 0) {
     return Promise.reject(new Error('No se pudo identificar la pregunta del duelo.'))
@@ -316,6 +324,17 @@ export function registrarRespuestaDuelo(idDuelo, idPregunta, opcionSeleccionada,
     esCorrecta: Boolean(respuesta?.es_correcta),
     puntajeObtenido: Number(respuesta?.puntaje_obtenido ?? 0),
   }))
+}
+
+export function enviarPresenciaDuelo(idDuelo) {
+  return solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}/presencia`, {
+    metodo: 'POST', tiempoLimiteMs: 5000,
+  })
+}
+
+export async function recuperarJuegoDuelo(idDuelo, usuarioActual) {
+  const respuesta = await solicitarApi(`/api/duelos/${encodeURIComponent(idDuelo)}/juego`)
+  return normalizarDueloOnline(respuesta, usuarioActual)
 }
 
 export default {

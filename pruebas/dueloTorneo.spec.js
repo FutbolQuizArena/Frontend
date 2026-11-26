@@ -73,6 +73,15 @@ async function prepararDueloTorneo(pagina, { respondida = false, errorInicio = f
     }),
   }))
 
+  await pagina.route('**/api/duelos/77/juego', (ruta) => ruta.fulfill({ json: {
+    id: 77, estado: 'EN_CURSO', modalidad: 'ONLINE', jugador1_id: 1, jugador2_id: 2,
+    jugador1_nombre: 'Lucas', jugador2_nombre: 'Sofi', categoria_nombre: 'Historia',
+    preguntas: respondida ? [{ ...preguntas[0], esta_respondida: true }, preguntas[1]] : [preguntas[0]],
+  } }))
+  await pagina.route('**/api/duelos/77/presencia', (ruta) => ruta.fulfill({ json: {
+    id: 77, estado: 'EN_CURSO', jugador1_id: 1, jugador2_id: 2,
+  } }))
+
   return () => respuestas
 }
 
@@ -89,7 +98,6 @@ prueba('desde un cruce inicia el duelo y vuelve al cuadro al terminar', async ({
   await esperar(pagina.getByRole('button', { name: 'A', exact: true })).toBeEnabled()
   await pagina.getByRole('button', { name: 'A', exact: true }).click()
 
-  await pagina.getByRole('button', { name: 'Siguiente', exact: true }).click()
   await esperar(pagina).toHaveURL(/\/duelo\/77\/resultado$/)
   await esperar(pagina.getByRole('link', { name: 'Volver al cuadro' })).toBeVisible()
   esperar(contarRespuestas()).toBe(2)

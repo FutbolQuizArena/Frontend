@@ -163,6 +163,27 @@ Los recursos de la cancha y la pelota en `src/recursos/` se exportaron directame
 
 ## Verificación
 
+### Duelos online: presencia y reconexión
+
+Requiere el Backend con la migración de presencia aplicada y los endpoints
+`POST /api/duelos/{id}/presencia` y `GET /api/duelos/{id}/juego`.
+Se envía presencia automáticamente cada 5 segundos durante las preguntas y la
+espera del resultado. Ocultar la pestaña no envía un abandono. Al cerrar una vista
+se limpian sus temporizadores; el servidor controla el vencimiento aunque el
+navegador se cierre o no pueda avisar.
+
+Al volver se recupera el progreso del servidor. Las preguntas tienen 15 segundos;
+al agotarse se envía una respuesta nula. El feedback dura 1,2 segundos y luego se
+avanza automáticamente, sin botón Siguiente. Los duelos locales conservan sus turnos.
+
+La pantalla muestra la ausencia del rival y el cierre por abandono. Si ambos
+vencieron se muestra un resultado sin ganador; en torneos se puede iniciar de nuevo
+el cruce desde el cuadro. Los 60 segundos los controla el Backend desde la última
+señal recibida, con revisión periódica cada 5 segundos.
+
+Las pruebas de navegador interceptan HTTP. El vencimiento y la asignación del
+ganador se verifican en los tests del Backend, sin modificar datos de producción.
+
 ```powershell
 npm run build
 npx playwright install chromium

@@ -17,7 +17,7 @@ function crearErrorApi(datos, estado, mensajePredeterminado) {
   return error
 }
 
-export async function solicitarApi(ruta, { metodo = 'GET', datos, requiereSesion = true } = {}) {
+export async function solicitarApi(ruta, { metodo = 'GET', datos, requiereSesion = true, tiempoLimiteMs = 60000 } = {}) {
   // Centraliza token, JSON, tiempo de espera y formato de errores para todos los servicios.
   const token = requiereSesion ? obtenerToken() : null
   if (requiereSesion && !token) throw crearErrorApi(null, 401, 'Necesitás iniciar sesión de nuevo.')
@@ -32,7 +32,7 @@ export async function solicitarApi(ruta, { metodo = 'GET', datos, requiereSesion
       method: metodo,
       headers: encabezados,
       body: datos === undefined ? undefined : JSON.stringify(datos),
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(tiempoLimiteMs),
     })
   } catch (error) {
     if (error.name === 'TimeoutError') throw new Error('El servidor tardó demasiado en responder. Intentá de nuevo en unos minutos.')
