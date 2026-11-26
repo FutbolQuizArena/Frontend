@@ -7,6 +7,7 @@ import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import TarjetaComparativaDuelo from '../componentes/TarjetaComparativaDuelo.jsx'
 import { obtenerResultadoDuelo } from '../servicios/servicioDuelos.js'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
+import usarPresenciaDuelo from '../ganchos/usarPresenciaDuelo.js'
 import '../estilos/estilosResultadoDuelo.css'
 
 
@@ -18,6 +19,9 @@ const obtenerEstadoResultado = (resultado) => {
   }
 
   const ganador = resultado?.ganador ?? 'pendiente'
+  if (ganador === 'sin_resultado') {
+    return { texto: 'SIN GANADOR', clase: 'resultado-duelo__banner--empate' }
+  }
 
   if (ganador === 'local') {
     return { texto: '¡VICTORIA!', clase: 'resultado-duelo__banner--victoria' }
@@ -34,7 +38,8 @@ const obtenerEstadoResultado = (resultado) => {
   return { texto: 'Esperando al rival...', clase: 'resultado-duelo__banner--pendiente' }
 }
 
-function obtenerSubtituloComparativa(enEspera, localEsGanador, rivalEsGanador) {
+function obtenerSubtituloComparativa(enEspera, localEsGanador, rivalEsGanador, sinResultado) {
+  if (sinResultado) return 'Duelo finalizado sin ganador'
   if (enEspera) return 'El rival aún está respondiendo. La pantalla se actualizará automáticamente.'
   if (localEsGanador) return 'Has ganado el enfrentamiento'
   if (rivalEsGanador) return 'Has perdido el enfrentamiento'
@@ -58,16 +63,21 @@ function crearResultadoEnEspera(datosBackend) {
 /** Reconsulta hasta que el servidor dé el duelo por terminado. */
 function iniciarPollingResultado(dueloId, perfil, estaActivo, setResultado) {
   let intervalo
+  let consultando = false
   intervalo = window.setInterval(async () => {
+    if (consultando || !estaActivo()) return
+    consultando = true
     try {
       const resultadoActualizado = await obtenerResultadoDuelo(dueloId, perfil)
       if (!estaActivo()) return
+      if (resultadoActualizado) setResultado(resultadoActualizado)
       if (resultadoActualizado && estaFinalizado(resultadoActualizado.estado)) {
-        setResultado(resultadoActualizado)
         window.clearInterval(intervalo)
       }
     } catch {
       // Se reintenta en el próximo intervalo.
+    } finally {
+      consultando = false
     }
   }, 2000)
 
@@ -117,6 +127,7 @@ export default function PaginaResultadoDuelo() {
   const [perfilUsuario, setPerfilUsuario] = usarEstado(null)
   const [errorResultado, setErrorResultado] = usarEstado('')
   const [intentoConsulta, setIntentoConsulta] = usarEstado(0)
+  const { errorConexion } = usarPresenciaDuelo(idDuelo, !estaFinalizado(resultado?.estado))
 
   usarEfecto(() => {
     let activo = true
@@ -245,8 +256,12 @@ export default function PaginaResultadoDuelo() {
               <p className="sobretitulo">RESULTADO DEL DUELO</p>
               <h1>Comparativa final</h1>
             </div>
-            <strong className="resultado-duelo__subtitulo">{obtenerSubtituloComparativa(enEspera, localEsGanador, rivalEsGanador)}</strong>
+            <strong className="resultado-duelo__subtitulo">{obtenerSubtituloComparativa(enEspera, localEsGanador, rivalEsGanador, resultado.ganador === 'sin_resultado')}</strong>
           </header>
+          {resultado.motivoFinalizacion === 'ABANDONO' && <p role="status">El duelo finalizó por abandono: un jugador estuvo 60 segundos sin conexión.</p>}
+          {resultado.motivoFinalizacion === 'SIN_CONEXION' && <p role="status">Ambos jugadores perdieron la conexión. El duelo terminó sin ganador ni premios. Si era un torneo, pueden volver a iniciar el cruce.</p>}
+          {enEspera && resultado.rivalAusente && <p role="status">Se perdió la conexión con tu rival. Esperando reconexión… El plazo es de 60 segundos desde su última señal.</p>}
+          {errorConexion && <p role="status">Se perdió la conexión. Intentando reconectar…</p>}
 
           <div className="resultado-duelo__comparativa">
             <TarjetaComparativaDuelo

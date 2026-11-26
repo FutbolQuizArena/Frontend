@@ -2,10 +2,10 @@ import { useEffect as usarEfecto, useRef as usarReferencia, useState as usarEsta
 import { Link as Enlace, useNavigate as usarNavegacion } from 'react-router-dom'
 import NavegacionInicio from '../componentes/NavegacionInicio.jsx'
 import BotonCerrarSesion from '../componentes/BotonCerrarSesion.jsx'
-import Boton from '../componentes/Boton.jsx'
 import MarcadorDuelo from '../componentes/MarcadorDuelo.jsx'
 import TarjetaJugadorDuelo from '../componentes/TarjetaJugadorDuelo.jsx'
-import { obtenerPreguntasDuelo, registrarRespuestaDuelo } from '../servicios/servicioDuelos.js'
+import { recuperarJuegoDuelo, registrarRespuestaDuelo } from '../servicios/servicioDuelos.js'
+import usarPresenciaDuelo from '../ganchos/usarPresenciaDuelo.js'
 import { obtenerPerfil } from '../servicios/servicioPerfil.js'
 import { navegarConManejo } from '../utilidades/navegacionConManejo.js'
 import '../estilos/estilosPartidaDuelo.css'
@@ -35,7 +35,7 @@ function restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCate
   }
 }
 
-// Marca la pregunta contestada en la copia local que se usa al retomar el torneo.
+// Conserva una copia local del progreso confirmado por el servidor.
 function guardarPreguntaRespondida(idPregunta) {
   const guardado = window.sessionStorage.getItem('dueloActual')
   if (!guardado) return
@@ -72,7 +72,7 @@ function avanzarPreguntaDuelo({ siguienteIndice, preguntas, partidaId, navegar, 
 }
 
 // Envía la respuesta y actualiza los puntos solo después de recibir la confirmación del servidor.
-async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, preguntaActual, bloqueado, tiempoRestante, partidaId, esTorneo, setBloqueado, setRespuestaSeleccionada, setEstadoFeedback, setEstadoRival, setMensajeError, setTiempoRestante, puntajeLocalRef, aciertosLocalRef, setPuntajeLocal, setAciertosLocal }) {
+async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, preguntaActual, bloqueado, tiempoRestante, partidaId, recuperarProgreso, setBloqueado, setRespuestaSeleccionada, setEstadoFeedback, setEstadoRival, setMensajeError, setTiempoRestante, puntajeLocalRef, aciertosLocalRef, setPuntajeLocal, setAciertosLocal }) {
   if (!preguntaActual || bloqueado) return
 
   setBloqueado(true)
@@ -83,13 +83,17 @@ async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, pregu
   try {
     resultadoApi = await registrarRespuestaDuelo(partidaId, preguntaActual.id, opcionSeleccionada, tiempoUsado)
   } catch (error) {
+    if (error.codigo === 'PREGUNTA_YA_RESPONDIDA' || error.codigo === 'PARTIDA_YA_FINALIZADA') {
+      recuperarProgreso()
+      return
+    }
     setMensajeError(error.message || 'No pudimos guardar la respuesta. Intentá de nuevo.')
     setRespuestaSeleccionada(null)
     setTiempoRestante(obtenerTiempoBase())
     setBloqueado(false)
     return
   }
-  if (esTorneo) guardarPreguntaRespondida(preguntaActual.id)
+  guardarPreguntaRespondida(preguntaActual.id)
   const acerto = Boolean(resultadoApi?.esCorrecta)
   const puntosGanados = Number(resultadoApi?.puntajeObtenido ?? 0)
 
@@ -103,7 +107,7 @@ async function procesarRespuestaDuelo({ opcionSeleccionada, tiempoAgotado, pregu
   }
 
   setEstadoRival('Respondiendo...')
-  // El jugador avanza a la siguiente pregunta al pulsar «Siguiente».
+  // El efecto del feedback controla el avance y limpia el temporizador al salir.
 }
 
 /** Recupera el duelo activo, envía respuestas y controla el avance hasta su resultado. */
@@ -127,13 +131,17 @@ export default function PaginaPartidaDuelo() {
   const [bloqueado, setBloqueado] = usarEstado(false)
   const [tiempoRestante, setTiempoRestante] = usarEstado(obtenerTiempoBase())
   const [puntajeLocal, setPuntajeLocal] = usarEstado(0)
-  const [puntajeRival] = usarEstado(0)
+  const [puntajeRival, setPuntajeRival] = usarEstado(0)
   const [aciertosLocal, setAciertosLocal] = usarEstado(0)
-  const [aciertosRival] = usarEstado(0)
+  const [aciertosRival, setAciertosRival] = usarEstado(0)
   const [estadoRival, setEstadoRival] = usarEstado('Respondiendo...')
   const [categoriaDuelo, setCategoriaDuelo] = usarEstado('Fútbol')
   const [esTorneo, setEsTorneo] = usarEstado(false)
   const [mensajeError, setMensajeError] = usarEstado('')
+  const [cargando, setCargando] = usarEstado(true)
+  const [intentoCarga, setIntentoCarga] = usarEstado(0)
+  const [usuarioId, setUsuarioId] = usarEstado(null)
+  const { estado: presencia, errorConexion } = usarPresenciaDuelo(partidaId)
 
   const puntajeLocalRef = usarReferencia(0)
   const aciertosLocalRef = usarReferencia(0)
@@ -145,14 +153,42 @@ export default function PaginaPartidaDuelo() {
 
   usarEfecto(() => {
     let activo = true
+    setCargando(true)
+    setPreguntas([])
+    setEstadoFeedback(null)
+    setBloqueado(false)
+    setTiempoRestante(obtenerTiempoBase())
+    setMensajeError('')
 
     const dueloGuardado = restaurarDueloGuardado(setPartidaId, setJugadorLocal, setRival, setCategoriaDuelo)
     setEsTorneo(Boolean(dueloGuardado?.torneoId))
 
     // Cargar perfil real si faltan datos del usuario local
     obtenerPerfil()
-      .then((perfil) => {
-        if (!activo || !perfil) return
+      .then(async (perfil) => {
+        if (!activo) return
+        if (!dueloGuardado?.id) throw new Error('No se pudo identificar el duelo.')
+        setUsuarioId(perfil.id)
+        const juego = await recuperarJuegoDuelo(dueloGuardado.id, perfil)
+        if (!activo) return
+        if (juego.estado === 'FINALIZADA') {
+          navegarConManejo(navegar, `/duelo/${juego.id}/resultado`)
+          return
+        }
+        const primeraPendiente = juego.preguntas.findIndex((pregunta) => !pregunta.estaRespondida)
+        if (primeraPendiente === -1) {
+          navegarConManejo(navegar, `/duelo/${juego.id}/resultado`)
+          return
+        }
+        setPreguntas(juego.preguntas)
+        setIndicePregunta(primeraPendiente)
+        puntajeLocalRef.current = juego.puntajePropio || 0
+        aciertosLocalRef.current = juego.aciertosPropios || 0
+        setPuntajeLocal(puntajeLocalRef.current)
+        setAciertosLocal(aciertosLocalRef.current)
+        setRival(juego.rival || dueloGuardado.rival)
+        sessionStorage.setItem('dueloActual', JSON.stringify({ ...dueloGuardado, ...juego }))
+        setCargando(false)
         const alias = perfil.nombre ? perfil.nombre.split(' ')[0] : 'Tú'
         setJugadorLocal((prev) => ({
           ...prev,
@@ -162,24 +198,30 @@ export default function PaginaPartidaDuelo() {
         }))
       })
       .catch((error) => {
-        console.error('No se pudo cargar el perfil; se mantienen los datos predeterminados.', error)
+        if (activo) {
+          setMensajeError(error.message || 'No se pudo recuperar el duelo.')
+          setCargando(false)
+        }
       })
-
-    const preguntasCargadas = obtenerPreguntasDuelo()
-    setPreguntas(preguntasCargadas)
-    if (dueloGuardado?.torneoId) {
-      const primeraPendiente = preguntasCargadas.findIndex((pregunta) => !pregunta.estaRespondida)
-      if (primeraPendiente === -1) {
-        navegarConManejo(navegar, `/duelo/${dueloGuardado.id}/resultado`)
-      } else {
-        setIndicePregunta(primeraPendiente)
-      }
-    }
 
     return () => {
       activo = false
     }
-  }, [])
+  }, [intentoCarga])
+
+  usarEfecto(() => {
+    if (!presencia || !usuarioId) return
+    if (presencia.estado === 'FINALIZADA') {
+      navegarConManejo(navegar, `/duelo/${partidaId}/resultado`)
+      return
+    }
+    const numero = Number(presencia.jugador1_id) === Number(usuarioId) ? 1 : 2
+    const numeroRival = numero === 1 ? 2 : 1
+    setEstadoRival(presencia[`jugador${numeroRival}_completo`] ? 'Terminó sus preguntas'
+      : presencia[`jugador${numeroRival}_ausente`] ? 'Sin conexión. Esperando reconexión…' : 'Respondiendo...')
+    setPuntajeRival(presencia[`puntaje_jugador${numeroRival}`] || 0)
+    setAciertosRival(presencia[`aciertos_jugador${numeroRival}`] || 0)
+  }, [presencia, usuarioId, partidaId, navegar])
 
   usarEfecto(() => {
     if (!preguntaActual || bloqueado || estadoFeedback) {
@@ -206,7 +248,7 @@ export default function PaginaPartidaDuelo() {
   }, [bloqueado, estadoFeedback, preguntaActual, tiempoRestante])
 
   const avanzarPregunta = () => avanzarPreguntaDuelo({
-    siguienteIndice: esTorneo ? siguientePreguntaPendiente(preguntas, indicePregunta) : indicePregunta + 1,
+    siguienteIndice: siguientePreguntaPendiente(preguntas, indicePregunta),
     preguntas,
     partidaId,
     navegar,
@@ -218,6 +260,12 @@ export default function PaginaPartidaDuelo() {
     setEstadoRival,
   })
 
+  usarEfecto(() => {
+    if (!estadoFeedback) return
+    const temporizador = window.setTimeout(avanzarPregunta, 1200)
+    return () => window.clearTimeout(temporizador)
+  }, [estadoFeedback, indicePregunta])
+
   const manejarRespuesta = (opcionSeleccionada, tiempoAgotado = false) => procesarRespuestaDuelo({
     opcionSeleccionada,
     tiempoAgotado,
@@ -225,7 +273,7 @@ export default function PaginaPartidaDuelo() {
     bloqueado,
     tiempoRestante,
     partidaId,
-    esTorneo,
+    recuperarProgreso: () => setIntentoCarga((n) => n + 1),
     setBloqueado,
     setRespuestaSeleccionada,
     setEstadoFeedback,
@@ -238,8 +286,9 @@ export default function PaginaPartidaDuelo() {
     setAciertosLocal,
   })
 
+  if (cargando) return <main className="partida-duelo__loading">Recuperando duelo…</main>
   if (!preguntaActual) {
-    return <main className="partida-duelo__loading"><p role="alert">No hay preguntas reales disponibles para este duelo.</p><Enlace to="/jugar">Volver a jugar</Enlace></main>
+    return <main className="partida-duelo__loading"><p role="alert">{mensajeError || 'No hay preguntas reales disponibles para este duelo.'}</p><button onClick={() => { setCargando(true); setIntentoCarga((n) => n + 1) }}>Reintentar</button><Enlace to="/jugar">Volver a jugar</Enlace></main>
   }
 
   return (
@@ -339,10 +388,11 @@ export default function PaginaPartidaDuelo() {
             <div className="partida-duelo__feedback">
               <strong>{estadoFeedback === 'correcta' ? 'Respuesta correcta' : 'Respuesta incorrecta'}</strong>
               {' '}El rival también está resolviendo la pregunta.
-              <Boton alHacerClic={avanzarPregunta}>Siguiente</Boton>
+              {' '}La siguiente pregunta aparecerá automáticamente.
             </div>
           )}
           {mensajeError && <p className="partida-duelo__feedback" role="alert">{mensajeError}</p>}
+          {errorConexion && <p role="status">Se perdió la conexión. Intentando reconectar…</p>}
         </section>
       </main>
     </div>

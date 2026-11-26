@@ -1,6 +1,16 @@
 # Changelog
 
-Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 30/10/2026.
+Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits o, en entradas pendientes, al trabajo realizado; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 25/11/2026.
+
+## 25/11 [2.2.8, 3.3.5, 6.1] Desconexión y avance automático en duelos online
+
+Cambios en `fix/duelos-desconexion`, pendientes de commit e integración en `develop`.
+
+- **Presencia:** se envían señales automáticas cada 5 segundos durante la partida y la espera del resultado, sin depender de clics ni considerar un cambio de pestaña como abandono. Se limpian los temporizadores al salir y se reintenta ante cortes de conexión.
+- **Reconexión:** las preguntas pendientes, los puntos y los aciertos se recuperan del servidor al recargar. Si se perdió la confirmación de una respuesta ya guardada, se recupera el progreso sin volver a sumar sus puntos.
+- **Avance:** las preguntas online avanzan automáticamente después de 1,2 segundos de feedback. Al agotarse los 15 segundos se envía una respuesta nula y se continúa; se conserva el funcionamiento por turnos de los duelos locales.
+- **Resultado e historial:** se muestra la ausencia del rival y la finalización por abandono informada por el Backend. Si ambos vencen, se indica que no hay ganador ni premios; en torneos se puede volver al cuadro para iniciar nuevamente el cruce.
+- **Pruebas:** se agregaron casos unitarios y de navegador para presencia, reconexión, avance sin interacción, cierre de pestaña y resultados por abandono o desconexión de ambos. Se actualizaron los recorridos existentes y la documentación del contrato con el Backend.
 
 ## 30/10 [1.2.3, 6.1] Datos de sesión y rendimiento en móvil
 

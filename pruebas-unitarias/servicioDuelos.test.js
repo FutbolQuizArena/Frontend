@@ -151,4 +151,21 @@ describe('duelos online', () => {
     await expect(buscarRivalDuelo()).rejects.toThrow('El servidor no devolvió un duelo con preguntas')
     expect(window.sessionStorage.getItem('dueloActual')).toBeNull()
   })
+
+  it('envía null cuando se agota el tiempo de la pregunta', async () => {
+    vi.mocked(solicitarApi).mockResolvedValue({ es_correcta: false, puntaje_obtenido: 0 })
+    await registrarRespuestaDuelo(12, 6, null, 15)
+    expect(solicitarApi).toHaveBeenCalledWith('/api/duelos/preguntas/6/respuesta', {
+      metodo: 'POST', datos: { opcion_seleccionada: null, tiempo_respuesta_segundos: 15 },
+    })
+  })
+
+  it('distingue el cierre sin conexión de un empate o resultado pendiente', async () => {
+    vi.mocked(solicitarApi).mockResolvedValue({ id: 12, estado: 'FINALIZADA',
+      jugador1_id: 1, jugador2_id: 2, numero_ganador: null, es_empate: false,
+      motivo_finalizacion: 'SIN_CONEXION' })
+    await expect(obtenerResultadoDuelo(12, { id: 1 })).resolves.toMatchObject({
+      ganador: 'sin_resultado', motivoFinalizacion: 'SIN_CONEXION',
+    })
+  })
 })

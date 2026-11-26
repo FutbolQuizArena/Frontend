@@ -8,6 +8,7 @@ function formatearFecha(fecha) {
 
 function obtenerTextoResultado(partida) {
   const resultado = String(partida.resultado ?? '').toUpperCase()
+  if (resultado === 'SIN_RESULTADO') return 'Sin ganador'
   if (resultado.includes('VICTORIA') || resultado === 'GANADA' || resultado === 'GANADO') return 'Victoria'
   if (resultado.includes('DERROTA') || resultado === 'PERDIDA' || resultado === 'PERDIDO') return 'Derrota'
   if (partida.respuestasCorrectas !== null && partida.totalRespuestas) return `${partida.respuestasCorrectas}/${partida.totalRespuestas}`
