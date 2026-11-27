@@ -163,6 +163,22 @@ Los recursos de la cancha y la pelota en `src/recursos/` se exportaron directame
 
 ## Verificación
 
+### Disponibilidad de categorías en la ruleta
+
+La ruleta consume `GET /api/partidas/categorias`: el Backend devuelve solo categorías
+activas con al menos 10 preguntas activas no eliminadas. El Frontend no crea categorías
+de reemplazo. Si el banco está inicialmente vacío, muestra un estado de disponibilidad
+pendiente y permite volver a consultar, con el giro y el inicio deshabilitados.
+
+Al continuar se envía el ID elegido en `POST /api/partidas/individual` como
+`{"categoria_id": 1}`. Se requiere el Backend actualizado para respetar esa selección;
+el servidor revalida la disponibilidad antes de asignar las preguntas.
+
+La administración muestra los rechazos `409 ULTIMA_CATEGORIA_JUGABLE` del Backend
+y conserva el formulario y sus valores. La protección del último banco jugable se
+aplica en el servidor, incluso ante solicitudes concurrentes. La vista previa
+administrativa sigue siendo una demostración local y no valida esa transacción.
+
 ### Duelos online: presencia y reconexión
 
 Requiere el Backend con la migración de presencia aplicada y los endpoints

@@ -32,6 +32,20 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
 describe('formulario de categoría', () => {
+  it('conserva nombre y estado cuando la API protege la última categoría jugable', async () => {
+    const mensaje = 'Esta acción dejaría al juego sin categorías con preguntas activas suficientes. Primero habilitá otra categoría con preguntas.'
+    vi.mocked(actualizarCategoriaAdmin).mockRejectedValue(new Error(mensaje))
+    mostrarPagina('/admin/categorias/3/editar')
+    await waitFor(() => expect(screen.getByLabelText('Nombre de la categoría').value).toBe('Historia'))
+    fireEvent.change(screen.getByLabelText('Nombre de la categoría'), { target: { value: 'Nombre conservado' } })
+    fireEvent.change(screen.getByLabelText('Estado'), { target: { value: 'BORRADOR' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toBe(mensaje))
+    expect(screen.getByLabelText('Nombre de la categoría').value).toBe('Nombre conservado')
+    expect(screen.getByLabelText('Estado').value).toBe('BORRADOR')
+    expect(screen.getByRole('button', { name: 'Guardar cambios' }).disabled).toBe(false)
+  })
+
   it('valida el nombre y crea una categoría', async () => {
     mostrarPagina()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Crear categoría' })).toBeTruthy())

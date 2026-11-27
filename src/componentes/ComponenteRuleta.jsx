@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 
 const PALETA_CATEGORIAS = ['#35c466', '#1f4d3a', '#f7d77d', '#87d2a4', '#2a7a4a', '#dff9ea']
 
@@ -26,6 +26,7 @@ const ComponenteRuleta = forwardRef(function ComponenteRuleta({
   const [rotacion, setRotacion] = useState(0)
   const [giroEnCurso, setGiroEnCurso] = useState(false)
   const temporizadorGiro = useRef(null)
+  useEffect(() => () => clearTimeout(temporizadorGiro.current), [])
 
   const categoriasNormalizadas = useMemo(
     () => categorias.map((categoria, indice) => normalizarCategoria(categoria, indice)),
@@ -123,7 +124,10 @@ const ComponenteRuleta = forwardRef(function ComponenteRuleta({
 
     return {
       ...categoria,
-      path: `M ${centroX} ${centroY} L ${x1} ${y1} A ${radio} ${radio} 0 ${grande} 1 ${x2} ${y2} Z`,
+      // Un arco de 360° termina donde empieza: se necesitan dos semicírculos.
+      path: categoriasNormalizadas.length === 1
+        ? `M ${centroX} ${centroY - radio} A ${radio} ${radio} 0 1 1 ${centroX} ${centroY + radio} A ${radio} ${radio} 0 1 1 ${centroX} ${centroY - radio} Z`
+        : `M ${centroX} ${centroY} L ${x1} ${y1} A ${radio} ${radio} 0 ${grande} 1 ${x2} ${y2} Z`,
       background: `M ${centroX} ${centroY} L ${x1Interior} ${y1Interior} A ${radioInterior} ${radioInterior} 0 ${grande} 1 ${x2Interior} ${y2Interior} Z`,
       xTexto,
       yTexto,

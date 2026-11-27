@@ -2,9 +2,16 @@
 
 Historial del **frontend** de FutbolQuiz Arena, reconstruido a partir de los commits de `develop`, las ramas de trabajo y el código. Las entradas están ordenadas de la más reciente a la más antigua, como el changelog del backend. La fecha corresponde a los commits o, en entradas pendientes, al trabajo realizado; una funcionalidad descrita como temporal todavía no persiste en el servidor. Estado revisado el 25/11/2026.
 
+## 25/11 [2.2, 5.2, 6.1] Categorías jugables y disponibilidad de la ruleta
+
+- **Ruleta:** se utilizan únicamente categorías reales recibidas del Backend, sin listas ni nombres de respaldo. Con un banco inicialmente vacío se informa que todavía no hay categorías listas, se bloquea el giro y se permite volver a consultar.
+- **Selección:** se conserva y envía el ID elegido para que la partida use esa categoría y el Backend compruebe su disponibilidad. Se corrigió el dibujo de la rueda cuando existe una única categoría jugable y se limpia el temporizador del giro al salir.
+- **Administración:** se aclara el mínimo de 10 preguntas activas por categoría. Los rechazos de la última categoría jugable muestran el motivo de la API y conservan los valores del formulario para poder corregirlos.
+- **Pruebas:** se agregaron casos unitarios y de navegador para banco vacío, una única categoría, envío del ID elegido, fallos de carga y conservación de formularios administrativos. Se actualizó la documentación del contrato con el Backend.
+
 ## 25/11 [2.2.8, 3.3.5, 6.1] Desconexión y avance automático en duelos online
 
-Cambios en `fix/duelos-desconexion`, pendientes de commit e integración en `develop`.
+Integrado en `develop` mediante PR #86 (`6646ae5`).
 
 - **Presencia:** se envían señales automáticas cada 5 segundos durante la partida y la espera del resultado, sin depender de clics ni considerar un cambio de pestaña como abandono. Se limpian los temporizadores al salir y se reintenta ante cortes de conexión.
 - **Reconexión:** las preguntas pendientes, los puntos y los aciertos se recuperan del servidor al recargar. Si se perdió la confirmación de una respuesta ya guardada, se recupera el progreso sin volver a sumar sus puntos.

@@ -1,27 +1,15 @@
 import { solicitarApi } from './clienteApi.js'
 
-export const categoriasPartidas = [
-  'Historia',
-  'Mundiales',
-  'Clubes',
-  'Jugadores',
-  'Reglas',
-  'Tácticas',
-]
-
 // Adapta los campos de cada categoría al formato que utiliza la ruleta.
 function normalizarCategoriaBackend(categoria) {
-  if (!categoria) {
-    return null
-  }
-
-  if (typeof categoria === 'string') {
-    return { nombre: categoria }
-  }
+  if (!categoria || typeof categoria !== 'object') return null
+  const id = Number(categoria.id)
+  const nombre = typeof categoria.nombre === 'string' ? categoria.nombre.trim() : ''
+  if (!Number.isInteger(id) || id <= 0 || !nombre) return null
 
   return {
-    id: categoria.id ?? categoria.categoria_id ?? categoria.slug ?? null,
-    nombre: categoria.nombre ?? categoria.titulo ?? categoria.descripcion ?? 'Categoría',
+    id,
+    nombre,
     color: categoria.color ?? null,
   }
 }
@@ -37,7 +25,6 @@ function obtenerCategoriasDeRespuesta(respuesta) {
 export async function obtenerCategoriasDisponibles() {
   const respuesta = await solicitarApi('/api/partidas/categorias')
   const categorias = obtenerCategoriasDeRespuesta(respuesta).map(normalizarCategoriaBackend).filter(Boolean)
-  if (categorias.length === 0) throw new Error('No hay categorías disponibles para jugar.')
   return categorias
 }
 
@@ -60,7 +47,7 @@ function mapearPreguntaBackend(pregunta, categoria) {
 }
 
 /** Elige una categoría disponible para el giro cuando no llega un resultado predeterminado. */
-export function obtenerCategoriaAleatoria(categorias = categoriasPartidas) {
+export function obtenerCategoriaAleatoria(categorias = []) {
   if (!Array.isArray(categorias) || categorias.length === 0) {
     return null
   }
@@ -76,8 +63,10 @@ export function obtenerPreguntasPorCategoria(categoriaId, cantidad = 10) {
 }
 
 // Crea una partida y comprueba que el servidor haya devuelto su ID y sus preguntas.
-export async function iniciarPartidaIndividual() {
-  const respuesta = await solicitarApi('/api/partidas/individual', { metodo: 'POST' })
+export async function iniciarPartidaIndividual(categoriaId = null) {
+  const opciones = { metodo: 'POST' }
+  if (categoriaId != null) opciones.datos = { categoria_id: Number(categoriaId) }
+  const respuesta = await solicitarApi('/api/partidas/individual', opciones)
   if (!Number.isInteger(respuesta?.id) || !Array.isArray(respuesta.preguntas) || respuesta.preguntas.length === 0) {
     throw new Error('El servidor no devolvió una partida con preguntas.')
   }

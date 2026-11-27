@@ -59,11 +59,18 @@ afterEach(() => {
 })
 
 describe('partida individual', () => {
+  it('inicia con el ID de la ruleta y lo limpia al recibir la partida', async () => {
+    sessionStorage.setItem('categoriaPartidaSeleccionadaId', '8')
+    await mostrarPagina()
+    expect(iniciarPartidaIndividual).toHaveBeenCalledWith(8)
+    expect(sessionStorage.getItem('categoriaPartidaSeleccionadaId')).toBeNull()
+  })
+
   it('carga las preguntas y la categoría asignadas por el servidor', async () => {
     await mostrarPagina()
     expect(screen.getByRole('heading', { name: 'Pregunta 1 de 2' })).toBeTruthy()
     expect(screen.getByText('Primera pregunta')).toBeTruthy()
-    expect(iniciarPartidaIndividual).toHaveBeenCalledWith()
+    expect(iniciarPartidaIndividual).toHaveBeenCalledWith(null)
     expect(screen.getAllByText('Clubes').length).toBeGreaterThan(0)
   })
 

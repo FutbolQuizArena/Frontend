@@ -21,27 +21,34 @@ export default function PaginaRuletaCategoria() {
   const [categoriaSiguiente, setCategoriaSiguiente] = useState(null)
   const [giroActivo, setGiroActivo] = useState(false)
   const [mensajeError, setMensajeError] = useState('')
+  const [cargando, setCargando] = useState(true)
+  const [intentoCarga, setIntentoCarga] = useState(0)
 
   // Carga las categorías de la API; si falla, muestra el error y deja el giro deshabilitado.
   useEffect(() => {
     let cancelado = false
+    setCargando(true)
+    setMensajeError('')
+    setCategoriasDisponibles([])
+    sessionStorage.removeItem('categoriaPartidaSeleccionadaId')
 
     obtenerCategoriasDisponibles()
       .then((categorias) => {
-        if (!cancelado && Array.isArray(categorias) && categorias.length > 0) {
+        if (!cancelado && Array.isArray(categorias)) {
           setCategoriasDisponibles(categorias)
         }
       })
-      .catch((error) => {
+      .catch(() => {
         if (!cancelado) {
-          setMensajeError(error.message || 'No pudimos cargar las categorías. Recargá la página para reintentar.')
+          setMensajeError('No pudimos cargar las categorías. Volvé a intentarlo en unos instantes.')
         }
       })
+      .finally(() => { if (!cancelado) setCargando(false) })
 
     return () => {
       cancelado = true
     }
-  }, [])
+  }, [intentoCarga])
 
   // Elige una categoría de la lista y le indica a la animación dónde debe detenerse.
   // Inicia el giro cuando ya hay categorías disponibles.
@@ -57,19 +64,19 @@ export default function PaginaRuletaCategoria() {
     }
   }
 
-  // Guarda el nombre elegido para mostrarlo al abrir la partida.
-  // La categoría definitiva de las preguntas la asigna el backend al crear la partida.
-  // Guarda la categoría elegida al terminar la animación.
+  // Conserva el ID elegido; el servidor verifica que siga siendo jugable al iniciar.
   const manejarFinalGiro = (categoriaSeleccionada) => {
     setCategoriaElegida(categoriaSeleccionada)
     setGiroActivo(false)
     if (categoriaSeleccionada?.nombre) {
       sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaSeleccionada.nombre)
+      sessionStorage.setItem('categoriaPartidaSeleccionadaId', String(categoriaSeleccionada.id))
     }
   }
 
   // Conserva la selección para mostrarla en la partida siguiente.
   const manejarContinuar = () => {
+    if (!categoriaElegida || categoriasDisponibles.length === 0) return
     setMensajeError('')
     sessionStorage.setItem('categoriaPartidaSeleccionada', categoriaElegida.nombre)
     void Promise.resolve(navegar('/partida/juegan')).catch(() => {
@@ -108,19 +115,22 @@ export default function PaginaRuletaCategoria() {
           </header>
 
           <div className="ruleta-categoria__contenido">
-            <ComponenteRuleta
+            {categoriasDisponibles.length > 0 && <ComponenteRuleta
               ref={ruletaReferencial}
               categorias={categoriasDisponibles}
               resultadoSeleccionado={categoriaSiguiente}
               alFinalizarGiro={manejarFinalGiro}
               deshabilitado={giroActivo || categoriasDisponibles.length === 0}
-            />
+            />}
 
             <div className="ruleta-categoria__acciones">
               <Boton alHacerClic={manejarGiro} deshabilitado={giroActivo || categoriasDisponibles.length === 0}>
                 Girar Ruleta
               </Boton>
               {mensajeError && <p className="mensaje mensaje--error" role="alert">{mensajeError}</p>}
+              {cargando && <p role="status">Cargando categorías…</p>}
+              {!cargando && !mensajeError && categoriasDisponibles.length === 0 && <p role="status">Todavía no hay categorías listas para jugar. Volvé a intentarlo más tarde.</p>}
+              {!cargando && categoriasDisponibles.length === 0 && <Boton alHacerClic={() => setIntentoCarga((n) => n + 1)}>Volver a consultar</Boton>}
 
               {categoriaElegida && (
                 <dialog open className="ruleta-categoria__resultado" aria-labelledby="categoria-resultante">

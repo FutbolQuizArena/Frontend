@@ -101,6 +101,7 @@ export default function PaginaFormularioCategoriaAdmin() {
         <label>Nombre de la categoría<input value={datos.nombre} onChange={(evento) => setDatos({ ...datos, nombre: evento.target.value })} maxLength="100" /></label>
         {datosEjemplo && <label>Descripción (opcional)<textarea value={datos.descripcion || ''} onChange={(evento) => setDatos({ ...datos, descripcion: evento.target.value })} maxLength="300" rows="3" /></label>}
         <label>Estado<select value={datos.estado} onChange={(evento) => setDatos({ ...datos, estado: evento.target.value })}><option value="ACTIVA">Activa</option><option value="BORRADOR">Borrador</option></select></label>
+        <p className="admin-formulario__nota">Para aparecer en la ruleta, la categoría debe estar activa y tener al menos 10 preguntas activas. El juego debe conservar al menos una categoría disponible.</p>
         {errorFormulario && <p className="admin-formulario__error" role="alert">{errorFormulario}</p>}
         {datosEjemplo && <p className="admin-formulario__temporal">Datos de prueba: los cambios se pierden al recargar.</p>}
         <div className="admin-formulario__acciones"><Link to={regreso}>Cancelar</Link>{idCategoria && <button type="button" disabled={guardando} onClick={() => { void eliminar() }}>Eliminar categoría</button>}<button type="submit" disabled={guardando}>{obtenerTextoBotonCategoria(guardando, idCategoria)}</button></div>
